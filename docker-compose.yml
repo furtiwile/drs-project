@@ -3,6 +3,7 @@ services:
     build: ./flight-management-ui
     ports:
       - "80:80"
+    restart: unless-stopped
     depends_on:
       - server
 
@@ -10,9 +11,10 @@ services:
     build: ./server
     ports:
       - "5000:5000"
+    restart: unless-stopped
     environment:
-      - DB1_URL=mongodb://db1:27017/
-      - CACHE_URL=redis://cache:6379/
+      - DB1_URL=${DB1_URL}
+      - CACHE_URL=${CACHE_URL}
     depends_on:
       - db1
       - cache
@@ -21,31 +23,45 @@ services:
     build: ./flight-service
     ports:
       - "5001:5000"
+    restart: unless-stopped
     environment:
-      - DB2_URL=mongodb://db2:27017/
-      - CACHE_URL=redis://cache:6379/
+      - DB2_URL=${DB2_URL}
+      - CACHE_URL=${CACHE_URL}
     depends_on:
       - db2
       - cache
 
   db1:
-    image: mongo:8.2.2
+    image: postgres:18.1
     ports:
-      - "27017:27017"
+      - "27017:5432"
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB1}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
-      - db1data:/data/db
+      - db1data:/var/lib/postgresql
 
   db2:
-    image: mongo:8.2.2
+    image: postgres:18.1
     ports:
-      - "27018:27017"
+      - "27018:5432"
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB2}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
-      - db2data:/data/db
-
+      - db2data:/var/lib/postgresql
+  
   cache:
     image: redis:8.4
     ports:
       - "6379:6379"
+    restart: unless-stopped
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
 
 volumes:
   db1data:
