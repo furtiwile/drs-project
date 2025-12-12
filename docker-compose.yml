@@ -62,7 +62,10 @@ services:
     restart: unless-stopped
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - redisdata:/data
 
 volumes:
   db1data:
   db2data:
+  redisdata:
