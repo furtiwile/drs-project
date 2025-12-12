@@ -1,0 +1,52 @@
+services:
+  frontend:
+    build: ./flight-management-ui
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+
+  server:
+    build: ./server
+    ports:
+      - "5000:5000"
+    environment:
+      - DB1_URL=mongodb://db1:27017/
+      - CACHE_URL=redis://cache:6379/
+    depends_on:
+      - db1
+      - cache
+
+  flight-service:
+    build: ./flight-service
+    ports:
+      - "5001:5000"
+    environment:
+      - DB2_URL=mongodb://db2:27017/
+      - CACHE_URL=redis://cache:6379/
+    depends_on:
+      - db2
+      - cache
+
+  db1:
+    image: mongo:8.2.2
+    ports:
+      - "27017:27017"
+    volumes:
+      - db1data:/data/db
+
+  db2:
+    image: mongo:8.2.2
+    ports:
+      - "27018:27017"
+    volumes:
+      - db2data:/data/db
+
+  cache:
+    image: redis:8.4
+    ports:
+      - "6379:6379"
+
+volumes:
+  db1data:
+  db2data:
