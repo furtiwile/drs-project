@@ -16,7 +16,7 @@ services:
       - DB1_URL=${DB1_URL}
       - CACHE_URL=${CACHE_URL}
     depends_on:
-      - db1
+      - users_db
       - cache
 
   flight-service:
@@ -28,10 +28,10 @@ services:
       - DB2_URL=${DB2_URL}
       - CACHE_URL=${CACHE_URL}
     depends_on:
-      - db2
+      - flights_db
       - cache
 
-  db1:
+  users_db:
     image: postgres:18.1
     ports:
       - "27017:5432"
@@ -41,9 +41,10 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
-      - db1data:/var/lib/postgresql
+      - users_db_data:/var/lib/postgresql
+      - ./init-docker-scripts/users_db:/docker-entrypoint-initdb.d
 
-  db2:
+  flights_db:
     image: postgres:18.1
     ports:
       - "27018:5432"
@@ -53,7 +54,8 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
-      - db2data:/var/lib/postgresql
+      - flights_db_data:/var/lib/postgresql
+      - ./init-docker-scripts/flights_db:/docker-entrypoint-initdb.d
   
   cache:
     image: redis:8.4
@@ -66,6 +68,6 @@ services:
       - redisdata:/data
 
 volumes:
-  db1data:
-  db2data:
+  users_db_data:
+  flights_db_data:
   redisdata:
