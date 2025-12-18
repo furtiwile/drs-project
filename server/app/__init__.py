@@ -1,5 +1,5 @@
-from flask import Flask, jsonify
-from app.database import engine, Base, get_db
+from flask import Flask
+from app.database import engine, Base
 from app.domain.models.User import User
 
 def create_app():

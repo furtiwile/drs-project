@@ -8,7 +8,7 @@ from contextlib import contextmanager
 
 load_dotenv()
 
-DB_1_URL = os.getenv('DB_1_URL')
+DB_1_URL = os.getenv('DB1_URL')
 
 if DB_1_URL:
     DATABASE_URL = DB_1_URL
