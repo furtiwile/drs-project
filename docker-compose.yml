@@ -1,6 +1,7 @@
 services:
   frontend:
     build: ./flight-management-ui
+    container_name: flight-management-ui
     ports:
       - "80:80"
     restart: unless-stopped
@@ -9,8 +10,9 @@ services:
 
   server:
     build: ./server
+    container_name: server
     ports:
-      - "5000:5000"
+      - "6000:5000"
     restart: unless-stopped
     environment:
       - DB1_URL=${DB1_URL}
@@ -21,8 +23,9 @@ services:
 
   flight-service:
     build: ./flight-service
+    container_name: flight-service
     ports:
-      - "5001:5000"
+      - "6001:5000"
     restart: unless-stopped
     environment:
       - DB2_URL=${DB2_URL}
@@ -33,8 +36,9 @@ services:
 
   users_db:
     image: postgres:18.1
+    container_name: users_db
     ports:
-      - "27017:5432"
+      - "7000:5432"
     restart: unless-stopped
     environment:
       - POSTGRES_DB=${POSTGRES_DB1}
@@ -46,8 +50,9 @@ services:
 
   flights_db:
     image: postgres:18.1
+    container_name: flights_db
     ports:
-      - "27018:5432"
+      - "7001:5432"
     restart: unless-stopped
     environment:
       - POSTGRES_DB=${POSTGRES_DB2}
@@ -59,8 +64,9 @@ services:
   
   cache:
     image: redis:8.4
+    container_name: cache
     ports:
-      - "6379:6379"
+      - "7002:6379"
     restart: unless-stopped
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
