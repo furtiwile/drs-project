@@ -1,0 +1,9 @@
+from enum import Enum
+
+class ErrorType(Enum):
+    BAD_REQUEST = "BAD_REQUEST"
+    UNAUTHORIZED = "UNAUTHORIZED"
+    FORBIDDEN = "FORBIDDEN"
+    CONFLICT = "CONFLICT"
+    NOT_FOUND = "NOT_FOUND"
+    INTERNAL_ERR = "INTERNAL_ERR"

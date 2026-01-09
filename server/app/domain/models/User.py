@@ -1,6 +1,6 @@
+from datetime import date
 from sqlalchemy import Integer, String, Float, Date, Enum, Text
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
 from app.database import Base
 from app.domain.enums.Gender import Gender
 from app.domain.enums.Role import Role
@@ -13,7 +13,7 @@ class User(Base):
     last_name: Mapped[str] = mapped_column(String(50), nullable=False)
     email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
-    birth_date: Mapped[str] = mapped_column(Date, nullable=False)
+    birth_date: Mapped[date] = mapped_column(Date, nullable=False)
     gender: Mapped[Gender] = mapped_column(Enum(Gender), nullable=False, default=Gender.OTHER)
     country: Mapped[str] = mapped_column(String(50), nullable=False)
     city: Mapped[str] = mapped_column(String(50), nullable=False)

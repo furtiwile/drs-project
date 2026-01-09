@@ -1,0 +1,18 @@
+from app.domain.enums.ErrorType import ErrorType
+
+def error_type_to_http(err_type: ErrorType)-> int:
+    match err_type:
+        case ErrorType.BAD_REQUEST:
+            return 400
+        case ErrorType.UNAUTHORIZED:
+            return 401
+        case ErrorType.FORBIDDEN:
+            return 403
+        case ErrorType.CONFLICT:
+            return 409
+        case ErrorType.NOT_FOUND:
+            return 404
+        case ErrorType.INTERNAL_ERR:
+            return 500
+        case _:
+            return 500

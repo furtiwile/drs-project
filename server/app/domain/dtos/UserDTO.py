@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import date
 from app.domain.enums.Gender import Gender
 from app.domain.enums.Role import Role
+from app.domain.models.User import User
 
 @dataclass
 class UserDTO:
@@ -17,10 +18,10 @@ class UserDTO:
     house_number: int
     account_balance: float
     role: Role
-    profile_picture
+    profile_picture: str
 
     @classmethod
-    def from_model(cls, user):
+    def from_model(cls, user: User):
         return cls(
             user_id=user.user_id,
             first_name=user.first_name,
@@ -37,7 +38,7 @@ class UserDTO:
             profile_picture=user.profile_picture
         )
 
-    @classmethod
+    @staticmethod
     def to_dict(self) -> dict:
         return {
             'user_id': self.user_id,
