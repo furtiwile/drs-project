@@ -1,4 +1,5 @@
--- Seed data for Database 2
+-- Initial data for Database 2
+
 -- Insert sample airports
 INSERT INTO airports (name, code) VALUES
     ('Belgrade Nikola Tesla Airport', 'BEG'),
@@ -29,4 +30,4 @@ VALUES
 INSERT INTO bookings (user_id, flight_id, purchased_at, rating)
 VALUES
     (2, 1, '2025-12-18 09:00:00', 4),
-    (2, 2, '2025-12-19 11:00:00', NULL); -- No rating yet
+    (2, 2, '2025-12-19 11:00:00', 3);

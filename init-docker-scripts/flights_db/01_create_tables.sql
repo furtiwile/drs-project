@@ -1,5 +1,5 @@
 -- Database 2: Flight Management Database
--- Create custom types
+-- Custom types
 CREATE TYPE flight_status AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'COMPLETED');
 
 -- Airports table
@@ -43,7 +43,7 @@ CREATE TABLE bookings (
     user_id INTEGER NOT NULL, -- Reference to user id from users_db
     flight_id INTEGER REFERENCES flights(flight_id) ON DELETE CASCADE,
     purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    rating SMALLINT CHECK (rating >= 1 AND rating <= 5)
+    rating SMALLINT CHECK (rating >= 1 AND rating <= 5) NOT NULL
 );
 
 -- Indexes
