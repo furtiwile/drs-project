@@ -13,6 +13,12 @@ class UserRepository(IUserRepository):
     def get_by_email(self, email: str, db: Session)-> User | None:
         return db.query(User).filter(User.email == email).first()
     
+    def create(self, user: User, db: Session)-> User:
+        db.add(user)
+        db.flush()
+        db.refresh(user)
+        return user
+
     def update_user_role(self, user: User, user_role: Role, db: Session)-> None:
         user.role = user_role
         db.flush()

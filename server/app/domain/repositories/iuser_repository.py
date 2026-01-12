@@ -17,6 +17,10 @@ class IUserRepository:
         pass
     
     @abstractmethod
+    def create(self, user: User)-> User:
+        pass
+
+    @abstractmethod
     def update_user_role(self, user: User, user_role: Role, db: Session)-> None:
         pass
 

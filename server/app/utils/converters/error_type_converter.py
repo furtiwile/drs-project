@@ -8,10 +8,10 @@ def error_type_to_http(err_type: ErrorType)-> int:
             return 401
         case ErrorType.FORBIDDEN:
             return 403
-        case ErrorType.CONFLICT:
-            return 409
         case ErrorType.NOT_FOUND:
             return 404
+        case ErrorType.CONFLICT:
+            return 409
         case ErrorType.INTERNAL_ERR:
             return 500
         case _:

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import date
 from app.domain.enums.Gender import Gender
 from app.domain.enums.Role import Role
@@ -38,23 +38,10 @@ class UserDTO:
             profile_picture=user.profile_picture
         )
 
-    @staticmethod
     def to_dict(self) -> dict:
         return {
-            'user_id': self.user_id,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-            'user_id': self.user_id,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-            'email': self.email,
-            'birth_date': self.birth_date.isoformat(),
-            'gender': self.gender.value,
-            'country': self.country,
-            'city': self.city,
-            'street': self.street,
-            'house_number': self.house_number,
-            'account_balance': self.account_balance,
-            'role': self.role.value,
-            'profile_picture': self.profile_picture
+            **asdict(self),
+            "birth_date": self.birth_date.isoformat(),
+            "gender": self.gender.value,
+            "role": self.role.value,
         }

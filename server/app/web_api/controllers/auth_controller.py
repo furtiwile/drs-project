@@ -1,0 +1,55 @@
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import create_access_token
+from app.domain.dtos.auth.register_user_dto import RegisterUserDTO
+from app.domain.dtos.user.user_dto import UserDTO
+from app.domain.models.User import User
+from app.domain.dtos.auth.login_user_dto import LoginUserDTO
+from app.services.auth_service import IAuthService
+from app.utils.converters.error_type_converter import error_type_to_http
+
+
+class AuthController:
+    def __init__(self, auth_service: IAuthService):
+        self.auth_service = auth_service
+        self._auth_blueprint = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
+        self._register_routes()
+
+    def _register_routes(self):
+        self._auth_blueprint.add_url_rule('/login', view_func=self.login, methods=['POST'])
+        self._auth_blueprint.add_url_rule('/register', view_func=self.register, methods=['POST'])
+
+    def login(self):
+        data = request.get_json()
+        login_dto = LoginUserDTO.from_dict(data)
+
+        result = self.auth_service.login(login_dto)
+        if(result.success):
+            user: User = result.data
+            token = create_access_token(identity=str(user.user_id), additional_claims={"role": user.role.value})
+            
+            return jsonify({
+                "token": token,
+                "user": UserDTO.from_model(user).to_dict()
+            }), 200
+        else:
+            return jsonify(message=result.message), error_type_to_http(result.status_code)
+
+    def register(self):
+        data = request.get_json()
+        register_dto = RegisterUserDTO.from_dict(data)
+
+        result = self.auth_service.register(register_dto)
+        if(result.success):
+            user: User = result.data
+            token = create_access_token(identity=str(user.user_id), additional_claims={"role": user.role.value})
+            
+            return jsonify({
+                "token": token,
+                "user": UserDTO.from_model(user).to_dict()
+            }), 201
+        else:
+            return jsonify(message=result.message), error_type_to_http(result.status_code)
+
+    @property
+    def blueprint(self):
+        return self._auth_blueprint
