@@ -1,6 +1,6 @@
 from sqlalchemy import Enum
 
 # Enums
-UserRole = Enum('USER', 'MANAGER', 'ADMINISTRATOR', name='user_role')
-GenderType = Enum('M', 'F', 'OTHER', name='gender_type')
+Role = Enum('USER', 'MANAGER', 'ADMINISTRATOR', name='role')
+Gender = Enum('MALE', 'FEMALE', 'OTHER', name='gender')
 FlightStatus = Enum('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'COMPLETED', name='flight_status')

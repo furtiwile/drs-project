@@ -15,6 +15,10 @@ class SqlAlchemyAirportRepository(IAirportRepository):
         airport = Airport.query.get(airport_id)
         return airport if airport else None
 
+    def get_airport_by_code(self, airport_code: str) -> Optional[Airport]:
+        airport = Airport.query.filter_by(code=airport_code).first()
+        return airport
+
     def get_all_airports(self, page: int = 1, per_page: int = 10) -> Dict:
         query = Airport.query
         total = query.count()
