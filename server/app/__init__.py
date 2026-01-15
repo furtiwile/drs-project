@@ -16,7 +16,7 @@ load_dotenv()
 def create_app():
     app = Flask(__name__)
 
-    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+    CORS(app, resources={r"/api/*": { "origins": os.getenv("CORS_ORIGINS").split(',') }}, supports_credentials=True)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = str(engine.url)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
