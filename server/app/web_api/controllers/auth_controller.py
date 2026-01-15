@@ -4,9 +4,10 @@ from app.domain.dtos.auth.register_user_dto import RegisterUserDTO
 from app.domain.dtos.user.user_dto import UserDTO
 from app.domain.models.User import User
 from app.domain.dtos.auth.login_user_dto import LoginUserDTO
+from app.middlewares.json.json_middleware import require_json
 from app.services.auth_service import IAuthService
 from app.utils.converters.error_type_converter import error_type_to_http
-
+from app.web_api.validators.auth_validators import validate_login, validate_registration
 
 class AuthController:
     def __init__(self, auth_service: IAuthService):
@@ -18,9 +19,13 @@ class AuthController:
         self._auth_blueprint.add_url_rule('/login', view_func=self.login, methods=['POST'])
         self._auth_blueprint.add_url_rule('/register', view_func=self.register, methods=['POST'])
 
+    @require_json
     def login(self):
         data = request.get_json()
         login_dto = LoginUserDTO.from_dict(data)
+
+        if not (valid_data := validate_login(login_dto)):
+            return jsonify(message=valid_data.message), 400
 
         result = self.auth_service.login(login_dto)
         if(result.success):
@@ -34,9 +39,13 @@ class AuthController:
         else:
             return jsonify(message=result.message), error_type_to_http(result.status_code)
 
+    @require_json
     def register(self):
         data = request.get_json()
         register_dto = RegisterUserDTO.from_dict(data)
+
+        if not (valid_data := validate_registration(register_dto)):
+            return jsonify(message=valid_data.message), 400
 
         result = self.auth_service.register(register_dto)
         if(result.success):

@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 from app.database import engine, Base
 from app.repositories.user_repository import UserRepository
 from app.services.auth_service import AuthService
@@ -14,6 +15,8 @@ load_dotenv()
 
 def create_app():
     app = Flask(__name__)
+
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = str(engine.url)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

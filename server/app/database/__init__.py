@@ -8,23 +8,12 @@ from contextlib import contextmanager
 
 load_dotenv()
 
-DB_1_URL = os.getenv('DB1_URL')
+DB_URL = os.getenv('DB1_URL')
 
-if DB_1_URL:
-    DATABASE_URL = DB_1_URL
-else:
-    DB_USER = os.getenv('DB_USER')
-    DB_PASSWORD = os.getenv('DB_PASSWORD')
-    DB_HOST = os.getenv('DB_HOST')
-    DB_PORT = os.getenv('DB_PORT')
-    DB_NAME = os.getenv('DB_NAME')
+if not DB_URL:
+    raise ValueError("Missing required database environment variables.")
 
-    if not all([DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME]):
-        raise ValueError("Missing required database environment variables.")
-
-    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DB_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=False)
 

@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.domain.models.User import User
 from app.domain.enums.Role import Role
 from app.domain.repositories.iuser_repository import IUserRepository
+from app.services.user_service import UpdateUserDTO
 
 class UserRepository(IUserRepository):
     def get_all(self, db: Session)-> list[User]:
@@ -19,10 +20,5 @@ class UserRepository(IUserRepository):
         db.refresh(user)
         return user
 
-    def update_user_role(self, user: User, user_role: Role, db: Session)-> None:
-        user.role = user_role
-        db.flush()
-
     def delete_user(self, user: User, db: Session)-> None:
         db.delete(user)
-        db.flush()

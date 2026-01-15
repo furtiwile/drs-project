@@ -21,9 +21,5 @@ class IUserRepository:
         pass
 
     @abstractmethod
-    def update_user_role(self, user: User, user_role: Role, db: Session)-> None:
-        pass
-
-    @abstractmethod
     def delete_user(self, user: User, db: Session)-> None:
         pass
