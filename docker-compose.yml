@@ -1,12 +1,13 @@
 services:
   frontend:
-    build: ./flight-management-ui
+    build:
+      context: ./flight-management-ui
+      args:
+        VITE_API_URL: http://localhost:6000
     container_name: flight-management-ui
     ports:
       - "80:80"
     restart: unless-stopped
-    depends_on:
-      - server
 
   server:
     build: ./server
@@ -16,10 +17,12 @@ services:
     restart: unless-stopped
     environment:
       - DB1_URL=${DB1_URL}
-      - CACHE_URL=${CACHE_URL}
+      - REDIS_URL=${REDIS_URL}
     depends_on:
-      - users_db
-      - cache
+      users_db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   flight-service:
     build: ./flight-service
@@ -29,10 +32,12 @@ services:
     restart: unless-stopped
     environment:
       - DB2_URL=${DB2_URL}
-      - CACHE_URL=${CACHE_URL}
+      - REDIS_URL=${REDIS_URL}
     depends_on:
-      - flights_db
-      - cache
+      flights_db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   users_db:
     image: postgres:18.1
@@ -47,6 +52,12 @@ services:
     volumes:
       - users_db_data:/var/lib/postgresql
       - ./init-docker-scripts/users_db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   flights_db:
     image: postgres:18.1
@@ -61,10 +72,16 @@ services:
     volumes:
       - flights_db_data:/var/lib/postgresql
       - ./init-docker-scripts/flights_db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   
-  cache:
+  redis:
     image: redis:8.4
-    container_name: cache
+    container_name: redis
     ports:
       - "7002:6379"
     restart: unless-stopped
@@ -72,6 +89,11 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     volumes:
       - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   users_db_data:
