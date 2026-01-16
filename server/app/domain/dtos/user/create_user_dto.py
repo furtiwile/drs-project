@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import date
+from typing import Optional
 from app.domain.enums.Gender import Gender
 
 @dataclass
@@ -14,7 +15,7 @@ class CreateUserDTO:
     city: str
     street: str
     house_number: int
-    profile_picture: str
+    profile_picture: Optional[str]
 
     @classmethod
     def from_dict(cls, data: dict):

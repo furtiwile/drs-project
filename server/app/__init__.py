@@ -4,12 +4,13 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-from app.database import engine, Base
+from app.database.pgsql import engine, Base
 from app.repositories.user_repository import UserRepository
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 from app.web_api.controllers.auth_controller import AuthController
 from app.web_api.controllers.user_controller import UserController
+from app.database import init_redis
 
 load_dotenv()
 
@@ -24,6 +25,8 @@ def create_app():
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
     app.config["JWT_ALGORITHM"] = "HS256"
+
+    init_redis()
 
     JWTManager(app)
 

@@ -1,8 +1,6 @@
 from sqlalchemy.orm import Session
 from app.domain.models.User import User
-from app.domain.enums.Role import Role
 from app.domain.repositories.iuser_repository import IUserRepository
-from app.services.user_service import UpdateUserDTO
 
 class UserRepository(IUserRepository):
     def get_all(self, db: Session)-> list[User]:

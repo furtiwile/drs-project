@@ -6,6 +6,8 @@ from app.domain.models.User import User
 from app.domain.enums.Role import Role
 from app.domain.enums.ErrorType import ErrorType
 from app.domain.repositories.iuser_repository import IUserRepository
+from app.domain.dtos.user.transaction_dto import TransactionDTO
+from app.domain.dtos.user.update_role_dto import UpdateRoleDTO
 
 class UserService(IUserService):
     def __init__(self, user_repository: IUserRepository):
@@ -44,8 +46,9 @@ class UserService(IUserService):
         except Exception:
             return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to retrieve user with email {email}')
 
-    def update_user_role_by_id(self, user_id: int, user_role: Role)-> Result[None]:
+    def update_user_role_by_id(self, user_id: int, data: UpdateRoleDTO)-> Result[None]:
         try:
+            user_role = Role(data.role)
             with get_db_transaction() as db:
                 user = self.user_repository.get_by_id(user_id, db)
                 if not user:
@@ -57,7 +60,7 @@ class UserService(IUserService):
                 return ok(None)
                 
         except Exception:
-            return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to update role to {user_role} for user with id {user_id}')
+            return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to update role to {data.role} for user with id {user_id}')
 
     def update_user(self, user_id: int, data: UpdateUserDTO)-> Result[User]:
         try:
@@ -94,3 +97,31 @@ class UserService(IUserService):
 
         except Exception:
             return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to delete user with id {user_id}')
+        
+    def deposit(self, user_id: int, data: TransactionDTO) -> Result[None]:
+        try:
+            with get_db_transaction() as db:
+                user = self.user_repository.get_by_id(user_id, db)
+                if not user:
+                    return err(status_code=ErrorType.NOT_FOUND, message=f'User with id {user_id} not found')
+
+                user.account_balance += data.amount
+                return ok(None)
+
+        except Exception:
+            return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to deposit money for user with id {user_id}')
+
+    def withdraw(self, user_id: int, data: TransactionDTO) -> Result[None]:
+        try:
+            with get_db_transaction() as db:
+                    user = self.user_repository.get_by_id(user_id, db)
+                    if not user:
+                        return err(status_code=ErrorType.NOT_FOUND, message=f'User with id {user_id} not found')
+                    if user.account_balance < data.amount:
+                        return err(status_code=ErrorType.BAD_REQUEST, message=f'Insufficient funds')
+
+                    user.account_balance -= data.amount
+                    return ok(None)
+
+        except Exception:
+            return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to withdraw money for user with id {user_id}')
