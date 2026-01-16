@@ -1,43 +1,61 @@
 services:
-  frontend:
-    build:
-      context: ./flight-management-ui
-      args:
-        VITE_API_URL: http://localhost:6000
-    container_name: flight-management-ui
-    ports:
-      - "80:80"
-    restart: unless-stopped
+  # frontend:
+  #   build:
+  #     context: ./flight-management-ui
+  #     args:
+  #       VITE_API_URL: ${VITE_API_URL}
+  #   container_name: flight-management-ui
+  #   ports:
+  #     - "${PUBLIC_FRONTEND_PORT}:80"
+  #   restart: unless-stopped
+  #   networks:
+  #     - frontend
+  #     - backend
 
   server:
     build: ./server
     container_name: server
     ports:
-      - "6000:5000"
+      - "${PUBLIC_SERVER_PORT}:${INTERNAL_SERVER_PORT}"
     restart: unless-stopped
+    env_file:
+      - ./server/.env
+      - .env
     environment:
-      - DB1_URL=${DB1_URL}
-      - REDIS_URL=${REDIS_URL}
+      - DB1_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@users_db:5432/users_db
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis_db:6379
+      - PORT=${INTERNAL_SERVER_PORT}
     depends_on:
       users_db:
         condition: service_healthy
-      redis:
+      redis_db:
         condition: service_healthy
+    networks:
+      - backend
+      - database
 
   flight-service:
     build: ./flight-service
     container_name: flight-service
     ports:
-      - "6001:5000"
+      - "${PUBLIC_FLIGHT_SERVICE_PORT}:${INTERNAL_FLIGHT_SERVICE_PORT}"
     restart: unless-stopped
+    env_file:
+      - ./flight-service/.env
+      - .env
     environment:
-      - DB2_URL=${DB2_URL}
-      - REDIS_URL=${REDIS_URL}
+      - DB2_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@flights_db:5432/flights_db
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis_db:6379
+      - FLIGHT_SERVICE_PORT=${INTERNAL_FLIGHT_SERVICE_PORT}
+      - FLIGHT_SERVICE_HOST=0.0.0.0
     depends_on:
       flights_db:
         condition: service_healthy
-      redis:
+      redis_db:
         condition: service_healthy
+    networks:
+      - backend
+      - database
 
   users_db:
     image: postgres:18.1
@@ -46,7 +64,7 @@ services:
       - "7000:5432"
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=${POSTGRES_DB1}
+      - POSTGRES_DB=users_db
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
@@ -58,6 +76,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - database
 
   flights_db:
     image: postgres:18.1
@@ -78,15 +98,17 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-  
-  redis:
+    networks:
+      - database
+
+  redis_db:
     image: redis:8.4
-    container_name: redis
+    container_name: redis_db
     ports:
       - "7002:6379"
     restart: unless-stopped
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    env_file:
+      - .env
     volumes:
       - redisdata:/data
     healthcheck:
@@ -94,8 +116,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
 
 volumes:
   users_db_data:
   flights_db_data:
   redisdata:
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+  database:
+    driver: bridge
