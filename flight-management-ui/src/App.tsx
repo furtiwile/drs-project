@@ -5,6 +5,7 @@ import { Login } from './presentation/pages/Auth/Login';
 import { Register } from './presentation/pages/Auth/Register';
 import { Home } from './presentation/pages/Home/Home';
 import { Account } from './presentation/pages/Account/Account';
+import { UserManagement } from './presentation/pages/UserManagement/UserManagement';
 import { MainLayout } from './presentation/layouts/MainLayout/MainLayout';
 import './App.css';
 
@@ -33,6 +34,17 @@ function App() {
               <ProtectedRoute>
                 <MainLayout>
                   <Account />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <UserManagement />
                 </MainLayout>
               </ProtectedRoute>
             }

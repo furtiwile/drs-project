@@ -123,16 +123,8 @@
   margin: 0;
 }
 
-.loading,
-.error-message {
+.loading {
   padding: 2rem;
   text-align: center;
   color: #a1a1aa;
-}
-
-.error-message {
-  color: #ef4444;
-  background: #18181b;
-  border: 1px solid #27272a;
-  border-radius: 16px;
 }

@@ -11,13 +11,12 @@ interface UserManagementSectionProps {
 export const UserManagementSection = ({ currentUserId }: UserManagementSectionProps) => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [updatingUserId, setUpdatingUserId] = useState<number | null>(null);
 
   useEffect(() => {
     userService.getAllUsers()
       .then(setUsers)
-      .catch(() => setError("Failed to fetch users."))
+      .catch(() => alert("Failed to fetch users."))
       .finally(() => setLoading(false));
   }, []);
 
@@ -27,26 +26,36 @@ export const UserManagementSection = ({ currentUserId }: UserManagementSectionPr
       await userService.updateUserRole(userId, newRole as Role);
       setUsers(users => users.map(u => u.user_id === userId ? { ...u, role: newRole as Role } : u));
     } catch {
-      setError("Failed to update user role.");
+      alert("Failed to update user role.");
     } finally {
       setUpdatingUserId(null);
     }
   };
 
+  const handleRoleSelectFocus = (userRole: string) => {
+    if (userRole === 'ADMINISTRATOR') {
+      alert('You can not change another administrators. Contact Nikola Kovac or Radoman Dakic');
+    }
+  };
+
   const handleDelete = async (userId: number) => {
+    const userToDelete = users.find(u => u.user_id === userId);
+    if (userToDelete?.role === 'ADMINISTRATOR') {
+      alert('You can not change another administrators. Contact Nikola Kovac or Radoman Dakic');
+      return;
+    }
     setUpdatingUserId(userId);
     try {
       await userService.deleteUser(userId);
       setUsers(users => users.filter(u => u.user_id !== userId));
     } catch {
-      setError("Failed to delete user.");
+      alert("Failed to delete user.");
     } finally {
       setUpdatingUserId(null);
     }
   };
 
   if (loading) return <section className="user-management-section"><div className="loading">Loading users...</div></section>;
-  if (error) return <section className="user-management-section"><div className="error-message">{error}</div></section>;
 
   const filteredUsers = users.filter(u => u.user_id !== currentUserId);
 
@@ -85,11 +94,15 @@ export const UserManagementSection = ({ currentUserId }: UserManagementSectionPr
                     <select
                       value={user.role}
                       onChange={e => handleRoleChange(user.user_id, e.target.value)}
-                      disabled={updatingUserId === user.user_id}
+                      onFocus={() => handleRoleSelectFocus(user.role)}
+                      disabled={updatingUserId === user.user_id || user.role === 'ADMINISTRATOR'}
                     >
-                      {Object.values(Role).map(role => (
+                      {Object.values(Role).filter(role => role !== 'ADMINISTRATOR').map(role => (
                         <option key={role} value={role}>{role}</option>
                       ))}
+                      {user.role === 'ADMINISTRATOR' && (
+                        <option value='ADMINISTRATOR'>ADMINISTRATOR</option>
+                      )}
                     </select>
                   </td>
                   <td>
