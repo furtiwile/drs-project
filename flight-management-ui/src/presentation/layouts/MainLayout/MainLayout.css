@@ -60,6 +60,16 @@
   border-color: #3f3f46;
 }
 
+.all-users-button {
+  display: flex;
+  background: #c084fc;
+  color: #0f0f0f;
+  border-radius: 12px;
+  justify-content: center;
+  align-items: center;
+  padding: auto;
+}
+
 .user-avatar {
   width: 36px;
   height: 36px;
