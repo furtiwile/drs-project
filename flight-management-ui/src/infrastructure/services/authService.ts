@@ -17,6 +17,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    apiClient.post<AuthResponse>("/api/v1/auth/logout");
   }
 
   getToken(): string | null {
