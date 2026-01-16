@@ -1,9 +1,14 @@
+import base64
 from datetime import date
+import io
 import re
 from enum import Enum
+from PIL import Image
 from app.domain.types.validation_result import ValidationResult
 
 EMAIL_REGEX = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
+ALLOWED_IMAGE_MIME_TYPES = {"image/png", "image/jpeg", "image/jpg", "image/gif"}
+MAX_IMAGE_SIZE_BYTES = 1 * 1024 * 1024
 
 def validate_email(email: str, max_length: int | None = None) -> ValidationResult:
     if not email:
@@ -57,4 +62,35 @@ def validate_enum(value: str | int | Enum, enum_type: type[Enum], field_name: st
         value_to_check = value
     if value_to_check not in [e.value for e in enum_type]:
         return ValidationResult.fail(f"Invalid {field_name} provided")
+    return ValidationResult.ok()
+
+def validate_image(img_b64: str, field_name: str, allowed_mime_types: set[str] | None = None, max_size_bytes: int | None = None) -> ValidationResult:
+    if not img_b64:
+        return ValidationResult.fail(f"{field_name} is required")
+    if img_b64.startswith("data:"):
+        try:
+            _, img_b64 = img_b64.split(",", 1)
+        except ValueError:
+            return ValidationResult.fail(f"{field_name} has an invalid data URI format")
+    
+    try:
+        image_bytes = base64.b64decode(img_b64, validate=True)
+    except Exception:
+        return ValidationResult.fail(f"{field_name} is not valid Base64")
+    
+    max_size_bytes = max_size_bytes or MAX_IMAGE_SIZE_BYTES
+    
+    if len(image_bytes) > max_size_bytes:
+        return ValidationResult.fail(f"{field_name} cannot exceed {max_size_bytes // (1024 * 1024)} MB")
+    try:
+        img = Image.open(io.BytesIO(image_bytes))
+        img.verify()
+    except Exception:
+        return ValidationResult.fail(f"{field_name} is not a valid image")
+
+    if allowed_mime_types:
+        mime_type = Image.MIME.get(img.format)
+        if mime_type not in allowed_mime_types:
+            return ValidationResult.fail(f"{field_name} must be one of: {', '.join(allowed_mime_types)}")
+
     return ValidationResult.ok()

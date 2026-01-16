@@ -8,6 +8,7 @@ from app.middlewares.json.json_middleware import require_json
 from app.services.auth_service import IAuthService
 from app.utils.converters.error_type_converter import error_type_to_http
 from app.web_api.validators.auth_validators import validate_login, validate_registration
+from app.middlewares.authentication.authentication import authenticate
 
 class AuthController:
     def __init__(self, auth_service: IAuthService):
@@ -18,6 +19,7 @@ class AuthController:
     def _register_routes(self):
         self._auth_blueprint.add_url_rule('/login', view_func=self.login, methods=['POST'])
         self._auth_blueprint.add_url_rule('/register', view_func=self.register, methods=['POST'])
+        self._auth_blueprint.add_url_rule('/logout', view_func=self.logout, methods=['POST'])
 
     @require_json
     def login(self):
@@ -58,6 +60,10 @@ class AuthController:
             }), 201
         else:
             return jsonify(message=result.message), error_type_to_http(result.status_code)
+
+    @authenticate
+    def logout(self):
+        return jsonify(None), 204
 
     @property
     def blueprint(self):

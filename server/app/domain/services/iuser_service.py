@@ -1,8 +1,9 @@
 from abc import abstractmethod
 from app.domain.dtos.user.update_user_dto import UpdateUserDTO
-from app.domain.enums.Role import Role
 from app.domain.models.User import User
 from app.domain.types.Result import Result
+from app.domain.dtos.user.transaction_dto import TransactionDTO
+from app.domain.dtos.user.update_role_dto import UpdateRoleDTO
 
 class IUserService:
     @abstractmethod
@@ -14,17 +15,25 @@ class IUserService:
         pass
 
     @abstractmethod
-    def get_user_by_email(self, email: str)-> Result[User]:
+    def get_user_by_email(self, email: str) -> Result[User]:
         pass
 
     @abstractmethod
-    def update_user_role_by_id(self, user_id: int, user_role: Role)-> Result[None]:
+    def update_user_role_by_id(self, user_id: int, data: UpdateRoleDTO) -> Result[None]:
         pass
 
     @abstractmethod
-    def update_user(self, user_id, data: UpdateUserDTO)-> Result[User]:
+    def update_user(self, user_id, data: UpdateUserDTO) -> Result[User]:
         pass
 
     @abstractmethod
-    def delete_user_by_id(self, user_id: int)-> Result[None]:
+    def delete_user_by_id(self, user_id: int) -> Result[None]:
+        pass
+
+    @abstractmethod
+    def deposit(self, user_id: int, data: TransactionDTO) -> Result[None]:
+        pass
+
+    @abstractmethod
+    def withdraw(self, user_id: int, data: TransactionDTO) -> Result[None]:
         pass

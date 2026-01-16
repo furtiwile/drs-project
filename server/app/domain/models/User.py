@@ -1,7 +1,7 @@
 from datetime import date
 from sqlalchemy import Integer, String, Float, Date, Enum, Text
 from sqlalchemy.orm import Mapped, mapped_column
-from app.database import Base
+from app.database.pgsql import Base
 from app.domain.enums.Gender import Gender
 from app.domain.enums.Role import Role
 

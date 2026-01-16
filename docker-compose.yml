@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
     environment:
       - DB1_URL=${DB1_URL}
-      - CACHE_URL=${CACHE_URL}
+      - REDIS_URL=${REDIS_URL}
     depends_on:
       - users_db
       - cache
@@ -29,7 +29,7 @@ services:
     restart: unless-stopped
     environment:
       - DB2_URL=${DB2_URL}
-      - CACHE_URL=${CACHE_URL}
+      - REDIS_URL=${REDIS_URL}
     depends_on:
       - flights_db
       - cache

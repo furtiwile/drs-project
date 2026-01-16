@@ -2,7 +2,7 @@ import re
 from app.domain.enums.Gender import Gender
 from app.domain.types.validation_result import ValidationResult
 from app.services.auth_service import LoginUserDTO, RegisterUserDTO
-from app.web_api.validators.common_validators import validate_date, validate_email, validate_enum, validate_number, validate_password, validate_text
+from app.web_api.validators.common_validators import validate_date, validate_email, validate_enum, validate_image, validate_number, validate_password, validate_text
 
 EMAIL_REGEX = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 
@@ -34,4 +34,6 @@ def validate_registration(data: RegisterUserDTO)-> ValidationResult:
         return valid_street
     if not (valid_house_number := validate_number(data.house_number, "House Number", 1, 99999)):
         return valid_house_number
+    if data.profile_picture is not None and not (valid_pfp := validate_image(data.profile_picture, "Profile Picture")):
+        return valid_pfp
     return ValidationResult.ok()
