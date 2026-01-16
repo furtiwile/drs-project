@@ -13,6 +13,10 @@ class IAirportRepository(ABC):
         pass
 
     @abstractmethod
+    def get_airport_by_code(self, airport_code: str) -> Optional[Airport]:
+        pass
+
+    @abstractmethod
     def get_all_airports(self, page: int = 1, per_page: int = 10) -> Dict:
         pass
 
