@@ -34,14 +34,14 @@ export const UserManagementSection = ({ currentUserId }: UserManagementSectionPr
 
   const handleRoleSelectFocus = (userRole: string) => {
     if (userRole === 'ADMINISTRATOR') {
-      alert('You can not change another administrators. Contact Nikola Kovac or Radoman Dakic');
+      alert('You cannot change other administrators.');
     }
   };
 
   const handleDelete = async (userId: number) => {
     const userToDelete = users.find(u => u.user_id === userId);
     if (userToDelete?.role === 'ADMINISTRATOR') {
-      alert('You can not change another administrators. Contact Nikola Kovac or Radoman Dakic');
+      alert('You cannot change other administrators.');
       return;
     }
     setUpdatingUserId(userId);
