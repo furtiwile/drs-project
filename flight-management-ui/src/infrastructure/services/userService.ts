@@ -28,6 +28,10 @@ export class UserService {
   async withdraw(amount: number): Promise<void> {
     await apiClient.patch('/api/v1/users/withdraw', { amount });
   }
+
+  async updateProfilePicture(profilePictureBase64: string): Promise<void> {
+    await apiClient.patch('/api/v1/users/', { profile_picture: profilePictureBase64 });
+  }
 }
 
 export const userService = new UserService();

@@ -4,11 +4,13 @@ import { Input } from '../../shared/Input/Input';
 import { Select } from '../../shared/Select/Select';
 import { Button } from '../../shared/Button/Button';
 import { Gender } from '../../../domain/enums/Gender';
+import { AvatarUploadDialog } from './AvatarUploadDialog';
 import './Account.css';
 
 export const Account = () => {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
@@ -58,12 +60,19 @@ export const Account = () => {
 
       <div className="account-card">
         <div className="account-profile">
-          <div className="profile-avatar-large">
+          <div className="profile-avatar-large clickable" onClick={() => setIsAvatarDialogOpen(true)}>
             {user?.profile_picture ? (
               <img src={user.profile_picture} alt={user.first_name} />
             ) : (
               <span>{user?.first_name[0]}{user?.last_name[0]}</span>
             )}
+            <div className="avatar-overlay">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
           </div>
           <div className="profile-info">
             <h2>{user?.first_name} {user?.last_name}</h2>
@@ -192,6 +201,12 @@ export const Account = () => {
           )}
         </form>
       </div>
+
+      <AvatarUploadDialog
+        isOpen={isAvatarDialogOpen}
+        onClose={() => setIsAvatarDialogOpen(false)}
+        onUploadSuccess={() => setIsAvatarDialogOpen(false)}
+      />
     </div>
   );
 };
