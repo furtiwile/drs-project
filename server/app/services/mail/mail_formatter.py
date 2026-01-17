@@ -1,4 +1,3 @@
-
 class MailFormatter:
     FOOTER = "\n\n---\nThis is a student project. If you received this email by mistake, please disregard it."
 

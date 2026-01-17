@@ -1,12 +1,19 @@
-
 from app.domain.enums.gender import Gender
 from app.domain.enums.role import Role
-from app.domain.types.validation_result import ValidationResult
 from app.domain.dtos.user.update_user_dto import UpdateUserDTO
-from app.web_api.validators.auth.auth_validators import validate_enum
-from app.web_api.validators.common.common_validators import validate_date, validate_email, validate_image, validate_number, validate_password, validate_text
 from app.domain.dtos.user.transaction_dto import TransactionDTO
 from app.domain.dtos.user.update_role_dto import UpdateRoleDTO
+from app.domain.types.validation_result import ValidationResult
+
+from app.web_api.validators.auth.auth_validators import validate_enum
+from app.web_api.validators.common.common_validators import (
+    validate_date, 
+    validate_email, 
+    validate_image, 
+    validate_number, 
+    validate_password, 
+    validate_text
+)
 
 def validate_user_id(user_id: int) -> ValidationResult:
     return validate_number(user_id, "User ID", 1)

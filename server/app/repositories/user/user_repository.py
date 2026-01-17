@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+
 from app.domain.models.user import User
 from app.domain.repositories.user.iuser_repository import IUserRepository
 

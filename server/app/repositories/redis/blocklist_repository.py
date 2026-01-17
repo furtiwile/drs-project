@@ -1,4 +1,5 @@
 import redis
+
 from app.domain.repositories.redis.iblocklist_repository import IBlocklistRepository
 
 class BlocklistRepository(IBlocklistRepository):

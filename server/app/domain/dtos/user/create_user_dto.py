@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import date
 from typing import Optional
+
 from app.domain.enums.gender import Gender
 
 @dataclass

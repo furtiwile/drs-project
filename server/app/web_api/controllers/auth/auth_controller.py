@@ -1,14 +1,19 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token
+
 from app.domain.dtos.auth.register_user_dto import RegisterUserDTO
 from app.domain.dtos.user.user_dto import UserDTO
 from app.domain.models.user import User
 from app.domain.dtos.auth.login_user_dto import LoginUserDTO
+
 from app.middlewares.json.json_middleware import require_json
-from app.services.auth.auth_service import IAuthService
-from app.utils.converters.error_type_converter import error_type_to_http
-from app.web_api.validators.auth.auth_validators import validate_login, validate_registration
 from app.middlewares.authentication.authentication import authenticate
+
+from app.services.auth.auth_service import IAuthService
+
+from app.utils.converters.error_type_converter import error_type_to_http
+
+from app.web_api.validators.auth.auth_validators import validate_login, validate_registration
 
 class AuthController:
     def __init__(self, auth_service: IAuthService):

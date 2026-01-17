@@ -1,5 +1,6 @@
 from dataclasses import asdict, dataclass
 from datetime import date
+
 from app.domain.enums.gender import Gender
 from app.domain.enums.role import Role
 from app.domain.models.user import User

@@ -1,4 +1,5 @@
 import redis
+
 from app.domain.repositories.redis.iblacklist_repository import IBlacklistRepository
 
 class BlacklistRepository(IBlacklistRepository):

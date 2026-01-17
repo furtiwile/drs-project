@@ -1,4 +1,5 @@
 from abc import abstractmethod
+
 from app.domain.dtos.user.update_user_dto import UpdateUserDTO
 from app.domain.models.user import User
 from app.domain.types.result import Result

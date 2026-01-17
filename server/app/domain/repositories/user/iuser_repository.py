@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from sqlalchemy.orm import Session
+
 from app.domain.models.user import User
 from app.domain.enums.role import Role
 

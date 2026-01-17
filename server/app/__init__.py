@@ -1,27 +1,32 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from datetime import timedelta
 import os
+from datetime import timedelta
 from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+
 from app.database.pgsql import engine, Base
+from app.database import get_redis_client, init_redis
+
 from app.repositories.user.user_repository import UserRepository
 from app.repositories.redis.blacklist_repository import BlacklistRepository
 from app.repositories.redis.blocklist_repository import BlocklistRepository
+
 from app.services.auth.auth_service import AuthService
-from app.services.user.user_service import MailService, UserService
+from app.services.mail.mail_service import MailService
+from app.services.user.user_service import UserService
+
 from app.web_api.controllers.auth.auth_controller import AuthController
 from app.web_api.controllers.user.user_controller import UserController
-from app.database import get_redis_client, init_redis
 
 def create_app():
     app = Flask(__name__)
 
     CORS(app, resources={r"/api/*": { "origins": os.getenv("CORS_ORIGINS").split(',') }}, supports_credentials=True)
 
-    app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
+    app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 
     app.config['SQLALCHEMY_DATABASE_URI'] = str(engine.url)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

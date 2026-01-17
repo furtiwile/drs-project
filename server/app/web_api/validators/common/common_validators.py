@@ -1,14 +1,15 @@
 import base64
-from datetime import date
 import io
 import re
+from datetime import date
 from enum import Enum
 from PIL import Image
+
 from app.domain.types.validation_result import ValidationResult
 
 EMAIL_REGEX = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 ALLOWED_IMAGE_MIME_TYPES = {"image/png", "image/jpeg", "image/jpg", "image/gif"}
-MAX_IMAGE_SIZE_BYTES = 1 * 1024 * 1024
+MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024
 
 def validate_email(email: str, max_length: int | None = None) -> ValidationResult:
     if not email:
