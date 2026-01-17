@@ -1,9 +1,16 @@
+import { useState } from 'react';
 import { useAuth } from '../../../application/context/AuthContext';
 import { Role } from '../../../domain/enums/Role';
+import { BalanceDialog } from './BalanceDialog';
 import './Home.css';
 
 export const Home = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
+  const [isBalanceDialogOpen, setIsBalanceDialogOpen] = useState(false);
+
+  const handleTransactionComplete = async () => {
+    await refreshUser();
+  };
 
   return (
     <div className="home-container">
@@ -32,7 +39,7 @@ export const Home = () => {
           </div>
         </div>
 
-        <div className="dashboard-card">
+        <div className="dashboard-card balance-card" onClick={() => setIsBalanceDialogOpen(true)}>
           <div className="card-icon" style={{ background: 'rgba(34, 197, 94, 0.1)' }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2">
               <line x1="12" y1="1" x2="12" y2="23" />
@@ -77,6 +84,13 @@ export const Home = () => {
           <p>This section will display flight bookings, available flights, and management tools based on your role.</p>
         </div>
       </div>
+
+      <BalanceDialog
+        isOpen={isBalanceDialogOpen}
+        currentBalance={user?.account_balance || 0}
+        onClose={() => setIsBalanceDialogOpen(false)}
+        onTransactionComplete={handleTransactionComplete}
+      />
     </div>
   );
 };

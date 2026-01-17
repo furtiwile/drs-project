@@ -3,12 +3,14 @@ import type { User } from '../../domain/models/User';
 import type { LoginDto } from '../../domain/dtos/LoginDto';
 import type { RegisterDto } from '../../domain/dtos/RegisterDto';
 import { authService } from '../../infrastructure/services/authService';
+import { userService } from '../../infrastructure/services/userService';
 
 interface AuthContextType {
   user: User | null;
   login: (credentials: LoginDto) => Promise<void>;
   register: (data: RegisterDto) => Promise<void>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
   loading: boolean;
 }
@@ -46,6 +48,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    if (!user) return;
+    try {
+      const updatedUser = await userService.getUserById(user.user_id);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+    } catch {
+      console.error('Failed to refresh user data');
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -53,6 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         login,
         register,
         logout,
+        refreshUser,
         isAuthenticated: !!user,
         loading
       }}

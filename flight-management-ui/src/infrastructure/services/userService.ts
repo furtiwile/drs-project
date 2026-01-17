@@ -20,6 +20,14 @@ export class UserService {
   async deleteUser(userId: number): Promise<void> {
     await apiClient.delete(`/api/v1/users/${userId}`);
   }
+
+  async deposit(amount: number): Promise<void> {
+    await apiClient.patch('/api/v1/users/deposit', { amount });
+  }
+
+  async withdraw(amount: number): Promise<void> {
+    await apiClient.patch('/api/v1/users/withdraw', { amount });
+  }
 }
 
 export const userService = new UserService();
