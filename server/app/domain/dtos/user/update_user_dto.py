@@ -1,25 +1,25 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Self
 from datetime import date, datetime
 
 from app.domain.enums.gender import Gender
 
 @dataclass
 class UpdateUserDTO:
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    email: Optional[str] = None
-    password: Optional[str] = None
-    birth_date: Optional[date] = None
-    gender: Optional[Gender] = None
-    country: Optional[str] = None
-    city: Optional[str] = None
-    street: Optional[str] = None
-    house_number: Optional[int] = None
-    profile_picture: Optional[str] = None
+    first_name: str | None
+    last_name: str | None
+    email: str | None
+    password: str | None
+    birth_date: date | None
+    gender: Gender | None
+    country: str | None
+    city: str | None
+    street: str | None
+    house_number: int | None
+    profile_picture: str | None
     
     @classmethod
-    def from_dict(cls, data: dict):
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         birth_date = data.get('birth_date')
         if birth_date and isinstance(birth_date, str):
             birth_date = datetime.strptime(birth_date, '%Y-%m-%d').date()

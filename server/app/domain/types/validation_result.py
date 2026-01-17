@@ -5,7 +5,7 @@ class ValidationResult:
     success: bool
     message: str | None = None
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return self.success
 
     @staticmethod

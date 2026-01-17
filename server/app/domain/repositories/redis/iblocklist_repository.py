@@ -2,7 +2,7 @@ from abc import abstractmethod
 
 class IBlocklistRepository:
     @abstractmethod
-    def add_attempt_to_blocklist(self, ip_address: str):
+    def add_attempt_to_blocklist(self, ip_address: str) -> None:
         pass
 
     @abstractmethod
@@ -10,5 +10,5 @@ class IBlocklistRepository:
         pass
 
     @abstractmethod
-    def remove_from_blocklist(self, ip_address: str):
+    def remove_from_blocklist(self, ip_address: str) -> None:
         pass

@@ -21,10 +21,10 @@ from app.services.user.user_service import UserService
 from app.web_api.controllers.auth.auth_controller import AuthController
 from app.web_api.controllers.user.user_controller import UserController
 
-def create_app():
+def create_app() -> Flask:
     app = Flask(__name__)
 
-    CORS(app, resources={r"/api/*": { "origins": os.getenv("CORS_ORIGINS").split(',') }}, supports_credentials=True)
+    CORS(app, resources={r"/api/*": { "origins": os.getenv("CORS_ORIGINS", "").split(',') }}, supports_credentials=True)
 
     app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 
@@ -35,9 +35,9 @@ def create_app():
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
     app.config["JWT_ALGORITHM"] = "HS256"
 
-    init_redis()
-
     JWTManager(app)
+
+    init_redis()
 
     with app.app_context():
         Base.metadata.create_all(bind=engine)
@@ -55,8 +55,5 @@ def create_app():
 
     app.register_blueprint(auth_controller.blueprint)
     app.register_blueprint(user_controller.blueprint)
-    @app.route('/')
-    def index():
-        return 'Server is running!'
 
     return app

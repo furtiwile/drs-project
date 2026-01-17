@@ -1,6 +1,6 @@
 from app.domain.enums.error_type import ErrorType
 
-def error_type_to_http(err_type: ErrorType)-> int:
+def error_type_to_http(err_type: ErrorType) -> int:
     match err_type:
         case ErrorType.BAD_REQUEST:
             return 400

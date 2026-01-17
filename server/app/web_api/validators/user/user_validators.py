@@ -52,7 +52,7 @@ def validate_update_user(user_id: int, data: UpdateUserDTO) -> ValidationResult:
         return valid_pfp
     return ValidationResult.ok()
 
-def validate_transaction(user_id: int, data: TransactionDTO):
+def validate_transaction(user_id: int, data: TransactionDTO) -> ValidationResult:
     if not (valid_id := validate_number(user_id, "User ID", 1)):
         return valid_id
     if not (valid_amount := validate_number(data.amount, "Amount", 1.0, 10000.0)):

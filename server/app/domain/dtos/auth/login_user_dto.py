@@ -1,13 +1,13 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Self
 
 @dataclass
 class LoginUserDTO:
-    email: Optional[str]
-    password: Optional[str]
+    email: str | None
+    password: str | None
 
     @classmethod
-    def from_dict(cls, data: dict) -> "LoginUserDTO":
+    def from_dict(cls, data: dict[str, str | None]) -> Self:
         return cls(
             email=data.get("email"),
             password=data.get('password')

@@ -1,13 +1,17 @@
 import logging
 from functools import wraps
+from typing import Any, Callable, TypeVar, cast
 from flask import g, jsonify
 
-logger = logging.getLogger(__name__)
+from app.domain.enums.role import Role
 
-def authorize(*roles):
-    def authorize_decorator(f):
+logger = logging.getLogger(__name__)
+F = TypeVar("F", bound=Callable[..., Any])
+
+def authorize(*roles: Role) -> Callable[[F], F]:
+    def authorize_decorator(f: F) -> F:
         @wraps(f)
-        def authorize_fn(*args, **kwargs):
+        def authorize_fn(*args: Any, **kwargs: Any) -> Any:
             if not hasattr(g, "user") or g.user is None:
                 logger.warning("User context was not provided")
                 return jsonify({"message": "User context not found"}), 401
@@ -20,6 +24,6 @@ def authorize(*roles):
                 return jsonify({"message": "Forbidden: Insufficient permissions"}), 403
             
             return f(*args, **kwargs)
-        return authorize_fn
+        return cast(F, authorize_fn)
     return authorize_decorator
     

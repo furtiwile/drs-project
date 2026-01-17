@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, g
+from flask.wrappers import Response
 
 from app.domain.services.user.iuser_service import IUserService
 from app.domain.dtos.user.user_dto import UserDTO
@@ -6,6 +7,7 @@ from app.domain.dtos.user.update_user_dto import UpdateUserDTO
 from app.domain.dtos.user.transaction_dto import TransactionDTO
 from app.domain.dtos.user.update_role_dto import UpdateRoleDTO
 from app.domain.enums.role import Role
+from app.domain.types.result import ok
 
 from app.middlewares.authentication.authentication import authenticate
 from app.middlewares.authorization.authorization import authorize
@@ -20,12 +22,12 @@ from app.web_api.validators.user.user_validators import (
 )
 
 class UserController:
-    def __init__(self, user_service: IUserService):
+    def __init__(self, user_service: IUserService) -> None:
         self.user_service = user_service
         self._user_blueprint = Blueprint('user', __name__, url_prefix='/api/v1/users')
         self._register_routes()
 
-    def _register_routes(self):
+    def _register_routes(self) -> None:
         self._user_blueprint.add_url_rule('/', view_func=self.get_all_users, methods=['GET'])
         self._user_blueprint.add_url_rule('/<int:user_id>', view_func=self.get_user_by_id, methods=['GET'])
         self._user_blueprint.add_url_rule('/<int:user_id>', view_func=self.update_user_role_by_id, methods=['PATCH'])
@@ -36,21 +38,21 @@ class UserController:
     
     @authenticate
     @authorize(Role.ADMINISTRATOR)
-    def get_all_users(self):
+    def get_all_users(self) -> tuple[Response, int]:
         result = self.user_service.get_all_users()
-        if(result.success):
+        if isinstance(result, ok):
             return jsonify([UserDTO.from_model(user).to_dict() for user in result.data]), 200
         else:
             return jsonify(message=result.message), error_type_to_http(result.status_code)
 
     @authenticate
     @authorize(Role.ADMINISTRATOR)
-    def get_user_by_id(self, user_id: int):
+    def get_user_by_id(self, user_id: int) -> tuple[Response, int]:
         if not (valid_data := validate_user_id(user_id)):
             return jsonify(message=valid_data.message), 400
 
         result = self.user_service.get_user_by_id(user_id)
-        if(result.success):
+        if isinstance(result, ok):
             return jsonify(UserDTO.from_model(result.data).to_dict()), 200
         else:
             return jsonify(message=result.message), error_type_to_http(result.status_code)
@@ -58,21 +60,21 @@ class UserController:
     @require_json
     @authenticate
     @authorize(Role.ADMINISTRATOR)
-    def update_user_role_by_id(self, user_id: int):
+    def update_user_role_by_id(self, user_id: int) -> tuple[Response, int]:
         data = request.get_json()
         update_role_dto = UpdateRoleDTO.from_dict(data)
         if not (valid_data := validate_update_user_role_by_id(user_id, update_role_dto)):
             return jsonify(message=valid_data.message), 400
 
         result = self.user_service.update_user_role_by_id(user_id, update_role_dto)
-        if(result.success):
+        if isinstance(result, ok):
             return jsonify(None), 204
         else:
             return jsonify(message=result.message), error_type_to_http(result.status_code)
     
     @require_json
     @authenticate
-    def update_user(self):
+    def update_user(self) -> tuple[Response, int]:
         data = request.get_json()
         update_user_dto = UpdateUserDTO.from_dict(data)
         user_id = g.user.user_id
@@ -80,26 +82,26 @@ class UserController:
             return jsonify(message=valid_data.message), 400
 
         result = self.user_service.update_user(user_id, update_user_dto)
-        if(result.success):
+        if isinstance(result, ok):
             return jsonify(UserDTO.from_model(result.data).to_dict()), 200
         else:
             return jsonify(message=result.message), error_type_to_http(result.status_code)
 
     @authenticate
     @authorize(Role.ADMINISTRATOR)
-    def delete_user_by_id(self, user_id: int):
+    def delete_user_by_id(self, user_id: int) -> tuple[Response, int]:
         if not (valid_data := validate_user_id(user_id)):
             return jsonify(message=valid_data.message), 400
         
         result = self.user_service.delete_user_by_id(user_id)
-        if(result.success):
+        if isinstance(result, ok):
             return jsonify(None), 204
         else:
             return jsonify(message=result.message), error_type_to_http(result.status_code)
 
     @require_json
     @authenticate
-    def deposit(self):
+    def deposit(self) -> tuple[Response, int]:
         data = request.get_json()
         transaction_dto = TransactionDTO.from_dict(data)
         user_id = g.user.user_id
@@ -107,14 +109,14 @@ class UserController:
             return jsonify(message=valid_data.message), 400
 
         result = self.user_service.deposit(user_id, transaction_dto)
-        if(result.success):
+        if isinstance(result, ok):
             return jsonify(None), 204
         else:
             return jsonify(message=result.message), error_type_to_http(result.status_code)
 
     @require_json
     @authenticate
-    def withdraw(self):
+    def withdraw(self) -> tuple[Response, int]:
         data = request.get_json()
         transaction_dto = TransactionDTO.from_dict(data)
         user_id = g.user.user_id
@@ -122,11 +124,11 @@ class UserController:
             return jsonify(message=valid_data.message), 400
         
         result = self.user_service.withdraw(user_id, transaction_dto)
-        if(result.success):
+        if isinstance(result, ok):
             return jsonify(None), 204
         else:
             return jsonify(message=result.message), error_type_to_http(result.status_code)
 
     @property
-    def blueprint(self):
+    def blueprint(self) -> Blueprint:
         return self._user_blueprint

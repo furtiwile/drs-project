@@ -21,7 +21,7 @@ from app.services.user.user_service import ErrorType
 logger = logging.getLogger(__name__)
 
 class AuthService(IAuthService):
-    def __init__(self, user_repository: IUserRepository, blacklist_repository: IBlacklistRepository, blocklist_repository: IBlocklistRepository):
+    def __init__(self, user_repository: IUserRepository, blacklist_repository: IBlacklistRepository, blocklist_repository: IBlocklistRepository) -> None:
         self.user_repository = user_repository
         self.blacklist_repository = blacklist_repository
         self.blocklist_repository = blocklist_repository
@@ -33,6 +33,7 @@ class AuthService(IAuthService):
                     logger.warning(f"IP address {ip_address} temporarily blocked due to multiple invalid login attempts")
                     return err(ErrorType.TOO_MANY_REQUESTS, 'Too many requests, try logging in later')
                 
+                assert login_dto.email is not None and login_dto.password is not None
                 user = self.user_repository.get_by_email(login_dto.email, db)
                 if not user or not check_password_hash(user.password, login_dto.password):
                     self.blocklist_repository.add_attempt_to_blocklist(ip_address)
@@ -47,6 +48,7 @@ class AuthService(IAuthService):
     def register(self, register_dto: RegisterUserDTO) -> Result[User]:
         try:
             with get_db_transaction() as db:
+                assert register_dto.email is not None and register_dto.password is not None
                 if self.user_repository.get_by_email(register_dto.email, db):
                     logger.warning("Registration failed - email is already in use")
                     return err(ErrorType.CONFLICT, 'Email already registered')

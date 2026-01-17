@@ -1,11 +1,12 @@
 from dataclasses import dataclass
+from typing import Self
 
 @dataclass
 class TransactionDTO:
-    amount: float
+    amount: float | None
 
     @classmethod
-    def from_dict(cls, data: dict):
+    def from_dict(cls, data: dict[str, float | None]) -> Self:
         return cls(
             amount=data.get('amount')
         )

@@ -1,25 +1,25 @@
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Optional
+from typing import Any, Self
 
 from app.domain.enums.gender import Gender
 
 @dataclass
 class RegisterUserDTO:
-    first_name: Optional[str]
-    last_name: Optional[str]
-    email: Optional[str]
-    password: Optional[str]
-    birth_date: Optional[date]
-    gender: Optional[Gender]
-    country: Optional[str]
-    city: Optional[str]
-    street: Optional[str]
-    house_number: Optional[int]
-    profile_picture: Optional[str]
+    first_name: str | None
+    last_name: str | None
+    email: str | None
+    password: str | None
+    birth_date: date | None
+    gender: Gender | None
+    country: str | None
+    city: str | None
+    street: str | None
+    house_number: int | None
+    profile_picture: str | None
 
     @classmethod
-    def from_dict(cls, data: dict):
+    def from_dict(cls, data: dict[str, Any]) -> Self:
         if isinstance(data.get('birth_date'), str):
             data['birth_date'] = datetime.strptime(data['birth_date'], '%Y-%m-%d').date()
         

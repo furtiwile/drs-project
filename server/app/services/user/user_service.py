@@ -18,7 +18,7 @@ from app.services.mail.mail_formatter import MailFormatter
 logger = logging.getLogger(__name__)
 
 class UserService(IUserService):
-    def __init__(self, user_repository: IUserRepository, mail_service: IMailService):
+    def __init__(self, user_repository: IUserRepository, mail_service: IMailService) -> None:
         self.user_repository = user_repository
         self.mail_service = mail_service
 
@@ -94,7 +94,7 @@ class UserService(IUserService):
 
                 if hasattr(data, "email") and data.email is not None:
                     user_with_email = self.user_repository.get_by_email(data.email, db)
-                    if user_id != user_with_email.user_id:
+                    if user_with_email is not None and user_id != user_with_email.user_id:
                         logger.warning(f"Failed to update user with id {user_id}: email address already exists")
                         return err(status_code=ErrorType.CONFLICT, message=f'Email address already exists')
 
@@ -134,6 +134,7 @@ class UserService(IUserService):
                     logger.warning(f"Failed to deposit money for user with id {user_id}: user not found")
                     return err(status_code=ErrorType.NOT_FOUND, message=f'User with id {user_id} not found')
 
+                assert data.amount is not None
                 user.account_balance += data.amount
                 return ok(None)
 
@@ -148,6 +149,8 @@ class UserService(IUserService):
                     if not user:
                         logger.warning(f"Failed to withdraw money for user with id {user_id}: user not found")
                         return err(status_code=ErrorType.NOT_FOUND, message=f'User with id {user_id} not found')
+                    
+                    assert data.amount is not None
                     if user.account_balance < data.amount:
                         logger.warning(f"Failed to withdraw money for user with id {user_id}: insufficient funds")
                         return err(status_code=ErrorType.BAD_REQUEST, message=f'Insufficient funds')

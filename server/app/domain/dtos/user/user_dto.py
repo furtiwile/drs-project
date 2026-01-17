@@ -1,5 +1,6 @@
 from dataclasses import asdict, dataclass
 from datetime import date
+from typing import Any, Self
 
 from app.domain.enums.gender import Gender
 from app.domain.enums.role import Role
@@ -22,7 +23,7 @@ class UserDTO:
     profile_picture: str
 
     @classmethod
-    def from_model(cls, user: User):
+    def from_model(cls, user: User) -> Self:
         return cls(
             user_id=user.user_id,
             first_name=user.first_name,
@@ -39,7 +40,7 @@ class UserDTO:
             profile_picture=user.profile_picture
         )
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return {
             **asdict(self),
             "birth_date": self.birth_date.isoformat(),

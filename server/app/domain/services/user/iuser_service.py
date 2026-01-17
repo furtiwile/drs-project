@@ -24,7 +24,7 @@ class IUserService:
         pass
 
     @abstractmethod
-    def update_user(self, user_id, data: UpdateUserDTO) -> Result[User]:
+    def update_user(self, user_id: int, data: UpdateUserDTO) -> Result[User]:
         pass
 
     @abstractmethod
