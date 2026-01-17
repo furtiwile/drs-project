@@ -3,7 +3,7 @@ services:
     build:
       context: ./flight-management-ui
       args:
-        VITE_API_URL: ${VITE_API_URL}
+        VITE_API_URL: http://localhost:${PUBLIC_SERVER_PORT}
     container_name: flight-management-ui
     ports:
       - "${PUBLIC_FRONTEND_PORT}:5173"
