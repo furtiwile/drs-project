@@ -1,17 +1,21 @@
 from app.database import get_db, get_db_transaction
 from app.domain.dtos.user.update_user_dto import UpdateUserDTO
-from app.domain.services.iuser_service import IUserService
-from app.domain.types.Result import ok, err, Result
-from app.domain.models.User import User
-from app.domain.enums.Role import Role
-from app.domain.enums.ErrorType import ErrorType
-from app.domain.repositories.iuser_repository import IUserRepository
+from app.domain.services.user.iuser_service import IUserService
+from app.domain.types.result import ok, err, Result
+from app.domain.models.user import User
+from app.domain.enums.role import Role
+from app.domain.enums.error_type import ErrorType
+from app.domain.repositories.user.iuser_repository import IUserRepository
 from app.domain.dtos.user.transaction_dto import TransactionDTO
 from app.domain.dtos.user.update_role_dto import UpdateRoleDTO
+from app.services.mail.mail_service import MailService
+from app.services.mail.mail_formatter import MailFormatter
+from app.domain.services.mail.imail_service import IMailService
 
 class UserService(IUserService):
-    def __init__(self, user_repository: IUserRepository):
+    def __init__(self, user_repository: IUserRepository, mail_service: IMailService):
         self.user_repository = user_repository
+        self.mail_service = mail_service
 
     def get_all_users(self) -> Result[list[User]]:
         try:
@@ -56,10 +60,16 @@ class UserService(IUserService):
                 if user.role == Role.ADMINISTRATOR or user_role == Role.ADMINISTRATOR:
                     return err(status_code=ErrorType.FORBIDDEN, message=f'Not permitted to update the role of the user with id {user_id} to {user_role}')
                 
+                previous_role = user.role
                 user.role = user_role
+                if previous_role == Role.USER and user_role == Role.MANAGER:
+                    self.mail_service.send_async(user.email, MailFormatter.role_promotion_format(user.first_name))
+
                 return ok(None)
                 
-        except Exception:
+        except Exception as e:
+            print(str(e))
+
             return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to update role to {data.role} for user with id {user_id}')
 
     def update_user(self, user_id: int, data: UpdateUserDTO)-> Result[User]:

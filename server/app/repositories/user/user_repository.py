@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.domain.models.User import User
-from app.domain.repositories.iuser_repository import IUserRepository
+from app.domain.models.user import User
+from app.domain.repositories.user.iuser_repository import IUserRepository
 
 class UserRepository(IUserRepository):
     def get_all(self, db: Session)-> list[User]:

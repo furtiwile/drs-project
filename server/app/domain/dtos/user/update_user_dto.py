@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 from datetime import date, datetime
-from app.domain.enums.Gender import Gender
+from app.domain.enums.gender import Gender
 
 @dataclass
 class UpdateUserDTO:

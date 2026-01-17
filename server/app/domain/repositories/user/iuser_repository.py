@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from sqlalchemy.orm import Session
-from app.domain.models.User import User
-from app.domain.enums.Role import Role
+from app.domain.models.user import User
+from app.domain.enums.role import Role
 
 class IUserRepository:
     @abstractmethod

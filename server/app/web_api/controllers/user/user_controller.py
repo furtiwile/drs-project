@@ -1,15 +1,20 @@
 from flask import Blueprint, request, jsonify, g
-from app.domain.services.iuser_service import IUserService
+from app.domain.services.user.iuser_service import IUserService
 from app.domain.dtos.user.user_dto import UserDTO
-from app.domain.enums.Role import Role
+from app.domain.enums.role import Role
 from app.middlewares.authentication.authentication import authenticate
 from app.middlewares.authorization.authorization import authorize
 from app.middlewares.json.json_middleware import require_json
 from app.domain.dtos.user.update_user_dto import UpdateUserDTO
 from app.utils.converters.error_type_converter import error_type_to_http
-from app.web_api.validators.user_validators import validate_transaction, validate_update_user, validate_update_user_role_by_id, validate_user_id
 from app.domain.dtos.user.transaction_dto import TransactionDTO
 from app.domain.dtos.user.update_role_dto import UpdateRoleDTO
+from app.web_api.validators.user.user_validators import (
+    validate_transaction, 
+    validate_update_user, 
+    validate_update_user_role_by_id, 
+    validate_user_id
+)
 
 class UserController:
     def __init__(self, user_service: IUserService):

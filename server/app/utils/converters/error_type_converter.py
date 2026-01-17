@@ -1,4 +1,4 @@
-from app.domain.enums.ErrorType import ErrorType
+from app.domain.enums.error_type import ErrorType
 
 def error_type_to_http(err_type: ErrorType)-> int:
     match err_type:
@@ -12,6 +12,8 @@ def error_type_to_http(err_type: ErrorType)-> int:
             return 404
         case ErrorType.CONFLICT:
             return 409
+        case ErrorType.TOO_MANY_REQUESTS:
+            return 429
         case ErrorType.INTERNAL_ERR:
             return 500
         case _:

@@ -3,10 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
-from dotenv import load_dotenv
 from contextlib import contextmanager
-
-load_dotenv()
 
 DB_URL = os.getenv('DB1_URL')
 

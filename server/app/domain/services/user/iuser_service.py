@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from app.domain.dtos.user.update_user_dto import UpdateUserDTO
-from app.domain.models.User import User
-from app.domain.types.Result import Result
+from app.domain.models.user import User
+from app.domain.types.result import Result
 from app.domain.dtos.user.transaction_dto import TransactionDTO
 from app.domain.dtos.user.update_role_dto import UpdateRoleDTO
 

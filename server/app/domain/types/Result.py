@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Generic, TypeVar, Union
-from app.domain.enums.ErrorType import ErrorType
+from app.domain.enums.error_type import ErrorType
 
 T = TypeVar("T")
 

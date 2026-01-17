@@ -1,8 +1,8 @@
 import re
-from app.domain.enums.Gender import Gender
+from app.domain.enums.gender import Gender
 from app.domain.types.validation_result import ValidationResult
-from app.services.auth_service import LoginUserDTO, RegisterUserDTO
-from app.web_api.validators.common_validators import validate_date, validate_email, validate_enum, validate_image, validate_number, validate_password, validate_text
+from app.services.auth.auth_service import LoginUserDTO, RegisterUserDTO
+from app.web_api.validators.common.common_validators import validate_date, validate_email, validate_enum, validate_image, validate_number, validate_password, validate_text
 
 EMAIL_REGEX = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 

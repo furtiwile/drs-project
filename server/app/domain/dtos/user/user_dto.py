@@ -1,8 +1,8 @@
 from dataclasses import asdict, dataclass
 from datetime import date
-from app.domain.enums.Gender import Gender
-from app.domain.enums.Role import Role
-from app.domain.models.User import User
+from app.domain.enums.gender import Gender
+from app.domain.enums.role import Role
+from app.domain.models.user import User
 
 @dataclass
 class UserDTO:
