@@ -10,7 +10,7 @@ interface AvatarUploadDialogProps {
 }
 
 export const AvatarUploadDialog = ({ isOpen, onClose, onUploadSuccess }: AvatarUploadDialogProps) => {
-  const { user, refreshUser } = useAuth();
+  const { refreshUser } = useAuth();
   const [preview, setPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);

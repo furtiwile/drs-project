@@ -17,6 +17,10 @@ export class UserService {
     await apiClient.patch(`/api/v1/users/${userId}`, { role });
   }
 
+  async updateProfile(formData: any): Promise<void> {
+    await apiClient.patch('/api/v1/users/', formData);
+  }
+
   async deleteUser(userId: number): Promise<void> {
     await apiClient.delete(`/api/v1/users/${userId}`);
   }

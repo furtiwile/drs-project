@@ -6,9 +6,10 @@ import { Button } from '../../shared/Button/Button';
 import { Gender } from '../../../domain/enums/Gender';
 import { AvatarUploadDialog } from './AvatarUploadDialog';
 import './Account.css';
+import { userService } from '../../../infrastructure/services/userService';
 
 export const Account = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,6 +34,12 @@ export const Account = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      await userService.updateProfile(formData);
+      await refreshUser();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
     setIsEditing(false);
   };
 
