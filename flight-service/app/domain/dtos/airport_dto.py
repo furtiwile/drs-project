@@ -1,14 +1,21 @@
 from marshmallow import Schema, fields, validate
+from dataclasses import dataclass
+from typing import Optional
 
+@dataclass
+class AirportCreateDTO:
+    """Data transfer object for validated airport creation data."""
+    name: str
+    code: str
 
-class AirportCreateDTO(Schema):
-    """DTO for creating a new airport"""
-    name = fields.Str(required=True, validate=validate.Length(min=3, max=255))
-    code = fields.Str(required=True, validate=validate.Length(min=3, max=10))
+@dataclass
+class AirportUpdateDTO:
+    """Data transfer object for airport update data with optional fields."""
+    name: Optional[str] = None
+    code: Optional[str] = None
 
-
-class AirportUpdateDTO(Schema):
-    """DTO for updating airport information"""
+class AirportUpdateSchema(Schema):
+    """Schema for updating airport information"""
     name = fields.Str(required=False, validate=validate.Length(min=3, max=255))
     code = fields.Str(required=False, validate=validate.Length(min=3, max=10))
 

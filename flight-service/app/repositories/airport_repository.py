@@ -1,7 +1,7 @@
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, TypedDict
 from ..domain.models.flights import Airport
 from .. import db
-from .interfaces import IAirportRepository
+from app.domain.interfaces.repositories.iairport_repository import IAirportRepository, AirportPaginationResult
 
 
 class SqlAlchemyAirportRepository(IAirportRepository):
@@ -19,11 +19,11 @@ class SqlAlchemyAirportRepository(IAirportRepository):
         airport = Airport.query.filter_by(code=airport_code).first()
         return airport
 
-    def get_all_airports(self, page: int = 1, per_page: int = 10) -> Dict:
+    def get_all_airports(self, page: int = 1, per_page: int = 10) -> AirportPaginationResult:
         query = Airport.query
         total = query.count()
         orms = query.offset((page - 1) * per_page).limit(per_page).all()
-        airports = [orm for orm in orms]
+        airports: List[Airport] = orms
         pages = (total + per_page - 1) // per_page
         return {
             'airports': airports,
