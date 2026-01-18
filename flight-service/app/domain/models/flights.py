@@ -8,10 +8,15 @@ from .enums import FlightStatus
 class Airport(db.Model):
     __tablename__ = 'airports'
 
-    id: Mapped[int] = db.Column(db.Integer, primary_key=True)
+    id: Mapped[int] = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = db.Column(db.String(255), nullable=False)
     code: Mapped[str] = db.Column(db.String(10), unique=True, nullable=False)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    def __init__(self, name: str, code: str, **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
+        self.code = code
 
 class Airline(db.Model):
     __tablename__ = 'airlines'
@@ -19,6 +24,10 @@ class Airline(db.Model):
     id: Mapped[int] = db.Column(db.Integer, primary_key=True)
     name: Mapped[str] = db.Column(db.String(255), unique=True, nullable=False)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    def __init__(self, name: str, **kwargs):
+        super().__init__(**kwargs)
+        self.name = name
 
 class Flight(db.Model):
     __tablename__ = 'flights'
@@ -39,6 +48,26 @@ class Flight(db.Model):
     rejection_reason: Mapped[Optional[str]] = db.Column(db.Text)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at: Mapped[datetime] = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+
+    def __init__(self, flight_name: str, airline_id: int, flight_distance_km: int, 
+                 flight_duration: int, departure_time: datetime, departure_airport_id: int, 
+                 arrival_airport_id: int, price: float, total_seats: int, 
+                 available_seats: Optional[int] = None, status: str = 'PENDING', 
+                 rejection_reason: Optional[str] = None, created_by: int = 1, **kwargs):
+        super().__init__(**kwargs)
+        self.flight_name = flight_name
+        self.airline_id = airline_id
+        self.flight_distance_km = flight_distance_km
+        self.flight_duration = timedelta(minutes=flight_duration)  # Convert minutes to timedelta
+        self.departure_time = departure_time
+        self.arrival_time = departure_time + self.flight_duration  # Calculate arrival time
+        self.departure_airport_id = departure_airport_id
+        self.arrival_airport_id = arrival_airport_id
+        self.price = price
+        self.total_seats = total_seats
+        self.status = status
+        self.rejection_reason = rejection_reason
+        self.created_by = created_by
 
     # Relationships
     airline = db.relationship('Airline', backref='flights')

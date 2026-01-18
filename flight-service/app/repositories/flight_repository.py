@@ -1,8 +1,8 @@
-from typing import List, Optional, Dict
+from typing import Optional, Dict, Any
 from sqlalchemy import func
 from ..domain.models.flights import Booking, Flight
 from .. import db
-from .interfaces import IFlightRepository
+from app.domain.interfaces.repositories.iflight_repository import IFlightRepository, FlightPaginationResult
 
 
 class SqlAlchemyFlightRepository(IFlightRepository):
@@ -11,6 +11,7 @@ class SqlAlchemyFlightRepository(IFlightRepository):
         db.session.commit()
         db.session.refresh(flight)
         return flight
+    
     def get_flight_by_id(self, flight_id: int) -> Optional[Flight]:
         flight = Flight.query.options(
             db.joinedload(Flight.airline),
@@ -19,7 +20,7 @@ class SqlAlchemyFlightRepository(IFlightRepository):
         ).get(flight_id)
         return flight
 
-    def get_all_flights(self, page: int = 1, per_page: int = 10, filters: Optional[Dict] = None) -> Dict:
+    def get_all_flights(self, page: int = 1, per_page: int = 10, filters: Optional[Dict] = None) -> FlightPaginationResult:
         query = Flight.query.options(
             db.joinedload(Flight.airline),
             db.joinedload(Flight.departure_airport),
@@ -49,6 +50,7 @@ class SqlAlchemyFlightRepository(IFlightRepository):
 
             if filters.get('max_price'):
                 query = query.filter(Flight.price <= filters['max_price'])
+
             if filters.get('departure_date'):
                 departure_date = filters['departure_date']
                 query = query.filter(
@@ -79,6 +81,17 @@ class SqlAlchemyFlightRepository(IFlightRepository):
         flight.updated_at = db.func.current_timestamp()
         db.session.commit()
         return True
+
+    def update_flight_details(self, flight_id: int, data: Dict[str, Any]) -> Optional[Flight]:
+        flight = Flight.query.get(flight_id)
+        if not flight:
+            return None
+        for key, value in data.items():
+            if hasattr(flight, key):
+                setattr(flight, key, value)
+        flight.updated_at = db.func.current_timestamp()
+        db.session.commit()
+        return flight
 
     def get_available_seats(self, flight_id: int) -> int:
         flight = Flight.query.get(flight_id)

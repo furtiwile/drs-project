@@ -1,9 +1,41 @@
+from typing import Optional
 from marshmallow import Schema, fields, validate, validates, ValidationError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from dataclasses import dataclass
+from decimal import Decimal
 
 
-class FlightCreateDTO(Schema):
-    """DTO for creating a new flight"""
+@dataclass
+class FlightCreateDTO:
+    """Data transfer object for validated flight creation data."""
+    flight_name: str
+    airline_id: int
+    flight_distance_km: int
+    flight_duration: int
+    departure_time: datetime
+    departure_airport_id: int
+    arrival_airport_id: int
+    price: Decimal
+    total_seats: int
+
+
+@dataclass
+class FlightUpdateDTO:
+    """Data transfer object for validated flight update data."""
+    flight_name: Optional[str] = None
+    airline_id: Optional[int] = None
+    flight_distance_km: Optional[int] = None
+    flight_duration: Optional[int] = None
+    departure_time: Optional[datetime] = None
+    departure_airport_id: Optional[int] = None
+    arrival_airport_id: Optional[int] = None
+    price: Optional[Decimal] = None
+    total_seats: Optional[int] = None
+    rejection_reason: Optional[str] = None
+
+
+class FlightCreateValidationSchema(Schema):
+    """Validation schema for flight creation data"""
     flight_name = fields.Str(required=True, validate=validate.Length(min=3, max=255))
     airline_id = fields.Int(required=True, validate=validate.Range(min=1))
     flight_distance_km = fields.Int(required=True, validate=validate.Range(min=1))
@@ -16,18 +48,12 @@ class FlightCreateDTO(Schema):
 
     @validates('departure_time')
     def validate_departure_time(self, value):
-        if value < datetime.now():
+        if value < datetime.now(timezone.utc):
             raise ValidationError('Departure time must be in the future')
 
-    @validates('arrival_airport_id')
-    def validate_airports(self, value):
-        # Note: actual validation of same airport will be in controller/service
-        # This is just placeholder for future logic
-        pass
 
-
-class FlightUpdateDTO(Schema):
-    """DTO for updating flight information"""
+class FlightUpdateValidationSchema(Schema):
+    """Validation schema for flight update data"""
     flight_name = fields.Str(required=False, validate=validate.Length(min=3, max=255))
     airline_id = fields.Int(required=False, validate=validate.Range(min=1))
     flight_distance_km = fields.Int(required=False, validate=validate.Range(min=1))
@@ -41,12 +67,19 @@ class FlightUpdateDTO(Schema):
 
     @validates('departure_time')
     def validate_departure_time(self, value):
-        if value and value < datetime.now():
+        if value and value < datetime.now(timezone.utc):
             raise ValidationError('Departure time must be in the future')
 
 
-class FlightStatusUpdateDTO(Schema):
-    """DTO for updating flight status"""
+@dataclass
+class FlightStatusUpdateDTO:
+    """Data transfer object for validated flight status update data."""
+    status: str
+    rejection_reason: Optional[str] = None
+
+
+class FlightStatusUpdateValidationSchema(Schema):
+    """Validation schema for flight status update data"""
     status = fields.Str(required=True, validate=validate.OneOf(['APPROVED', 'REJECTED', 'CANCELLED', 'COMPLETED']))
     rejection_reason = fields.Str(required=False)
 
