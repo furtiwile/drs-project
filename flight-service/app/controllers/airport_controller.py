@@ -4,7 +4,7 @@ from typing import Optional
 from ..domain.dtos.airport_dto import AirportUpdateDTO, AirportResponseDTO, AirportCreateDTO
 from app.domain.interfaces.services.airport_service_interface import AirportServiceInterface
 from app.domain.interfaces.controllers.airport_controller_interface import AirportControllerInterface
-from .validators.airport_validator import validate_create_airport_data
+from .validators.airport_validator import validate_create_airport_data, validate_update_airport_data
 from dataclasses import asdict
 
 airport_bp = Blueprint('airport', __name__)
@@ -82,7 +82,7 @@ class AirportController(AirportControllerInterface):
 
     def update_airport(self, airport_id: int):
         """
-        PUT /airports/<int:airport_id>
+        PATCH /airports/<int:airport_id>
         Updates an airport by ID.
 
         Args:
@@ -94,23 +94,16 @@ class AirportController(AirportControllerInterface):
             tuple: JSON response with updated airport data or error message, and HTTP status code.
         """
         data = request.get_json()
-        # Create update DTO with optional fields
-        update_data = AirportUpdateDTO(
-            name=data.get('name'),
-            code=data.get('code')
-        )
+        try:
+            validated_data: AirportUpdateDTO = validate_update_airport_data(data)
+        except ValueError as e:
+            return jsonify(e.args[0]), 400
         
-        # Basic validation - check if at least one field is provided
-        if update_data.name is None and update_data.code is None:
+        # Check if at least one field is provided
+        if validated_data.name is None and validated_data.code is None:
             return jsonify({'error': 'At least one field (name or code) must be provided'}), 400
         
-        # Validate provided fields
-        if update_data.name is not None and (len(update_data.name.strip()) < 3 or len(update_data.name.strip()) > 255):
-            return jsonify({'error': 'Name must be between 3 and 255 characters'}), 400
-        if update_data.code is not None and (len(update_data.code.strip()) < 3 or len(update_data.code.strip()) > 10):
-            return jsonify({'error': 'Code must be between 3 and 10 characters'}), 400
-        
-        airport = self.airport_service.update_airport(airport_id, update_data)
+        airport = self.airport_service.update_airport(airport_id, validated_data)
         if not airport:
             return jsonify({'error': 'Airport not found'}), 404
         response_dto = AirportResponseDTO()
@@ -153,6 +146,6 @@ class AirportController(AirportControllerInterface):
         bp.add_url_rule('/airports', 'create_airport', self.create_airport, methods=['POST'])
         bp.add_url_rule('/airports', 'get_all_airports', self.get_all_airports, methods=['GET'])
         bp.add_url_rule('/airports/<int:airport_id>', 'get_airport', self.get_airport, methods=['GET'])
-        bp.add_url_rule('/airports/<int:airport_id>', 'update_airport', self.update_airport, methods=['PUT'])
+        bp.add_url_rule('/airports/<int:airport_id>', 'update_airport', self.update_airport, methods=['PATCH'])
         bp.add_url_rule('/airports/<int:airport_id>', 'delete_airport', self.delete_airport, methods=['DELETE'])
         bp.add_url_rule('/airports/info/<airport_code>', 'get_airport_info', self.get_airport_info, methods=['GET'])

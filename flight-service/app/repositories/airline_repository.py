@@ -1,7 +1,7 @@
 from typing import Optional, Dict
 from ..domain.models.flights import Airline
 from .. import db
-from .interfaces import IAirlineRepository
+from app.domain.interfaces.repositories.iairline_repository import IAirlineRepository, AirlinePaginationResult
 
 
 class SqlAlchemyAirlineRepository(IAirlineRepository):
@@ -14,12 +14,16 @@ class SqlAlchemyAirlineRepository(IAirlineRepository):
     def get_airline_by_id(self, airline_id: int) -> Optional[Airline]:
         airline = Airline.query.get(airline_id)
         return airline if airline else None
+    
+    def get_airline_by_name(self, name: str) -> Optional[Airline]:
+        airline = Airline.query.filter_by(name=name).first()
+        return airline if airline else None
 
-    def get_all_airlines(self, page: int = 1, per_page: int = 10) -> Dict:
+    def get_all_airlines(self, page: int = 1, per_page: int = 10) -> AirlinePaginationResult:
         query = Airline.query
         total = query.count()
         orms = query.offset((page - 1) * per_page).limit(per_page).all()
-        airlines = [orm for orm in orms]
+        airlines = orms
         pages = (total + per_page - 1) // per_page
         return {
             'airlines': airlines,
