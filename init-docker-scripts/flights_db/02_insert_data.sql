@@ -27,7 +27,13 @@ VALUES
     ('Flight 404', 4, 600, '1 hour 15 minutes', '2025-12-23 12:00:00', '2025-12-23 13:15:00', 7, 8, 3, 180.00, 120, 'APPROVED');
 
 -- Insert sample bookings (assuming user_id 2 from db1)
-INSERT INTO bookings (user_id, flight_id, purchased_at, rating)
+INSERT INTO bookings (user_id, flight_id, purchased_at)
 VALUES
-    (2, 1, '2025-12-18 09:00:00', 4),
-    (2, 2, '2025-12-19 11:00:00', 3);
+    (2, 1, '2025-12-18 09:00:00'),
+    (2, 2, '2025-12-19 11:00:00');
+
+-- Insert sample ratings
+INSERT INTO ratings (user_id, flight_id, rating, created_at)
+VALUES
+    (2, 1, 4, '2025-12-20 12:00:00'),
+    (2, 2, 3, '2025-12-21 16:00:00');

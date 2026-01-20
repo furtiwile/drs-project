@@ -42,8 +42,17 @@ CREATE TABLE bookings (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL, -- Reference to user id from users_db
     flight_id INTEGER REFERENCES flights(flight_id) ON DELETE CASCADE,
-    purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    rating SMALLINT CHECK (rating >= 1 AND rating <= 5) NOT NULL
+    purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Ratings table
+CREATE TABLE ratings (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL, -- Reference to user id from users_db
+    flight_id INTEGER REFERENCES flights(flight_id) ON DELETE CASCADE,
+    rating SMALLINT CHECK (rating >= 1 AND rating <= 5) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, flight_id)
 );
 
 -- Indexes
