@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, List, TypedDict
+from typing import Any, Optional, Dict, List, TypedDict
 from app.domain.models.flights import Flight
-
 
 class FlightPaginationResult(TypedDict):
     flights: List[Flight]
@@ -29,9 +28,9 @@ class IFlightRepository(ABC):
         pass
 
     @abstractmethod
-    def update_flight_details(self, flight_id: int, data: Dict[str, any]) -> Optional[Flight]:
+    def update_flight_details(self, flight_id: int, data: Dict[str,Any]) -> Optional[Flight]:
         pass
-
+         
     @abstractmethod
     def get_available_seats(self, flight_id: int) -> int:
         pass

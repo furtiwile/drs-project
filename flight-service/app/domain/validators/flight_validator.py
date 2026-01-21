@@ -1,5 +1,5 @@
 from typing import Dict, Optional
-from ..enums.flight_status import FlightStatus
+from ..models.enums import FlightStatus
 
 
 class FlightValidator:
@@ -13,19 +13,15 @@ class FlightValidator:
         
         cleaned = filters.copy()
         
-        # Validate status filter
         if 'status' in cleaned:
-            valid_statuses = [status.value for status in FlightStatus]
-            if cleaned['status'] not in valid_statuses:
+            if cleaned['status'] not in FlightStatus:
                 del cleaned['status']
         
-        # Validate price filters
         if 'min_price' in cleaned and cleaned['min_price'] < 0:
             del cleaned['min_price']
         if 'max_price' in cleaned and cleaned['max_price'] < 0:
             del cleaned['max_price']
         
-        # Ensure min_price <= max_price
         if ('min_price' in cleaned and 'max_price' in cleaned and 
             cleaned['min_price'] > cleaned['max_price']):
             cleaned['min_price'], cleaned['max_price'] = cleaned['max_price'], cleaned['min_price']
@@ -33,21 +29,17 @@ class FlightValidator:
         return cleaned
 
     @staticmethod
-    def validate_status_transition(current_status: str, new_status: str, rejection_reason: Optional[str]) -> bool:
-        """Validate flight status transition with business rules."""
-        valid_statuses = [status.value for status in FlightStatus]
+    def validate_status_transition(current_status: FlightStatus, new_status: FlightStatus, rejection_reason: Optional[str]) -> bool:
+        """Validate flight status transition."""
         
-        # Validate new status is valid
-        if new_status not in valid_statuses:
+        if new_status not in FlightStatus:
             return False
         
-        # Validate rejection reason is provided when status is REJECTED
-        if new_status == FlightStatus.REJECTED.value and not rejection_reason:
+        if new_status == FlightStatus.REJECTED and not rejection_reason:
             return False
         
-        # Business logic: Can't approve/reject a completed or cancelled flight
-        if current_status in [FlightStatus.COMPLETED.value, FlightStatus.CANCELLED.value] and \
-           new_status in [FlightStatus.APPROVED.value, FlightStatus.REJECTED.value]:
+        if current_status in [FlightStatus.COMPLETED, FlightStatus.CANCELLED] and \
+           new_status in [FlightStatus.APPROVED, FlightStatus.REJECTED  ]:
             return False
         
         return True

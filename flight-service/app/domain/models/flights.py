@@ -44,7 +44,7 @@ class Flight(db.Model):
     created_by: Mapped[int] = db.Column(db.Integer, nullable=False)  # Reference to user id from users_db
     price: Mapped[float] = db.Column(db.Numeric(10, 2), nullable=False)
     total_seats: Mapped[int] = db.Column(db.Integer, nullable=False)
-    status: Mapped[str] = db.Column(FlightStatus, default='PENDING')
+    status: Mapped[FlightStatus] = db.Column(db.Enum(FlightStatus), default=FlightStatus.PENDING)
     rejection_reason: Mapped[Optional[str]] = db.Column(db.Text)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at: Mapped[datetime] = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
@@ -52,7 +52,7 @@ class Flight(db.Model):
     def __init__(self, flight_name: str, airline_id: int, flight_distance_km: int, 
                  flight_duration: int, departure_time: datetime, departure_airport_id: int, 
                  arrival_airport_id: int, price: float, total_seats: int, 
-                 available_seats: Optional[int] = None, status: str = 'PENDING', 
+                 available_seats: Optional[int] = None, status: FlightStatus = FlightStatus.PENDING, 
                  rejection_reason: Optional[str] = None, created_by: int = 1, **kwargs):
         super().__init__(**kwargs)
         self.flight_name = flight_name
@@ -81,12 +81,35 @@ class Booking(db.Model):
     user_id: Mapped[int] = db.Column(db.Integer, nullable=False)  # Reference to user id from users_db
     flight_id: Mapped[int] = db.Column(db.Integer, db.ForeignKey('flights.flight_id', ondelete='CASCADE'))
     purchased_at: Mapped[datetime] = db.Column(db.DateTime, default=db.func.current_timestamp())
-    rating: Mapped[Optional[int]] = db.Column(db.SmallInteger)
 
-    # Add check constraint for rating
-    __table_args__ = (
-        CheckConstraint('rating IS NULL OR (rating >= 1 AND rating <= 5)', name='check_rating'),
-    )
+    def __init__(self, user_id: int, flight_id: int, **kwargs):
+        super().__init__(**kwargs)
+        self.user_id = user_id
+        self.flight_id = flight_id
 
     # Relationship
     flight = db.relationship('Flight', backref='bookings')
+
+class Rating(db.Model):
+    __tablename__ = 'ratings'
+
+    id: Mapped[int] = db.Column(db.Integer, primary_key=True)
+    user_id: Mapped[int] = db.Column(db.Integer, nullable=False)  # Reference to user id from users_db
+    flight_id: Mapped[int] = db.Column(db.Integer, db.ForeignKey('flights.flight_id', ondelete='CASCADE'))
+    rating: Mapped[int] = db.Column(db.SmallInteger, nullable=False)
+    created_at: Mapped[datetime] = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    # Add check constraint for rating
+    __table_args__ = (
+        CheckConstraint('rating >= 1 AND rating <= 5', name='check_rating_value'),
+        db.UniqueConstraint('user_id', 'flight_id', name='unique_user_flight_rating'),
+    )
+
+    def __init__(self, user_id: int, flight_id: int, rating: int, **kwargs):
+        super().__init__(**kwargs)
+        self.user_id = user_id
+        self.flight_id = flight_id
+        self.rating = rating
+
+    # Relationship
+    flight = db.relationship('Flight', backref='ratings')

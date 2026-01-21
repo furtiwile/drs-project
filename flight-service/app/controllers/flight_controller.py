@@ -24,7 +24,17 @@ class FlightController(FlightControllerInterface):
         POST /flights
         Creates a new flight.
 
-        Data is obtained from the request body JSON.
+        Request JSON format:
+        {
+            "flight_name": "string (required)",
+            "airline_id": "integer (required)",
+            "departure_airport_id": "integer (required)",
+            "arrival_airport_id": "integer (required)",
+            "departure_time": "string (required, ISO datetime)",
+            "arrival_time": "string (required, ISO datetime)",
+            "price": "float (required)",
+            "total_seats": "integer (required)"
+        }
 
         Returns:
             tuple: JSON response with flight data or error message, and HTTP status code.
@@ -121,7 +131,17 @@ class FlightController(FlightControllerInterface):
         Args:
             flight_id (int): The flight ID from the URL.
 
-        Data is obtained from the request body JSON.
+        Request JSON format:
+        {
+            "flight_name": "string (optional)",
+            "airline_id": "integer (optional)",
+            "departure_airport_id": "integer (optional)",
+            "arrival_airport_id": "integer (optional)",
+            "departure_time": "string (optional, ISO datetime)",
+            "arrival_time": "string (optional, ISO datetime)",
+            "price": "float (optional)",
+            "total_seats": "integer (optional)"
+        }
 
         Returns:
             tuple: JSON response with flight data or error message, and HTTP status code.
@@ -147,7 +167,11 @@ class FlightController(FlightControllerInterface):
         Args:
             flight_id (int): The flight ID from the URL.
 
-        Data is obtained from the request body JSON, including status and optional rejection_reason.
+        Request JSON format:
+        {
+            "status": "string (required, e.g., 'scheduled', 'departed', 'arrived', 'cancelled')",
+            "rejection_reason": "string (optional, required if status is 'cancelled')"
+        }
 
         Returns:
             tuple: JSON response with success message or error message, and HTTP status code.

@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict
 from ..domain.models.flights import Booking, Flight 
 from .. import db
-from .interfaces import IBookingRepository
+from app.domain.interfaces.repositories.ibooking_repository import IBookingRepository, BookingPaginationResult
 
 class SqlAlchemyBookingRepository(IBookingRepository):
     def save_booking(self, booking: Booking) -> Booking:
@@ -18,7 +18,7 @@ class SqlAlchemyBookingRepository(IBookingRepository):
         ).get(booking_id)
         return booking if booking else None
 
-    def get_bookings_by_user(self, user_id: int, page: int = 1, per_page: int = 10) -> Dict:
+    def get_bookings_by_user(self, user_id: int, page: int = 1, per_page: int = 10) -> BookingPaginationResult:
         query = Booking.query.filter_by(user_id=user_id).options(
             db.joinedload(Booking.flight).joinedload(Flight.airline),
             db.joinedload(Booking.flight).joinedload(Flight.departure_airport),
@@ -38,7 +38,7 @@ class SqlAlchemyBookingRepository(IBookingRepository):
             'pages': pages
         }
 
-    def get_all_bookings(self, page: int = 1, per_page: int = 10) -> Dict:
+    def get_all_bookings(self, page: int = 1, per_page: int = 10) -> BookingPaginationResult:
         query = Booking.query.options(
             db.joinedload(Booking.flight).joinedload(Flight.airline),
             db.joinedload(Booking.flight).joinedload(Flight.departure_airport),
@@ -58,13 +58,13 @@ class SqlAlchemyBookingRepository(IBookingRepository):
             'pages': pages
         }
 
-    def update_booking_rating(self, booking_id: int, rating: int) -> bool:
-        booking = Booking.query.get(booking_id)
-        if not booking:
-            return False
-        booking.rating = rating
-        db.session.commit()
-        return True
+    def get_bookings_by_flight_id(self, flight_id: int) -> List[Booking]:
+        bookings = Booking.query.filter_by(flight_id=flight_id).options(
+            db.joinedload(Booking.flight).joinedload(Flight.airline),
+            db.joinedload(Booking.flight).joinedload(Flight.departure_airport),
+            db.joinedload(Booking.flight).joinedload(Flight.arrival_airport)
+        ).all()
+        return bookings
 
     def delete_booking(self, booking_id: int) -> bool:
         booking = Booking.query.get(booking_id)

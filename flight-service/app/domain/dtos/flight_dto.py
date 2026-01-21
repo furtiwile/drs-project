@@ -80,7 +80,7 @@ class FlightStatusUpdateDTO:
 
 class FlightStatusUpdateValidationSchema(Schema):
     """Validation schema for flight status update data"""
-    status = fields.Str(required=True, validate=validate.OneOf(['APPROVED', 'REJECTED', 'CANCELLED', 'COMPLETED']))
+    status = fields.Str(required=True, validate=validate.OneOf(['APPROVED', 'REJECTED', 'IN_PROGRESS', 'CANCELLED', 'COMPLETED']))
     rejection_reason = fields.Str(required=False)
 
     @validates('rejection_reason')
@@ -118,7 +118,7 @@ class FlightFilterDTO(Schema):
     """DTO for filtering flights"""
     flight_name = fields.Str(required=False)
     airline_id = fields.Int(required=False)
-    status = fields.Str(required=False, validate=validate.OneOf(['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'COMPLETED']))
+    status = fields.Str(required=False, validate=validate.OneOf(['PENDING', 'APPROVED', 'REJECTED', 'IN_PROGRESS', 'CANCELLED', 'COMPLETED']))
     departure_airport_id = fields.Int(required=False)
     arrival_airport_id = fields.Int(required=False)
     min_price = fields.Decimal(required=False)

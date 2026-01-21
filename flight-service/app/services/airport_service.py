@@ -14,12 +14,9 @@ class AirportService(AirportServiceInterface):
 
     def create_airport(self, data: AirportCreateDTO) -> Optional[Airport]:
         """Create a new airport."""
-        # Data is already validated by controller
-        # Normalize data
         data.code = data.code.upper().strip()
         data.name = data.name.strip()
         
-        # Check if airport with the same code already exists
         existing = self.airport_repository.get_airport_by_code(data.code)
         if existing:
             return None  # Indicate failure - duplicate code
@@ -47,7 +44,6 @@ class AirportService(AirportServiceInterface):
         if data.code is None and data.name is None:
             return None  # Nothing to update
         
-        # Create update dict with only provided fields, properly normalized
         update_dict = {}
         if data.name is not None:
             update_dict['name'] = data.name.strip()

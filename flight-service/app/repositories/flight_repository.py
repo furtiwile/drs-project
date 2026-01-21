@@ -1,8 +1,10 @@
+from dataclasses import asdict
 from typing import Optional, Dict, Any
 from sqlalchemy import func
 from ..domain.models.flights import Booking, Flight
 from .. import db
 from app.domain.interfaces.repositories.iflight_repository import IFlightRepository, FlightPaginationResult
+from app.domain.dtos.flight_dto import FlightUpdateDTO
 
 
 class SqlAlchemyFlightRepository(IFlightRepository):
@@ -82,14 +84,14 @@ class SqlAlchemyFlightRepository(IFlightRepository):
         db.session.commit()
         return True
 
-    def update_flight_details(self, flight_id: int, data: Dict[str, Any]) -> Optional[Flight]:
+    def update_flight_details(self, flight_id: int, data: dict[str,Any]) -> Optional[Flight]:
         flight = Flight.query.get(flight_id)
         if not flight:
             return None
-        for key, value in data.items():
+        update_data = {k: v for k, v in data.items() if v is not None}
+        for key, value in update_data.items():
             if hasattr(flight, key):
                 setattr(flight, key, value)
-        flight.updated_at = db.func.current_timestamp()
         db.session.commit()
         return flight
 

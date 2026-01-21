@@ -1,19 +1,21 @@
-from typing import Optional, Dict
+from typing import Optional, Dict, Any, cast
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
-from dataclasses import asdict
 from ..domain.models.flights import Flight
 from app.domain.interfaces.repositories.iflight_repository import IFlightRepository
 from app.domain.interfaces.repositories.iairport_repository import IAirportRepository
 from app.domain.interfaces.repositories.iairline_repository import IAirlineRepository
 from app.domain.interfaces.services.flight_service_interface import FlightServiceInterface
 from app.domain.interfaces.repositories.iflight_repository import FlightPaginationResult
-from ..domain.enums.flight_status import FlightStatus
+from ..domain.models.enums import FlightStatus
 from ..domain.validators.flight_validator import FlightValidator
 from ..domain.dtos.flight_dto import (
     FlightCreateDTO,
     FlightStatusUpdateDTO,
-    FlightUpdateDTO)
+    FlightUpdateDTO,
+    FlightResponseDTO)
+
+from dataclasses import asdict
 
 class FlightService(FlightServiceInterface):
     """Service layer for flight operations with comprehensive business logic validation."""
@@ -27,7 +29,6 @@ class FlightService(FlightServiceInterface):
 
     def create_flight(self, data: FlightCreateDTO) -> Optional[Flight]:
         """Create a new flight with comprehensive validation."""
-        # Validate that departure and arrival airports are different
         if data.departure_airport_id == data.arrival_airport_id:
             return None
         if not self.airport_repository.get_airport_by_id(data.departure_airport_id):
@@ -39,7 +40,6 @@ class FlightService(FlightServiceInterface):
         if data.departure_time <= datetime.now(timezone.utc):
             return None
         
-        # Create flight object
         flight = Flight(
             flight_name=data.flight_name,
             airline_id=data.airline_id,
@@ -50,12 +50,13 @@ class FlightService(FlightServiceInterface):
             arrival_airport_id=data.arrival_airport_id,
             price=float(data.price),
             total_seats=data.total_seats,
-            available_seats=data.total_seats,
-            status=FlightStatus.PENDING.value
+            available_seats=data.total_seats
         )
         
         try:
-            return self.flight_repository.save_flight(flight)
+            saved_flight = self.flight_repository.save_flight(flight)
+            
+            return saved_flight
         except Exception:
             return None
 
@@ -64,12 +65,10 @@ class FlightService(FlightServiceInterface):
         if flight_id <= 0:
             return None
         
-        # Get existing flight
         flight = self.flight_repository.get_flight_by_id(flight_id)
         if not flight:
             return None
         
-        # Validate airports if provided
         if data.departure_airport_id is not None and not self.airport_repository.get_airport_by_id(data.departure_airport_id):
             return None
         if data.arrival_airport_id is not None and not self.airport_repository.get_airport_by_id(data.arrival_airport_id):
@@ -83,13 +82,11 @@ class FlightService(FlightServiceInterface):
         if dep_id == arr_id:
             return None
         
-        # Validate departure time if provided
         if data.departure_time is not None and data.departure_time <= datetime.now(timezone.utc):
             return None
         
-        # Prepare update data, only include non-None values
         update_data = {k: v for k, v in asdict(data).items() if v is not None}
-        
+
         try:
             return self.flight_repository.update_flight_details(flight_id, update_data)
         except Exception:
@@ -110,7 +107,6 @@ class FlightService(FlightServiceInterface):
         if per_page > 100:  # Limit max items per page
             per_page = 100
         
-        # Validate filter values if provided
         filters = FlightValidator.validate_filters(filters)
         
         return self.flight_repository.get_all_flights(page, per_page, filters)
@@ -120,15 +116,17 @@ class FlightService(FlightServiceInterface):
         if flight_id <= 0:
             return False
         
-        # Get current flight to validate state transitions
         flight = self.flight_repository.get_flight_by_id(flight_id)
         if not flight:
             return False
         
-        if not FlightValidator.validate_status_transition(flight.status, data.status, data.rejection_reason):
+        if not FlightValidator.validate_status_transition(flight.status, FlightStatus(data.status), data.rejection_reason):
             return False
         
-        return self.flight_repository.update_flight(flight_id, data.status, data.rejection_reason)
+        old_status = flight.status
+        success = self.flight_repository.update_flight(flight_id, data.status, data.rejection_reason)
+        
+        return success
 
     def delete_flight(self, flight_id: int) -> bool:
         """Delete a flight by ID."""
@@ -139,7 +137,6 @@ class FlightService(FlightServiceInterface):
         if not flight:
             return False
         
-        # Can only delete PENDING or REJECTED flights (business rule)
         if flight.status not in [FlightStatus.PENDING.value, FlightStatus.REJECTED.value]:
             return False
         

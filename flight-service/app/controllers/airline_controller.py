@@ -19,7 +19,10 @@ class AirlineController(AirlineControllerInterface):
         POST /airlines
         Creates a new airline.
 
-        Data is obtained from the request body JSON.
+        Request JSON format:
+        {
+            "name": "string (required, min length 1, max length 100)"
+        }
 
         Returns:
             tuple: JSON response with airline data or error message, and HTTP status code.
@@ -89,7 +92,10 @@ class AirlineController(AirlineControllerInterface):
         Args:
             airline_id (int): The airline ID from the URL.
 
-        Data is obtained from the request body JSON.
+        Request JSON format:
+        {
+            "name": "string (required, min length 1, max length 100, at least one field must be provided)"
+        }
 
         Returns:
             tuple: JSON response with updated airline data or error message, and HTTP status code.
@@ -129,7 +135,6 @@ class AirlineController(AirlineControllerInterface):
         return jsonify({'message': 'Airline deleted'}), 200
 
     def register_routes(self, bp: Blueprint):
-        """Register routes to the blueprint."""
         bp.add_url_rule('/airlines', 'create_airline', self.create_airline, methods=['POST'])
         bp.add_url_rule('/airlines', 'get_all_airlines', self.get_all_airlines, methods=['GET'])
         bp.add_url_rule('/airlines/<int:airline_id>', 'get_airline', self.get_airline, methods=['GET'])

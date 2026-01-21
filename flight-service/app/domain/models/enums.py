@@ -1,6 +1,20 @@
-from sqlalchemy import Enum
+from enum import Enum
 
 # Enums
-Role = Enum('USER', 'MANAGER', 'ADMINISTRATOR', name='role')
-Gender = Enum('MALE', 'FEMALE', 'OTHER', name='gender')
-FlightStatus = Enum('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'COMPLETED', name='flight_status')
+class Role(Enum):
+    USER = "USER"
+    MANAGER = "MANAGER"
+    ADMINISTRATOR = "ADMINISTRATOR"
+
+class Gender(Enum):
+    MALE = "MALE"
+    FEMALE = "FEMALE"
+    OTHER = "OTHER"
+
+class FlightStatus(Enum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    IN_PROGRESS = "IN_PROGRESS"
+    CANCELLED = "CANCELLED"
+    COMPLETED = "COMPLETED"

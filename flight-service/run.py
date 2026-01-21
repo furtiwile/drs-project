@@ -3,7 +3,6 @@ import os
 load_dotenv()
 
 from app import create_app
-from app.websockets import socketio
 
 app = create_app()
 
@@ -13,6 +12,6 @@ if __name__ == '__main__':
     host = os.getenv('FLIGHT_SERVICE_HOST', '0.0.0.0')
     port = int(os.getenv('FLIGHT_SERVICE_PORT', 5555))
     
-    # Use socketio.run instead of app.run for WebSocket support
-    socketio.run(app, host=host, port=port, debug=debug_mode, allow_unsafe_werkzeug=True)
+    app.run(host=host, port=port, debug=debug_mode)
 
+        

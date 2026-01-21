@@ -10,10 +10,9 @@ from .controllers import (
     airport_bp,
     airline_bp,
     flight_bp,
-    booking_bp
+    booking_bp,
+    rating_bp
 )
-
-from .websockets import socketio
 
 from flask import Blueprint
 common_bp = Blueprint('common', __name__)
@@ -40,20 +39,20 @@ def create_app():
 
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-    socketio.init_app(app)
-
     # Create repositories
     from .repositories import (
     SqlAlchemyAirportRepository,
     SqlAlchemyAirlineRepository,
     SqlAlchemyFlightRepository,
-    SqlAlchemyBookingRepository
+    SqlAlchemyBookingRepository,
+    SqlAlchemyRatingRepository
     )
 
     airport_repo = SqlAlchemyAirportRepository()
     airline_repo = SqlAlchemyAirlineRepository()
     flight_repo = SqlAlchemyFlightRepository()
     booking_repo = SqlAlchemyBookingRepository()
+    rating_repo = SqlAlchemyRatingRepository()
 
 
     # Create services
@@ -61,26 +60,30 @@ def create_app():
         AirportService,
         AirlineService,
         FlightService,
-        BookingService
+        BookingService,
+        RatingService
     )
     
     airport_service = AirportService(airport_repo)
     airline_service = AirlineService(airline_repo)
     flight_service = FlightService(flight_repo, airport_repo, airline_repo)
     booking_service = BookingService(booking_repo, flight_repo)
+    rating_service = RatingService(rating_repo, booking_repo)
 
     # Create controllers
     from .controllers import (
         AirportController,
         AirlineController,
         FlightController,
-        BookingController
+        BookingController,
+        RatingController
     )
     
     airport_controller = AirportController(airport_service, airport_bp)
     airline_controller = AirlineController(airline_service, airline_bp)
     flight_controller = FlightController(flight_service, flight_bp)
     booking_controller = BookingController(booking_service, booking_bp)
+    rating_controller = RatingController(rating_service, rating_bp)
 
     # Register routes for each blueprint(controller)
     app.register_blueprint(common_bp, url_prefix=API_PREFIX)
@@ -88,5 +91,6 @@ def create_app():
     app.register_blueprint(airline_bp, url_prefix=API_PREFIX)
     app.register_blueprint(flight_bp, url_prefix=API_PREFIX)
     app.register_blueprint(booking_bp, url_prefix=API_PREFIX)
+    app.register_blueprint(rating_bp, url_prefix=API_PREFIX)
     
     return app

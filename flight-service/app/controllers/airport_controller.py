@@ -19,7 +19,11 @@ class AirportController(AirportControllerInterface):
         POST /airports
         Creates a new airport.
 
-        Data is obtained from the request body JSON.
+        Request JSON format:
+        {
+            "name": "string (required, min length 1, max length 100)",
+            "code": "string (required, exactly 3 uppercase letters)"
+        }
 
         Returns:
             tuple: JSON response with airport data or error message, and HTTP status code.
@@ -88,7 +92,12 @@ class AirportController(AirportControllerInterface):
         Args:
             airport_id (int): The airport ID from the URL.
 
-        Data is obtained from the request body JSON.
+        Request JSON format:
+        {
+            "name": "string (optional, min length 1, max length 100)",
+            "code": "string (optional, exactly 3 uppercase letters)"
+        }
+        Note: At least one field (name or code) must be provided.
 
         Returns:
             tuple: JSON response with updated airport data or error message, and HTTP status code.

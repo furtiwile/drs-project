@@ -14,7 +14,6 @@ class AirlineService(AirlineServiceInterface):
 
     def create_airline(self, data: AirlineCreateDTO) -> Optional[Airline]:
         """Create a new airline."""
-        # Normalize data
         data.name = data.name.strip()
 
         if self.airline_repository.get_airline_by_name(data.name) is not None:
