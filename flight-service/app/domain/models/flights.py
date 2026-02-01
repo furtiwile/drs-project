@@ -46,6 +46,8 @@ class Flight(db.Model):
     total_seats: Mapped[int] = db.Column(db.Integer, nullable=False)
     status: Mapped[FlightStatus] = db.Column(db.Enum(FlightStatus), default=FlightStatus.PENDING)
     rejection_reason: Mapped[Optional[str]] = db.Column(db.Text)
+    approved_by: Mapped[Optional[int]] = db.Column(db.Integer) 
+    actual_start_time: Mapped[Optional[datetime]] = db.Column(db.DateTime)
     created_at: Mapped[datetime] = db.Column(db.DateTime, default=db.func.current_timestamp())
     updated_at: Mapped[datetime] = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 

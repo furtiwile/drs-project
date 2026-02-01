@@ -1,67 +1,111 @@
-from typing import Optional, Dict
-from datetime import datetime, timedelta
+from typing import Optional
+from datetime import datetime, timedelta, timezone
 from ..domain.models.flights import Booking
 from app.domain.interfaces.repositories.ibooking_repository import BookingPaginationResult, IBookingRepository
 from app.domain.interfaces.repositories.iflight_repository import IFlightRepository
 from app.domain.interfaces.services.booking_service_interface import BookingServiceInterface
 from app.domain.dtos.booking_dto import BookingCreateDTO, BookingResponseDTO
-from app.domain.models.flights import FlightStatus
+from app.domain.models.enums import FlightStatus
+from app.domain.types.task_types import TaskStatus
 import time
+from app.utils.logger_service import get_logger, LoggerService
+
+logger = get_logger(__name__)
 
 
 class BookingService(BookingServiceInterface):
     """Service layer for booking operations with comprehensive business logic validation."""
     
-    def __init__(self, booking_repository: IBookingRepository, flight_repository: IFlightRepository):
+    def __init__(self, booking_repository: IBookingRepository, flight_repository: IFlightRepository, task_manager=None):
         self.booking_repository = booking_repository
         self.flight_repository = flight_repository
+        self.task_manager = task_manager
 
-    def create_booking(self, user_id: int, data: BookingCreateDTO) -> Optional[Booking]:
-        """Create a new booking with comprehensive validation."""
-        if user_id <= 0 or data.flight_id <= 0:
+    def create_booking(self, user_id: int, booking_data: BookingCreateDTO) -> Optional[str]:
+        """
+        Create a booking
+        Returns task_id for tracking the booking process
+        """
+        if not self.task_manager:
+            logger.warning("Task manager not available, falling back to synchronous booking")
             return None
         
-        flight = self.flight_repository.get_flight_by_id(data.flight_id)
+        if user_id <= 0 or booking_data.flight_id <= 0:
+            return None
+        
+        flight = self.flight_repository.get_flight_by_id(booking_data.flight_id)
         if not flight:
             return None
         
         if flight.status != FlightStatus.APPROVED:
             return None
         
-        # Can't book flights that have already departed
-        if flight.departure_time <= datetime.now():
+        if flight.departure_time <= datetime.now(timezone.utc):
             return None
         
-        # # Can't book flights too close to departure (e.g., within 2 hours)
-        # # In theory.. We can add this check later on if needed
-        # time_until_departure = flight.departure_time - datetime.now()
-        # if time_until_departure < timedelta(hours=2):
-        #     return None
-        
-        available_seats = self.flight_repository.get_available_seats(data.flight_id)
+        available_seats = self.flight_repository.get_available_seats(booking_data.flight_id)
         if available_seats <= 0:
             return None
         
-        # Check if user already has a booking for this flight
         user_bookings = self.booking_repository.get_bookings_by_user(user_id, page=1, per_page=1000)
         for existing_booking in user_bookings.get('bookings', []):
-            if existing_booking.flight_id == data.flight_id:
-                return None  # User already has a booking for this flight
+            if existing_booking.flight_id == booking_data.flight_id:
+                return None
         
+        # Submit to background task queue
+        task_id = self.task_manager.submit_task(
+            self._process_booking_async,
+            user_id=user_id,
+            flight_id=booking_data.flight_id
+        )
+        
+        logger.info(f"Booking task {task_id} submitted for user {user_id}, flight {booking_data.flight_id}")
+        return task_id
+    
+    def _process_booking_async(self, user_id: int, flight_id: int) -> dict:
+        """
+        Internal method to process booking
+        This simulates a long-running process
+        """
         try:
-            print(f"Starting async booking processing for user {user_id}, flight {data.flight_id}")
-            time.sleep(3)  # Simulate processing delay (adjust for testing)
+            logger.info(f"Processing async booking for user {user_id}, flight {flight_id}")
             
-            booking = Booking(user_id=user_id, flight_id=data.flight_id)
+            # Simulate long processing time
+            time.sleep(5)  # 5 seconds - adjust for testing
+            
+            booking = Booking(user_id=user_id, flight_id=flight_id)
             saved_booking = self.booking_repository.save_booking(booking)
             
             if saved_booking:
-                print(f"Booking confirmed for user {user_id}")
-            
-            return saved_booking
+                logger.info(f"Booking {saved_booking.id} completed for user {user_id}")
+                return {
+                    'success': True,
+                    'booking_id': saved_booking.id,
+                    'flight_id': flight_id,
+                    'user_id': user_id,
+                    'message': 'Booking processed successfully'
+                }
+            else:
+                return {
+                    'success': False,
+                    'error': 'Failed to save booking',
+                    'flight_id': flight_id,
+                    'user_id': user_id
+                }
         except Exception as e:
-            print(f"Booking creation failed: {str(e)}")
+            logger.error(f"Async booking processing failed: {str(e)}")
+            return {
+                'success': False,
+                'error': str(e),
+                'flight_id': flight_id,
+                'user_id': user_id
+            }
+    
+    def get_booking_task_status(self, task_id: str) -> Optional[TaskStatus]:
+        """Get the status of an async booking task"""
+        if not self.task_manager:
             return None
+        return self.task_manager.get_task_status(task_id)
 
     def get_booking(self, booking_id: int) -> Optional[Booking]:
         """Retrieve a booking by ID."""

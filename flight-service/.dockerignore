@@ -25,7 +25,13 @@ coverage.xml
 *~
 .DS_Store
 .env
+.env.local
+.env.*.local
 README.md
 tests/
 .pytest_cache/
 .mypy_cache/
+start.bat
+start.sh
+Dockerfile.dev
+docker-compose.yml

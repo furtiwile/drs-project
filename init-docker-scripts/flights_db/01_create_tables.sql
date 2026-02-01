@@ -1,6 +1,6 @@
 -- Database 2: Flight Management Database
 -- Custom types
-CREATE TYPE flight_status AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'COMPLETED');
+CREATE TYPE flight_status AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'IN_PROGRESS', 'CANCELLED', 'COMPLETED');
 
 -- Airports table
 CREATE TABLE airports (
@@ -33,6 +33,8 @@ CREATE TABLE flights (
     total_seats INTEGER NOT NULL,
     status flight_status DEFAULT 'PENDING',
     rejection_reason TEXT,
+    approved_by INTEGER,
+    actual_start_time TIMESTAMP, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -59,5 +61,6 @@ CREATE TABLE ratings (
 CREATE INDEX idx_flights_airline_id ON flights(airline_id);
 CREATE INDEX idx_flights_status ON flights(status);
 CREATE INDEX idx_flights_departure_time ON flights(departure_time);
+CREATE INDEX idx_flights_created_by ON flights(created_by);
 CREATE INDEX idx_bookings_user_id ON bookings(user_id);
 CREATE INDEX idx_bookings_flight_id ON bookings(flight_id);

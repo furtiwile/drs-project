@@ -35,7 +35,9 @@ services:
       - database
 
   flight-service:
-    build: ./flight-service
+    build:
+      context: ./flight-service
+      dockerfile: Dockerfile.dev
     container_name: flight-service
     ports:
       - "${PUBLIC_FLIGHT_SERVICE_PORT}:${INTERNAL_FLIGHT_SERVICE_PORT}"

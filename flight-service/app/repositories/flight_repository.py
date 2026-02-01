@@ -1,25 +1,46 @@
 from dataclasses import asdict
-from typing import Optional, Dict, Any
+from typing import Optional, List, Dict
+from datetime import datetime
 from sqlalchemy import func
 from ..domain.models.flights import Booking, Flight
+from ..domain.models.enums import FlightStatus
 from .. import db
 from app.domain.interfaces.repositories.iflight_repository import IFlightRepository, FlightPaginationResult
 from app.domain.dtos.flight_dto import FlightUpdateDTO
+from app.domain.types.repository_types import FlightUpdateData
+from app.utils.logger_service import get_logger, LoggerService
+
+logger = get_logger(__name__)
 
 
 class SqlAlchemyFlightRepository(IFlightRepository):
     def save_flight(self, flight: Flight) -> Flight:
+        LoggerService.log_database_operation(logger, 'INSERT', 'flights',
+                                           flight_name=flight.flight_name,
+                                           status=flight.status.value)
         db.session.add(flight)
         db.session.commit()
         db.session.refresh(flight)
+        LoggerService.log_with_context(logger, 'DEBUG', 'Flight saved to database',
+                                     flight_id=flight.flight_id)
         return flight
     
     def get_flight_by_id(self, flight_id: int) -> Optional[Flight]:
+        LoggerService.log_database_operation(logger, 'SELECT', 'flights',
+                                           flight_id=flight_id)
         flight = Flight.query.options(
             db.joinedload(Flight.airline),
             db.joinedload(Flight.departure_airport),
             db.joinedload(Flight.arrival_airport)
         ).get(flight_id)
+        if flight:
+            LoggerService.log_with_context(logger, 'DEBUG', 'Flight retrieved from database',
+                                         flight_id=flight_id,
+                                         found=True)
+        else:
+            LoggerService.log_with_context(logger, 'DEBUG', 'Flight not found in database',
+                                         flight_id=flight_id,
+                                         found=False)
         return flight
 
     def get_all_flights(self, page: int = 1, per_page: int = 10, filters: Optional[Dict] = None) -> FlightPaginationResult:
@@ -29,7 +50,6 @@ class SqlAlchemyFlightRepository(IFlightRepository):
             db.joinedload(Flight.arrival_airport)
         )
 
-        # Apply filters
         if filters:
             if filters.get('flight_name'):
                 search_filter = f"%{filters['flight_name']}%"
@@ -59,7 +79,6 @@ class SqlAlchemyFlightRepository(IFlightRepository):
                     func.date(Flight.departure_time) == departure_date
                 )
 
-        # Pagination
         total = query.count()
         orms = query.offset((page - 1) * per_page).limit(per_page).all()
         flights = [orm for orm in orms]
@@ -73,18 +92,33 @@ class SqlAlchemyFlightRepository(IFlightRepository):
             'pages': pages
         }
 
-    def update_flight(self, flight_id: int, status: str, rejection_reason: Optional[str] = None) -> bool:
+    def update_flight(self, flight: Flight) -> Optional[Flight]:
+        """Update flight entity"""
+        try:
+            db.session.merge(flight)
+            db.session.commit()
+            db.session.refresh(flight)
+            return flight
+        except Exception:
+            db.session.rollback()
+            return None
+
+    def update_flight_status(self, flight_id: int, status: str, rejection_reason: Optional[str] = None, 
+                            approved_by: Optional[int] = None) -> bool:
+        """Update flight status with optional rejection reason and approver"""
         flight = Flight.query.get(flight_id)
         if not flight:
             return False
-        flight.status = status
+        flight.status = FlightStatus[status]
         if rejection_reason:
             flight.rejection_reason = rejection_reason
+        if approved_by:
+            flight.approved_by = approved_by
         flight.updated_at = db.func.current_timestamp()
         db.session.commit()
         return True
 
-    def update_flight_details(self, flight_id: int, data: dict[str,Any]) -> Optional[Flight]:
+    def update_flight_details(self, flight_id: int, data: FlightUpdateData) -> Optional[Flight]:
         flight = Flight.query.get(flight_id)
         if not flight:
             return None
@@ -109,3 +143,42 @@ class SqlAlchemyFlightRepository(IFlightRepository):
         db.session.delete(flight)
         db.session.commit()
         return True
+    
+    def get_flights_by_status(self, status: str, page: int = 1, per_page: int = 10) -> FlightPaginationResult:
+        """Get flights filtered by status"""
+        query = Flight.query.options(
+            db.joinedload(Flight.airline),
+            db.joinedload(Flight.departure_airport),
+            db.joinedload(Flight.arrival_airport)
+        ).filter_by(status=FlightStatus[status])
+        
+        total = query.count()
+        flights = query.offset((page - 1) * per_page).limit(per_page).all()
+        pages = (total + per_page - 1) // per_page
+        
+        return {
+            'flights': flights,
+            'page': page,
+            'per_page': per_page,
+            'total': total,
+            'pages': pages
+        }
+    
+    def get_flights_to_start(self, current_time: datetime) -> List[Flight]:
+        """Get approved flights that should start"""
+        return Flight.query.filter(
+            Flight.status == FlightStatus.APPROVED,
+            Flight.departure_time <= current_time
+        ).all()
+    
+    def get_flights_to_complete(self, current_time: datetime) -> List[Flight]:
+        """Get in-progress flights that should complete"""
+        return Flight.query.filter(
+            Flight.status == FlightStatus.IN_PROGRESS,
+            Flight.arrival_time <= current_time
+        ).all()
+    
+    def get_user_bookings_for_flight(self, flight_id: int) -> List[int]:
+        """Get list of user IDs who have booked this flight"""
+        bookings = Booking.query.filter_by(flight_id=flight_id).all()
+        return [booking.user_id for booking in bookings]

@@ -54,16 +54,13 @@ class RatingService(RatingServiceInterface):
         if data.rating < 1 or data.rating > 5:
             return None
 
-        # Get the existing rating
         existing_rating = self.rating_repository.get_rating_by_id(rating_id)
         if not existing_rating:
             return None
 
-        # Check if the rating belongs to the user
         if existing_rating.user_id != user_id:
             return None
 
-        # Update the rating
         existing_rating.rating = data.rating
         try:
             updated_rating = self.rating_repository.save_rating(existing_rating)

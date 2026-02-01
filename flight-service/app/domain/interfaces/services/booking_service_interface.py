@@ -1,15 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Dict
+from typing import Optional
 from app.domain.models.flights import Booking
 from app.domain.dtos.booking_dto import BookingCreateDTO
 from app.domain.interfaces.repositories.ibooking_repository import BookingPaginationResult
+from ...types.task_types import TaskStatus
 
 class BookingServiceInterface(ABC):
-    @abstractmethod
-    def create_booking(self, user_id: int, data: BookingCreateDTO) -> Optional[Booking]:
-        """Create a new booking."""
-        pass
-
     @abstractmethod
     def get_booking(self, booking_id: int) -> Optional[Booking]:
         """Retrieve a booking by ID."""
@@ -28,4 +24,31 @@ class BookingServiceInterface(ABC):
     @abstractmethod
     def delete_booking(self, booking_id: int) -> bool:
         """Delete a booking by ID."""
+        pass
+
+    @abstractmethod
+    def create_booking(self, user_id: int, booking_data: BookingCreateDTO) -> Optional[str]:
+        """
+        Asynchronously creates a booking and returns a task ID for tracking.
+        
+        Args:
+            user_id (int): The ID of the user making the booking.
+            booking_data (BookingCreateDTO): Validated booking creation data.
+        
+        Returns:
+            Optional[str]: Task ID if submission succeeds, None otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def get_booking_task_status(self, task_id: str) -> Optional[TaskStatus]:
+        """
+        Retrieves the status of an asynchronous booking task.
+        
+        Args:
+            task_id (str): The task ID to check.
+        
+        Returns:
+            Optional[TaskStatus]: Task status details if found, None otherwise.
+        """
         pass

@@ -6,8 +6,11 @@ from ..domain.dtos.booking_dto import (
 from app.domain.interfaces.services.booking_service_interface import BookingServiceInterface
 from app.domain.interfaces.controllers.booking_controller_interface import BookingControllerInterface
 from .validators.booking_validator import validate_create_booking_data
+from .validators.header_validator import validate_user_id_header
 from dataclasses import asdict
+from app.utils.logger_service import get_logger, LoggerService
 
+logger = get_logger(__name__)
 booking_bp = Blueprint('booking', __name__)
 
 
@@ -20,6 +23,9 @@ class BookingController(BookingControllerInterface):
         """
         POST /bookings
         Creates a new booking.
+        
+        The booking process is handled in the background, allowing the user to continue
+        using the application. Returns a task_id for tracking progress.
 
         Request JSON format:
         {
@@ -30,33 +36,44 @@ class BookingController(BookingControllerInterface):
             user-id: "integer (required)"
 
         Returns:
-            tuple: JSON response with booking data or error message, and HTTP status code.
+            tuple: JSON response with task_id for tracking, and HTTP status code.
         """
         data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Invalid JSON'}), 400
         try:
             validated_data: BookingCreateDTO = validate_create_booking_data(data)
         except ValueError as e:
             return jsonify(e.args[0]), 400
         
-        print("Received headers:", dict(request.headers))
-        
-        user_id_str = request.headers.get('user-id')
-
-
-
-        if not user_id_str:
-            return jsonify({'error': 'user-id header is required'}), 400
         try:
-            user_id = int(user_id_str)
-        except ValueError:
-            return jsonify({'error': 'Invalid user-id in header'}), 400
+            user_id = validate_user_id_header(request.headers.get('user-id'))
+        except ValueError as e:
+            return jsonify(e.args[0]), 400
         
-        booking = self.booking_service.create_booking(user_id, validated_data)
-        if not booking:
-            return jsonify({'error': 'Failed to create booking. Flight not found or no seats available.'}), 400
+        task_id = self.booking_service.create_booking(user_id, validated_data)
+        if not task_id:
+            return jsonify({'error': 'Failed to submit booking task'}), 400
         
-        response_dto = BookingResponseDTO()
-        return jsonify(response_dto.dump(booking)), 201
+        return jsonify({
+            'message': 'Booking is being processed',
+            'task_id': task_id,
+            'status_url': f'/api/v1/bookings/tasks/{task_id}'
+        }), 202
+    
+    def get_booking_task_status(self, task_id: str):
+        """
+        GET /bookings/tasks/<task_id>
+        Get the status of an async booking task
+        
+        Returns:
+            tuple: JSON response with task status information
+        """
+        status = self.booking_service.get_booking_task_status(task_id)
+        if not status:
+            return jsonify({'error': 'Task not found'}), 404
+        
+        return jsonify(status), 200
 
     def get_booking(self, booking_id: int):
         """
@@ -94,6 +111,11 @@ class BookingController(BookingControllerInterface):
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
         
+        if page < 1:
+            return jsonify({'error': 'Page must be greater than 0'}), 400
+        if per_page < 1 or per_page > 100:
+            return jsonify({'error': 'Per page must be between 1 and 100'}), 400
+        
         result = self.booking_service.get_user_bookings(user_id, page, per_page)
         response_dto = BookingResponseDTO(many=True)
         
@@ -101,7 +123,7 @@ class BookingController(BookingControllerInterface):
             'bookings': response_dto.dump(result['bookings']),
             'page': result['page'],
             'per_page': result['per_page'],
-            'total': result['total'],                                                                                                   
+            'total': result['total'],
             'pages': result['pages']
         })
 
@@ -119,6 +141,11 @@ class BookingController(BookingControllerInterface):
         """
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
+        
+        if page < 1:
+            return jsonify({'error': 'Page must be greater than 0'}), 400
+        if per_page < 1 or per_page > 100:
+            return jsonify({'error': 'Per page must be between 1 and 100'}), 400
         
         result = self.booking_service.get_all_bookings(page, per_page)
         response_dto = BookingResponseDTO(many=True)
@@ -151,6 +178,7 @@ class BookingController(BookingControllerInterface):
     def register_routes(self, bp: Blueprint):
         """Register routes to the blueprint."""
         bp.add_url_rule('/bookings', 'create_booking', self.create_booking, methods=['POST'])
+        bp.add_url_rule('/bookings/tasks/<int:task_id>', 'get_booking_task_status', self.get_booking_task_status, methods=['GET'])
         bp.add_url_rule('/bookings', 'get_all_bookings', self.get_all_bookings, methods=['GET'])
         bp.add_url_rule('/bookings/<int:booking_id>', 'get_booking', self.get_booking, methods=['GET'])
         bp.add_url_rule('/users/<int:user_id>/bookings', 'get_user_bookings', self.get_user_bookings, methods=['GET'])

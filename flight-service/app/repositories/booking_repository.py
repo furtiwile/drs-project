@@ -2,12 +2,20 @@ from typing import List, Optional, Dict
 from ..domain.models.flights import Booking, Flight 
 from .. import db
 from app.domain.interfaces.repositories.ibooking_repository import IBookingRepository, BookingPaginationResult
+from app.utils.logger_service import get_logger, LoggerService
+
+logger = get_logger(__name__)
 
 class SqlAlchemyBookingRepository(IBookingRepository):
     def save_booking(self, booking: Booking) -> Booking:
+        LoggerService.log_database_operation(logger, 'INSERT', 'bookings',
+                                           user_id=booking.user_id,
+                                           flight_id=booking.flight_id)
         db.session.add(booking)
         db.session.commit()
         db.session.refresh(booking)
+        LoggerService.log_with_context(logger, 'DEBUG', 'Booking saved to database',
+                                     booking_id=booking.id)
         return booking
     
     def get_booking_by_id(self, booking_id: int) -> Optional[Booking]:

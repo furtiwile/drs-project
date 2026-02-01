@@ -6,7 +6,10 @@ from app.domain.interfaces.services.airport_service_interface import AirportServ
 from app.domain.interfaces.controllers.airport_controller_interface import AirportControllerInterface
 from .validators.airport_validator import validate_create_airport_data, validate_update_airport_data
 from dataclasses import asdict
+from app.utils.logger_service import get_logger, LoggerService
+import time
 
+logger = get_logger(__name__)
 airport_bp = Blueprint('airport', __name__)
 
 class AirportController(AirportControllerInterface):
@@ -28,16 +31,35 @@ class AirportController(AirportControllerInterface):
         Returns:
             tuple: JSON response with airport data or error message, and HTTP status code.
         """
+        start_time = time.time()
         data = request.get_json()
+        if not data:
+            duration_ms = (time.time() - start_time) * 1000
+            LoggerService.log_response(logger, 'POST', '/airports', 400, duration_ms, error='Invalid JSON')
+            return jsonify({'error': 'Invalid JSON'}), 400
+        
+        LoggerService.log_request(logger, 'POST', '/airports', name=data.get('name'), code=data.get('code'))
+        
         try:
             validated_data: AirportCreateDTO = validate_create_airport_data(data)
         except ValueError as e:
+            duration_ms = (time.time() - start_time) * 1000
+            LoggerService.log_response(logger, 'POST', '/airports', 400, duration_ms, error='Validation failed')
             return jsonify(e.args[0]), 400
         
         airport = self.airport_service.create_airport(validated_data)
         if not airport:
+            duration_ms = (time.time() - start_time) * 1000
+            LoggerService.log_response(logger, 'POST', '/airports', 400, duration_ms, error='Duplicate airport code')
             return jsonify({'error': 'Airport with this code already exists'}), 400
+        
+        LoggerService.log_business_event(logger, 'AIRPORT_CREATED',
+                                       airport_id=airport.id,
+                                       code=airport.code)
+
         response_dto = AirportResponseDTO()
+        duration_ms = (time.time() - start_time) * 1000
+        LoggerService.log_response(logger, 'POST', '/airports', 201, duration_ms, airport_id=airport.id)
         return jsonify(response_dto.dump(airport)), 201
 
     def get_airport(self, airport_id: int):
@@ -72,6 +94,11 @@ class AirportController(AirportControllerInterface):
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
         
+        if page < 1:
+            return jsonify({'error': 'Page must be greater than 0'}), 400
+        if per_page < 1 or per_page > 100:
+            return jsonify({'error': 'Per page must be between 1 and 100'}), 400
+        
         result = self.airport_service.get_all_airports(page=page, per_page=per_page)
         response_dto = AirportResponseDTO(many=True)
         return jsonify({
@@ -103,12 +130,13 @@ class AirportController(AirportControllerInterface):
             tuple: JSON response with updated airport data or error message, and HTTP status code.
         """
         data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Invalid JSON'}), 400
         try:
             validated_data: AirportUpdateDTO = validate_update_airport_data(data)
         except ValueError as e:
             return jsonify(e.args[0]), 400
         
-        # Check if at least one field is provided
         if validated_data.name is None and validated_data.code is None:
             return jsonify({'error': 'At least one field (name or code) must be provided'}), 400
         
@@ -145,6 +173,9 @@ class AirportController(AirportControllerInterface):
         Returns:
             tuple: JSON response with airport data or error message, and HTTP status code.
         """
+        if not airport_code or len(airport_code) != 3 or not airport_code.isupper() or not airport_code.isalpha():
+            return jsonify({'error': 'Airport code must be exactly 3 uppercase letters'}), 400
+        
         airport = self.airport_service.fetch_airport_info(airport_code)
         if not airport:
             return jsonify({'error': 'Airport not found'}), 404

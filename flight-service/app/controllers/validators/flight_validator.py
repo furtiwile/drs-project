@@ -1,6 +1,6 @@
 from marshmallow import Schema, fields, validate, validates, ValidationError, validates_schema
 from ...domain.dtos.flight_dto import FlightCreateDTO, FlightUpdateDTO, FlightStatusUpdateDTO
-from typing import Dict, Any, cast
+from typing import Dict, Any, cast, Optional
 from datetime import datetime, timezone
 from ...domain.enums.flight_status import FlightStatus
 
@@ -50,6 +50,8 @@ class FlightUpdateValidationSchema(Schema):
     price = fields.Decimal(required=False, validate=validate.Range(min=0.01))
     total_seats = fields.Int(required=False, validate=validate.Range(min=1))
     rejection_reason = fields.Str(required=False)
+    approved_by = fields.Int(required=False, validate=validate.Range(min=1))
+    actual_start_time = fields.DateTime(required=False)
 
     @validates('departure_time')
     def validate_departure_time(self, value):
@@ -74,8 +76,20 @@ class FlightStatusUpdateValidationSchema(Schema):
     rejection_reason = fields.Str(required=False)
 
 
-def validate_update_flight_status_data(data: Dict[str, Any]) -> FlightStatusUpdateDTO:
-    """Validate and load flight status update data into a data object."""
+def validate_update_flight_status_data(data: Dict[str, Any], admin_id: int) -> FlightStatusUpdateDTO:
+    """
+    Validate and load flight status update data into a data object.
+    
+    Args:
+        data: The data to validate
+        admin_id: The admin ID from headers
+        
+    Returns:
+        FlightStatusUpdateDTO: The validated data transfer object
+        
+    Raises:
+        ValueError: If the data is invalid
+    """
     schema = FlightStatusUpdateValidationSchema()
     errors = schema.validate(data)
     if errors:
@@ -83,3 +97,26 @@ def validate_update_flight_status_data(data: Dict[str, Any]) -> FlightStatusUpda
     
     validated_dict: Dict[str, Any] = cast(Dict[str, Any], schema.load(data))
     return FlightStatusUpdateDTO(**validated_dict)
+
+
+def validate_cancel_flight_data(admin_id: int, cancellation_reason: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Validate flight cancellation request.
+    
+    Args:
+        admin_id: The admin ID from headers
+        cancellation_reason: Optional reason for cancellation
+        
+    Returns:
+        Dict: Validated cancellation data
+        
+    Raises:
+        ValueError: If admin_id is invalid
+    """
+    if admin_id < 1:
+        raise ValueError({'error': 'Invalid admin ID'})
+    
+    return {
+        'admin_id': admin_id,
+        'cancellation_reason': cancellation_reason
+    }

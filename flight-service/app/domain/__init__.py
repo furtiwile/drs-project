@@ -1,4 +1,3 @@
-from .models.flights import Airport, Airline, Flight, Booking
 from .models.enums import FlightStatus
 from .dtos import (
     FlightCreateDTO, FlightUpdateDTO, FlightResponseDTO, FlightFilterDTO,

@@ -5,7 +5,10 @@ from app.domain.interfaces.services.airline_service_interface import AirlineServ
 from app.domain.interfaces.controllers.airline_controller_interface import AirlineControllerInterface
 from .validators.airline_validator import validate_create_airline_data, validate_update_airline_data
 from dataclasses import asdict
+from app.utils.logger_service import get_logger, LoggerService
+import time
 
+logger = get_logger(__name__)
 airline_bp = Blueprint('airline', __name__)
 
 
@@ -27,17 +30,35 @@ class AirlineController(AirlineControllerInterface):
         Returns:
             tuple: JSON response with airline data or error message, and HTTP status code.
         """
+        start_time = time.time()
         data = request.get_json()
+        if not data:
+            duration_ms = (time.time() - start_time) * 1000
+            LoggerService.log_response(logger, 'POST', '/airlines', 400, duration_ms, error='Invalid JSON')
+            return jsonify({'error': 'Invalid JSON'}), 400
+        
+        LoggerService.log_request(logger, 'POST', '/airlines', name=data.get('name'))
+        
         try:
             validated_data: AirlineCreateDTO = validate_create_airline_data(data)
         except ValueError as e:
+            duration_ms = (time.time() - start_time) * 1000
+            LoggerService.log_response(logger, 'POST', '/airlines', 400, duration_ms, error='Validation failed')
             return jsonify(e.args[0]), 400
         
         airline = self.airline_service.create_airline(validated_data)
         if not airline:
+            duration_ms = (time.time() - start_time) * 1000
+            LoggerService.log_response(logger, 'POST', '/airlines', 400, duration_ms, error='Failed to create')
             return jsonify({'error': 'Failed to create airline'}), 400
         
+        LoggerService.log_business_event(logger, 'AIRLINE_CREATED',
+                                       airline_id=airline.id,
+                                       name=airline.name)
+        
         response_dto = AirlineResponseDTO()
+        duration_ms = (time.time() - start_time) * 1000
+        LoggerService.log_response(logger, 'POST', '/airlines', 201, duration_ms, airline_id=airline.id)
         return jsonify(response_dto.dump(airline)), 201
 
     def get_airline(self, airline_id: int):
@@ -73,6 +94,11 @@ class AirlineController(AirlineControllerInterface):
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
         
+        if page < 1:
+            return jsonify({'error': 'Page must be greater than 0'}), 400
+        if per_page < 1 or per_page > 100:
+            return jsonify({'error': 'Per page must be between 1 and 100'}), 400
+        
         result = self.airline_service.get_all_airlines(page, per_page)
         response_dto = AirlineResponseDTO(many=True)
         
@@ -101,12 +127,13 @@ class AirlineController(AirlineControllerInterface):
             tuple: JSON response with updated airline data or error message, and HTTP status code.
         """
         data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Invalid JSON'}), 400
         try:
             validated_data: AirlineUpdateDTO = validate_update_airline_data(data)
         except ValueError as e:
             return jsonify(e.args[0]), 400
         
-        # Check if at least one field is provided
         if validated_data.name is None:
             return jsonify({'error': 'At least one field (name) must be provided'}), 400
         

@@ -8,8 +8,12 @@ from ..domain.dtos.rating_dto import (
 from app.domain.interfaces.services.rating_service_interface import RatingServiceInterface
 from app.domain.interfaces.controllers.rating_controller_interface import RatingControllerInterface
 from .validators.rating_validator import validate_create_rating_data, validate_update_rating_data
+from .validators.header_validator import validate_user_id_header
 from dataclasses import asdict
+from app.utils.logger_service import get_logger, LoggerService
+import time
 
+logger = get_logger(__name__)
 rating_bp = Blueprint('rating', __name__)
 
 
@@ -35,26 +39,47 @@ class RatingController(RatingControllerInterface):
         Returns:
             tuple: JSON response with rating data or error message, and HTTP status code.
         """
+        start_time = time.time()
         data = request.get_json()
+        if not data:
+            duration_ms = (time.time() - start_time) * 1000
+            LoggerService.log_response(logger, 'POST', '/ratings', 400, duration_ms, error='Invalid JSON')
+            return jsonify({'error': 'Invalid JSON'}), 400
         
-        user_id_str = request.headers.get('user-id')
-        if not user_id_str:
-            return jsonify({'error': 'user-id header is required'}), 400
+        # Get and validate user ID from header
         try:
-            user_id = int(user_id_str)
-        except ValueError:
-            return jsonify({'error': 'Invalid user-id in header'}), 400
+            user_id = validate_user_id_header(request.headers.get('user-id'))
+        except ValueError as e:
+            duration_ms = (time.time() - start_time) * 1000
+            LoggerService.log_response(logger, 'POST', '/ratings', 400, duration_ms, error='Invalid user-id header')
+            return jsonify(e.args[0]), 400
+        
+        LoggerService.log_request(logger, 'POST', '/ratings', 
+                                flight_id=data.get('flight_id'),
+                                user_id=user_id)
 
         try:
             validated_data: RatingCreateDTO = validate_create_rating_data(data, user_id)
         except ValueError as e:
+            duration_ms = (time.time() - start_time) * 1000
+            LoggerService.log_response(logger, 'POST', '/ratings', 400, duration_ms, error='Validation failed')
             return jsonify(e.args[0]), 400
 
         rating = self.rating_service.create_rating(user_id, validated_data)
         if not rating:
+            duration_ms = (time.time() - start_time) * 1000
+            LoggerService.log_response(logger, 'POST', '/ratings', 400, duration_ms, error='Rating creation failed')
             return jsonify({'error': 'Failed to create rating. Check if flight exists, has completed, and you have a booking for it.'}), 400
 
+        LoggerService.log_business_event(logger, 'RATING_CREATED',
+                                       rating_id=rating.id,
+                                       user_id=user_id,
+                                       flight_id=rating.flight_id,
+                                       rating_value=rating.rating)
+        
         response_dto = RatingResponseDTO()
+        duration_ms = (time.time() - start_time) * 1000
+        LoggerService.log_response(logger, 'POST', '/ratings', 201, duration_ms, rating_id=rating.id)
         return jsonify(response_dto.dump(rating)), 201
 
     def update_rating(self, rating_id: int):
@@ -74,18 +99,18 @@ class RatingController(RatingControllerInterface):
             tuple: JSON response with updated rating data or error message, and HTTP status code.
         """
         data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Invalid JSON'}), 400
         try:
             validated_data: RatingUpdateDTO = validate_update_rating_data(data)
         except ValueError as e:
             return jsonify(e.args[0]), 400
 
-        user_id_str = request.headers.get('user-id')
-        if not user_id_str:
-            return jsonify({'error': 'user-id header is required'}), 400
+        # Get and validate user ID from header
         try:
-            user_id = int(user_id_str)
-        except ValueError:
-            return jsonify({'error': 'Invalid user-id in header'}), 400
+            user_id = validate_user_id_header(request.headers.get('user-id'))
+        except ValueError as e:
+            return jsonify(e.args[0]), 400
 
         rating = self.rating_service.update_rating(rating_id, user_id, validated_data)
         if not rating:
@@ -129,6 +154,12 @@ class RatingController(RatingControllerInterface):
         """
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
+        
+        # Validate pagination parameters
+        if page < 1:
+            return jsonify({'error': 'Page must be greater than 0'}), 400
+        if per_page < 1 or per_page > 100:
+            return jsonify({'error': 'Per page must be between 1 and 100'}), 400
 
         result = self.rating_service.get_user_ratings(user_id, page, per_page)
         response_dto = RatingResponseDTO(many=True)
@@ -155,6 +186,12 @@ class RatingController(RatingControllerInterface):
         """
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
+        
+        # Validate pagination parameters
+        if page < 1:
+            return jsonify({'error': 'Page must be greater than 0'}), 400
+        if per_page < 1 or per_page > 100:
+            return jsonify({'error': 'Per page must be between 1 and 100'}), 400
 
         result = self.rating_service.get_all_ratings(page, per_page)
         response_dto = RatingResponseDTO(many=True)
