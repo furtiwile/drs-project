@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Optional
 from ..domain.models.flights import Airline
 from app.domain.interfaces.repositories.iairline_repository import IAirlineRepository
 from app.domain.interfaces.services.airline_service_interface import AirlineServiceInterface

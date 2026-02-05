@@ -5,12 +5,11 @@ Handles asynchronous processing of long-running tasks
 import threading
 from queue import Queue
 import time
-import logging
-from typing import Callable, Dict, Optional
+from typing import Callable
 from datetime import datetime, timezone
 import uuid
-from ...domain.types.task_types import TaskStatus, TaskStatusType
-from app.utils.logger_service import get_logger, LoggerService
+from ...domain.types.task_types import TaskStatus
+from app.utils.logger_service import get_logger
 
 logger = get_logger(__name__)
 

@@ -28,13 +28,11 @@ class IFlightRepository(ABC):
     @abstractmethod
     def update_flight(self, flight: Flight) -> Optional[Flight]:
         """Update flight entity"""
-        pass
 
     @abstractmethod
     def update_flight_status(self, flight_id: int, status: str, rejection_reason: Optional[str] = None, 
                             approved_by: Optional[int] = None) -> bool:
         """Update flight status with optional rejection reason and approver"""
-        pass
 
     @abstractmethod
     def update_flight_details(self, flight_id: int, data: FlightUpdateData) -> Optional[Flight]:
@@ -51,19 +49,15 @@ class IFlightRepository(ABC):
     @abstractmethod
     def get_flights_by_status(self, status: str, page: int = 1, per_page: int = 10) -> FlightPaginationResult:
         """Get flights filtered by status"""
-        pass
     
     @abstractmethod
     def get_flights_to_start(self, current_time: datetime) -> List[Flight]:
         """Get approved flights that should start (departure_time <= current_time)"""
-        pass
     
     @abstractmethod
     def get_flights_to_complete(self, current_time: datetime) -> List[Flight]:
         """Get in-progress flights that should complete (arrival_time <= current_time)"""
-        pass
     
     @abstractmethod
     def get_user_bookings_for_flight(self, flight_id: int) -> List[int]:
         """Get list of user IDs who have booked this flight"""
-        pass

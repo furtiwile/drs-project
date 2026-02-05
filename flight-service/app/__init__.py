@@ -9,8 +9,6 @@ from .utils.logger_service import LoggerService, get_logger
 
 logger = get_logger(__name__)
 
-from .domain.models.flights import Airport, Airline, Flight, Booking
-from .domain.models.enums import FlightStatus
 from .controllers import (
     airport_bp,
     airline_bp,

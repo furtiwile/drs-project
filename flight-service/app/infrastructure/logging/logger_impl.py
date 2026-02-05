@@ -1,6 +1,6 @@
 import logging
 import traceback
-from typing import Optional, Dict, Any
+from typing import Optional
 from app.domain.interfaces.logging.ilogger import ILogger
 
 

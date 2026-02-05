@@ -1,10 +1,10 @@
-from typing import Optional, Dict
+from typing import Optional
 from datetime import datetime
 from ..domain.models.flights import Rating
 from app.domain.interfaces.repositories.irating_repository import IRatingRepository, RatingPaginationResult
 from app.domain.interfaces.repositories.ibooking_repository import IBookingRepository
 from app.domain.interfaces.services.rating_service_interface import RatingServiceInterface
-from app.domain.dtos.rating_dto import RatingCreateDTO, RatingUpdateDTO, RatingResponseDTO
+from app.domain.dtos.rating_dto import RatingCreateDTO, RatingUpdateDTO
 
 
 class RatingService(RatingServiceInterface):
@@ -23,13 +23,21 @@ class RatingService(RatingServiceInterface):
 
         # Check if user has a booking for this flight
         user_bookings = self.booking_repository.get_bookings_by_user(user_id, page=1, per_page=1000)
-        has_booking = any(b.flight_id == data.flight_id for b in user_bookings.get('bookings', []))
+        has_booking = False
+        for b in user_bookings.get('bookings', []):
+            if b.flight_id == data.flight_id:
+                has_booking = True
+                break
         if not has_booking:
             return None  # User must have booked the flight to rate it
 
         # Check if rating already exists
         user_ratings = self.rating_repository.get_ratings_by_user(user_id, page=1, per_page=1000)
-        existing_rating = any(r.flight_id == data.flight_id for r in user_ratings.get('ratings', []))
+        existing_rating = False
+        for r in user_ratings.get('ratings', []):
+            if r.flight_id == data.flight_id:
+                existing_rating = True
+                break
         if existing_rating:
             return None  # User can only rate once per flight
 

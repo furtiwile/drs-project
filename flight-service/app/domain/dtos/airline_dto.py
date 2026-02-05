@@ -1,6 +1,6 @@
 from marshmallow import Schema, fields, validate
 from dataclasses import dataclass
-from typing import Dict, Any, Optional
+from typing import Optional
 
 
 @dataclass

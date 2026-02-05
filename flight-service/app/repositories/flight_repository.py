@@ -1,4 +1,3 @@
-from dataclasses import asdict
 from typing import Optional, List, Dict
 from datetime import datetime
 from sqlalchemy import func
@@ -6,7 +5,6 @@ from ..domain.models.flights import Booking, Flight
 from ..domain.models.enums import FlightStatus
 from .. import db
 from app.domain.interfaces.repositories.iflight_repository import IFlightRepository, FlightPaginationResult
-from app.domain.dtos.flight_dto import FlightUpdateDTO
 from app.domain.types.repository_types import FlightUpdateData
 from app.utils.logger_service import get_logger, LoggerService
 

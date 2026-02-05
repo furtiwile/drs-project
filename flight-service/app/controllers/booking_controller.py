@@ -7,8 +7,7 @@ from app.domain.interfaces.services.booking_service_interface import BookingServ
 from app.domain.interfaces.controllers.booking_controller_interface import BookingControllerInterface
 from .validators.booking_validator import validate_create_booking_data
 from .validators.header_validator import validate_user_id_header
-from dataclasses import asdict
-from app.utils.logger_service import get_logger, LoggerService
+from app.utils.logger_service import get_logger
 
 logger = get_logger(__name__)
 booking_bp = Blueprint('booking', __name__)

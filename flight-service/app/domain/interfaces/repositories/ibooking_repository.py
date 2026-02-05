@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, List, TypedDict
+from typing import Optional, List, TypedDict
 from app.domain.models.flights import Booking
 
 

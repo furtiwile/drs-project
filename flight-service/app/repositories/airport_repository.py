@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, TypedDict
+from typing import List, Optional, Dict
 from ..domain.models.flights import Airport
 from .. import db
 from app.domain.interfaces.repositories.iairport_repository import IAirportRepository, AirportPaginationResult

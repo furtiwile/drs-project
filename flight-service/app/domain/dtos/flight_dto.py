@@ -1,6 +1,6 @@
 from typing import Optional
 from marshmallow import Schema, fields, validate, validates, ValidationError
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from decimal import Decimal
 

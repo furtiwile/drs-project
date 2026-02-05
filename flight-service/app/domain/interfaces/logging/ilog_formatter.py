@@ -8,4 +8,3 @@ class ILogFormatter(ABC):
     @abstractmethod
     def format(self, record: logging.LogRecord) -> str:
         """Format a log record into a string"""
-        pass

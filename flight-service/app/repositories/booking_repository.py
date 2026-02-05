@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict
+from typing import List, Optional
 from ..domain.models.flights import Booking, Flight 
 from .. import db
 from app.domain.interfaces.repositories.ibooking_repository import IBookingRepository, BookingPaginationResult

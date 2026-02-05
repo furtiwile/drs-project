@@ -11,7 +11,7 @@ backlog = 2048
 
 # Worker processes
 workers = int(os.getenv('GUNICORN_WORKERS', '1'))
-worker_class = 'gevent'  # Use gevent for async/WebSocket support
+worker_class = 'gevent'
 worker_connections = 1000
 max_requests = 1000
 max_requests_jitter = 50
@@ -35,7 +35,7 @@ user = None
 group = None
 tmp_upload_dir = None
 
-# SSL (if needed)
+# SSL
 # keyfile = None
 # certfile = None
 

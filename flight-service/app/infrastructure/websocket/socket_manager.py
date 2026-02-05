@@ -3,10 +3,9 @@ WebSocket manager for real-time flight notifications
 Following Clean Architecture - Infrastructure layer
 """
 from flask_socketio import SocketIO, emit, join_room, leave_room
-from typing import Dict, Optional
+from typing import Dict
 from ...domain.types.websocket_types import FlightNotificationData
-import logging
-from app.utils.logger_service import get_logger, LoggerService
+from app.utils.logger_service import get_logger
 
 logger = get_logger(__name__)
 
@@ -94,7 +93,6 @@ class SocketManager:
         @self.socketio.on('join_flight_room')
         def handle_join_flight_room(data):
             """Client joins a specific flight room to receive updates for that flight"""
-            from flask import request as flask_request
             flight_id = data.get('flight_id')
             
             if flight_id:

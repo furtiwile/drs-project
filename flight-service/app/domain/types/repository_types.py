@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional
+from typing import TypedDict
 from decimal import Decimal
 from datetime import datetime
 

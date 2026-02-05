@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Dict, List, TypedDict
+from typing import Optional, List, TypedDict
 from app.domain.models.flights import Airport
-from app.domain.dtos.airport_dto import AirportUpdateDTO
 
 class AirportPaginationResult(TypedDict):
     airports: List[Airport]

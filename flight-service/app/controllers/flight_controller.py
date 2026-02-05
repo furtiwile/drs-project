@@ -3,7 +3,6 @@ Flight Controller - Updated with new features
 Following Clean Architecture and SOLID principles
 """
 from flask import Blueprint, request, jsonify
-from typing import Optional
 from ..domain.dtos.flight_dto import (
     FlightCreateDTO, 
     FlightUpdateDTO, 
@@ -12,7 +11,7 @@ from ..domain.dtos.flight_dto import (
 )
 from app.domain.interfaces.services.flight_service_interface import FlightServiceInterface
 from app.domain.interfaces.controllers.flight_controller_interface import FlightControllerInterface
-from .validators.flight_validator import validate_create_flight_data, validate_update_flight_data, validate_update_flight_status_data, validate_cancel_flight_data
+from .validators.flight_validator import validate_create_flight_data, validate_update_flight_data, validate_update_flight_status_data
 from .validators.header_validator import validate_admin_id_header, validate_user_id_header  # Assuming validate_user_id_header is added to header_validator.py
 from app.utils.logger_service import get_logger, LoggerService
 import time

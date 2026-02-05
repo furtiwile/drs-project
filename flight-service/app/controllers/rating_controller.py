@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify
-from typing import Optional
 from ..domain.dtos.rating_dto import (
     RatingCreateDTO,
     RatingUpdateDTO,
@@ -9,7 +8,6 @@ from app.domain.interfaces.services.rating_service_interface import RatingServic
 from app.domain.interfaces.controllers.rating_controller_interface import RatingControllerInterface
 from .validators.rating_validator import validate_create_rating_data, validate_update_rating_data
 from .validators.header_validator import validate_user_id_header
-from dataclasses import asdict
 from app.utils.logger_service import get_logger, LoggerService
 import time
 

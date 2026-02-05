@@ -9,22 +9,18 @@ class BookingServiceInterface(ABC):
     @abstractmethod
     def get_booking(self, booking_id: int) -> Optional[Booking]:
         """Retrieve a booking by ID."""
-        pass
 
     @abstractmethod
     def get_user_bookings(self, user_id: int, page: int, per_page: int) -> BookingPaginationResult:
         """Retrieve all bookings for a user with pagination."""
-        pass
 
     @abstractmethod
     def get_all_bookings(self, page: int, per_page: int) -> BookingPaginationResult:
         """Retrieve all bookings with pagination."""
-        pass
 
     @abstractmethod
     def delete_booking(self, booking_id: int) -> bool:
         """Delete a booking by ID."""
-        pass
 
     @abstractmethod
     def create_booking(self, user_id: int, booking_data: BookingCreateDTO) -> Optional[str]:
@@ -38,7 +34,6 @@ class BookingServiceInterface(ABC):
         Returns:
             Optional[str]: Task ID if submission succeeds, None otherwise.
         """
-        pass
 
     @abstractmethod
     def get_booking_task_status(self, task_id: str) -> Optional[TaskStatus]:
@@ -51,4 +46,3 @@ class BookingServiceInterface(ABC):
         Returns:
             Optional[TaskStatus]: Task status details if found, None otherwise.
         """
-        pass

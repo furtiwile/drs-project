@@ -1,10 +1,8 @@
 from flask import Blueprint, request, jsonify
-from typing import Optional
 from ..domain.dtos.airline_dto import AirlineCreateDTO, AirlineUpdateDTO, AirlineResponseDTO
 from app.domain.interfaces.services.airline_service_interface import AirlineServiceInterface
 from app.domain.interfaces.controllers.airline_controller_interface import AirlineControllerInterface
 from .validators.airline_validator import validate_create_airline_data, validate_update_airline_data
-from dataclasses import asdict
 from app.utils.logger_service import get_logger, LoggerService
 import time
 

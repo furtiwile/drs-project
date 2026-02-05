@@ -1,11 +1,8 @@
-import string
 from flask import Blueprint, request, jsonify
-from typing import Optional
 from ..domain.dtos.airport_dto import AirportUpdateDTO, AirportResponseDTO, AirportCreateDTO
 from app.domain.interfaces.services.airport_service_interface import AirportServiceInterface
 from app.domain.interfaces.controllers.airport_controller_interface import AirportControllerInterface
 from .validators.airport_validator import validate_create_airport_data, validate_update_airport_data
-from dataclasses import asdict
 from app.utils.logger_service import get_logger, LoggerService
 import time
 

@@ -4,11 +4,11 @@ from ..domain.models.flights import Booking
 from app.domain.interfaces.repositories.ibooking_repository import BookingPaginationResult, IBookingRepository
 from app.domain.interfaces.repositories.iflight_repository import IFlightRepository
 from app.domain.interfaces.services.booking_service_interface import BookingServiceInterface
-from app.domain.dtos.booking_dto import BookingCreateDTO, BookingResponseDTO
+from app.domain.dtos.booking_dto import BookingCreateDTO
 from app.domain.models.enums import FlightStatus
 from app.domain.types.task_types import TaskStatus
 import time
-from app.utils.logger_service import get_logger, LoggerService
+from app.utils.logger_service import get_logger
 
 logger = get_logger(__name__)
 

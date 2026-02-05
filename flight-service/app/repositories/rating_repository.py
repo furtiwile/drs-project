@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict
+from typing import Optional
 from ..domain.models.flights import Rating, Flight
 from .. import db
 from app.domain.interfaces.repositories.irating_repository import IRatingRepository, RatingPaginationResult

@@ -4,7 +4,7 @@ Following Clean Architecture principles
 """
 import threading
 import time
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Optional
 from ...domain.interfaces.repositories.iflight_repository import IFlightRepository
 from ...domain.models.enums import FlightStatus

@@ -1,6 +1,5 @@
-from typing import Optional, Dict, cast, List
-from datetime import datetime, timedelta, timezone
-from decimal import Decimal
+from typing import Optional, Dict, cast
+from datetime import datetime, timezone
 from ..domain.models.flights import Flight
 from app.domain.interfaces.repositories.iflight_repository import IFlightRepository
 from app.domain.interfaces.repositories.iairport_repository import IAirportRepository
@@ -12,8 +11,7 @@ from ..domain.validators.flight_validator import FlightValidator
 from ..domain.dtos.flight_dto import (
     FlightCreateDTO,
     FlightStatusUpdateDTO,
-    FlightUpdateDTO,
-    FlightResponseDTO)
+    FlightUpdateDTO)
 from ..domain.types.websocket_types import FlightNotificationData
 from ..domain.types.repository_types import FlightUpdateData
 
