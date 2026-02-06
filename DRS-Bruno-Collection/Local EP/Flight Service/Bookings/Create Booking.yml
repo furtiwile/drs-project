@@ -1,0 +1,18 @@
+info:
+  name: Create Booking
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{local_flights_url}}/airlines"
+  body:
+    type: json
+    data: "{\r\n    \"flight_id\" : 1\r\n}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

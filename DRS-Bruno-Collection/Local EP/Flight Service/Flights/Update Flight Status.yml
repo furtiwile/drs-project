@@ -1,0 +1,22 @@
+info:
+  name: Update Flight Status
+  type: http
+  seq: 5
+
+http:
+  method: PATCH
+  url: "{{local_flights_url}}/flights/5/status"
+  body:
+    type: json
+    data: "{\r
+
+      \    \"status\" : \"COMPLETED\"\r
+
+      }"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

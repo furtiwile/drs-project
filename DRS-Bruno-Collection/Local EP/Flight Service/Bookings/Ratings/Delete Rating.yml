@@ -1,0 +1,15 @@
+info:
+  name: Delete Rating
+  type: http
+  seq: 6
+
+http:
+  method: DELETE
+  url: "{{local_flights_url}}/airports/9"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,40 @@
+info:
+  name: Update Flight
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: "{{local_server_url}}/flights/8"
+  body:
+    type: json
+    data: "{\r
+
+      //   \"flight_name\": \"THE NEWEST FLIGHT\"\r
+
+      //   \"airline_id\": 1,\r
+
+      //   \"flight_distance_km\": 150000\r
+
+      //   \"flight_duration\": 180,\r
+
+      //   \"departure_time\": \"2026-01-20T14:00:00Z\",\r
+
+      \  \"departure_airport_id\": 2,\r
+
+      \  \"arrival_airport_id\": 3,\r
+
+      \  \"price\": 29933.99\r
+
+      //   \"total_seats\": 200000\r
+
+      // Either or, you can also push a full update\r
+
+      }"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,38 @@
+info:
+  name: Create Flight
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{local_flights_url}}/flights"
+  body:
+    type: json
+    data: "{\r
+
+      \  \"flight_name\": \"Flight ABC123\",\r
+
+      \  \"airline_id\": 1,\r
+
+      \  \"flight_distance_km\": 1500,\r
+
+      \  \"flight_duration\": 180,\r
+
+      \  \"departure_time\": \"2026-01-20T14:00:00Z\",\r
+
+      \  \"departure_airport_id\": 1,\r
+
+      \  \"arrival_airport_id\": 2,\r
+
+      \  \"price\": 299.99,\r
+
+      \  \"total_seats\": 200\r
+
+      }"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

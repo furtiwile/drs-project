@@ -1,0 +1,22 @@
+info:
+  name: Update Airport Copy
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: "{{local_server_url}}/airlines/5"
+  body:
+    type: json
+    data: "{\r
+
+      \    \"name\" : \"Not New Airline\"\r
+
+      }"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

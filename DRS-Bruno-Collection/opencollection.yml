@@ -1,0 +1,34 @@
+opencollection: 1.0.0
+
+info:
+  name: DRS
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  variables:
+    - name: local_server_url
+      value: http://localhost:5000
+    - name: local_flights_url
+      value: http://localhost:5555
+    - name: docker_server_url
+      value: http://localhost:8000
+    - name: docker_flights_url
+      value: http://localhost:8001
+bundled: false
+extensions:
+  ignore:
+    - node_modules
+    - .git
+  presets:
+    request:
+      type: http

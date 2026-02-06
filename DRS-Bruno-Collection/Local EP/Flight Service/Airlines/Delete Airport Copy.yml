@@ -1,0 +1,15 @@
+info:
+  name: Delete Airport Copy
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: "{{local_flights_url}}/airports/5"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

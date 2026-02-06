@@ -1,0 +1,15 @@
+info:
+  name: Get All Airlines
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{local_flights_url}}/airlines"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

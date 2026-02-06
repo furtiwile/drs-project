@@ -1,0 +1,24 @@
+info:
+  name: Login Copy
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: localhost:5000/api/v1/auth/login
+  body:
+    type: json
+    data: "{\r
+
+      \    \"email\" : \"admin@example.com\",\r
+
+      \    \"password\" : \"password\"\r
+
+      }"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

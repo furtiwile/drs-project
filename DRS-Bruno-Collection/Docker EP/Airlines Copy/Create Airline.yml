@@ -1,0 +1,22 @@
+info:
+  name: Create Airline
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{local_server_url}}/airlines"
+  body:
+    type: json
+    data: "{\r
+
+      \    \"name\" : \"A New Airline\"\r
+
+      }"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

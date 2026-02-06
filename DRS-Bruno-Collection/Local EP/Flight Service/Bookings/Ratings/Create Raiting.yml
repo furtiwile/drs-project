@@ -1,0 +1,24 @@
+info:
+  name: Create Raiting
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{local_flights_url}}/airports"
+  body:
+    type: json
+    data: "{\r
+
+      \    \"flight_id\" : \"A New Airport\",\r
+
+      \    \"rating\" : \"ANA\"\r
+
+      }"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
