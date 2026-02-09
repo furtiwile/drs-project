@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Self
 
 from app.domain.enums.gender import Gender
@@ -20,8 +20,6 @@ class CreateUserDTO:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
-        from datetime import datetime
-        
         if isinstance(data.get('birth_date'), str):
             data['birth_date'] = datetime.strptime(data['birth_date'], '%Y-%m-%d').date()
         

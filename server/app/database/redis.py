@@ -8,7 +8,7 @@ def init_redis() -> None:
     if _redis_client is not None:
         return
     
-    REDIS_URL = os.getenv("REDIS_URL")
+    REDIS_URL = os.getenv("REDIS_URL", None)
     if REDIS_URL is None:
         raise ValueError("REDIS_URL is not set")
     
