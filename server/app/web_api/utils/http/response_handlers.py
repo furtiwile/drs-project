@@ -31,6 +31,9 @@ def handle_response(
         success_code: int = 200
 ) -> tuple[Response, int]:
     if isinstance(result, ok):
+        if success_code == 204 or result.data is None:
+            return jsonify(None), success_code
+
         if to_json is not None:
             data = to_json(result.data)
         elif isinstance(result.data, Serializable):
