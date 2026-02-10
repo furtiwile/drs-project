@@ -10,7 +10,7 @@ from app.domain.dtos.gateway.flights.airport.airport_update_dto import AirportUp
 
 class GatewayAirportController:
     def __init__(self, gateway_airport_service: IGatewayAirportService) -> None:
-        self._gateway_airport_blueprint = Blueprint('airports', __name__, url_prefix='/api/v1/flights')
+        self._gateway_airport_blueprint = Blueprint('airports', __name__, url_prefix='/api/v1')
         self.gateway_airport_service = gateway_airport_service
         self._register_routes()
     
@@ -24,7 +24,7 @@ class GatewayAirportController:
 
     @require_json
     @authenticate
-    @authorize(Role.MANAGER)
+    @authorize(Role.ADMINISTRATOR, Role.MANAGER)
     def create_airport(self) -> tuple[Response, int]:
         data = request.get_json()
         create_airport_dto = AirportCreateDTO.from_dict(data)
@@ -36,7 +36,6 @@ class GatewayAirportController:
             return jsonify(message=result.message), result.status_code
 
     @authenticate
-    @authorize(Role.MANAGER)
     def get_all_airports(self) -> tuple[Response, int]:
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
@@ -48,7 +47,6 @@ class GatewayAirportController:
             return jsonify(message=result.message), result.status_code
 
     @authenticate
-    @authorize(Role.MANAGER)
     def get_airport(self, airport_id: int) -> tuple[Response, int]:
         result = self.gateway_airport_service.get_airport(airport_id)
         if isinstance(result, ok):
@@ -58,7 +56,7 @@ class GatewayAirportController:
     
     @require_json
     @authenticate
-    @authorize(Role.MANAGER)
+    @authorize(Role.ADMINISTRATOR, Role.MANAGER)
     def update_airport(self, airport_id: int) -> tuple[Response, int]:
         data = request.get_json()
         update_airport_dto = AirportUpdateDTO.from_dict(data)
@@ -70,7 +68,7 @@ class GatewayAirportController:
             return jsonify(message=result.message), result.status_code
 
     @authenticate
-    @authorize(Role.MANAGER)
+    @authorize(Role.ADMINISTRATOR, Role.MANAGER)
     def delete_airport(self, airport_id: int) -> tuple[Response, int]:
         result = self.gateway_airport_service.delete_airport(airport_id)
         if isinstance(result, ok):
@@ -79,7 +77,6 @@ class GatewayAirportController:
             return jsonify(message=result.message), result.status_code
 
     @authenticate
-    @authorize(Role.MANAGER)
     def get_airport_info(self, airport_code: str) -> tuple[Response, int]:
         result = self.gateway_airport_service.get_airport_info(airport_code)
         if isinstance(result, ok):

@@ -21,11 +21,13 @@ from app.services.mail.mail_service import MailService
 from app.services.user.user_service import UserService
 from app.services.gateway.flights.gateway_airline_service import GatewayAirlineService
 from app.services.gateway.flights.gateway_airport_service import GatewayAirportService
+from app.services.gateway.flights.gateway_flight_service import GatewayFlightService
 
 from app.web_api.controllers.auth.auth_controller import AuthController
 from app.web_api.controllers.user.user_controller import UserController
 from app.web_api.controllers.gateway.flights.gateway_airline_controller import GatewayAirlineController
 from app.web_api.controllers.gateway.flights.gateway_airport_controller import GatewayAirportController
+from app.web_api.controllers.gateway.flights.gateway_flight_controller import GatewayFlightController
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -56,20 +58,23 @@ def create_app() -> Flask:
     auth_service = AuthService(user_repository, blacklist_repository, blocklist_repository)
     user_service = UserService(user_repository, mail_service)
 
-    gateway_flights_base_url = os.getenv("FLIGHTS_URL", "")
+    gateway_flights_base_url = os.getenv("FLIGHTS_URL", "0.0.0.0")
     gateway_flights_version = os.getenv("FLIGHTS_VERSION", "/api/v1")
     gateway_flights_client = GatewayClient(base_url=gateway_flights_base_url, version=gateway_flights_version)
     gateway_airline_service = GatewayAirlineService(gateway_flights_client)
     gateway_airport_service = GatewayAirportService(gateway_flights_client)
+    gateway_flight_service = GatewayFlightService(gateway_flights_client)
 
     auth_controller = AuthController(auth_service)
     user_controller = UserController(user_service)
     gateway_airline_controller = GatewayAirlineController(gateway_airline_service)
     gateway_airport_controller = GatewayAirportController(gateway_airport_service)
+    gateway_flight_controller = GatewayFlightController(gateway_flight_service)
 
     app.register_blueprint(auth_controller.blueprint)
     app.register_blueprint(user_controller.blueprint)
     app.register_blueprint(gateway_airline_controller.blueprint)
     app.register_blueprint(gateway_airport_controller.blueprint)
+    app.register_blueprint(gateway_flight_controller.blueprint)
 
     return app

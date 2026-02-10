@@ -10,7 +10,7 @@ from app.domain.dtos.gateway.flights.airline.airline_create_dto import AirlineCr
 
 class GatewayAirlineController:
     def __init__(self, gateway_airline_service: IGatewayAirlineService) -> None:
-        self._gateway_airline_blueprint = Blueprint('airlines', __name__, url_prefix='/api/v1/flights')
+        self._gateway_airline_blueprint = Blueprint('airlines', __name__, url_prefix='/api/v1')
         self.gateway_airline_service = gateway_airline_service
         self._register_routes()
     
@@ -23,7 +23,7 @@ class GatewayAirlineController:
 
     @require_json
     @authenticate
-    @authorize(Role.MANAGER)
+    @authorize(Role.ADMINISTRATOR, Role.MANAGER)
     def create_airline(self) -> tuple[Response, int]:
         data = request.get_json()
         create_airline_dto = AirlineCreateDTO.from_dict(data)
@@ -35,7 +35,6 @@ class GatewayAirlineController:
             return jsonify(message=result.message), result.status_code
     
     @authenticate
-    @authorize(Role.MANAGER)
     def get_all_airlines(self) -> tuple[Response, int]:
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
@@ -47,7 +46,6 @@ class GatewayAirlineController:
             return jsonify(message=result.message), result.status_code
 
     @authenticate
-    @authorize(Role.MANAGER)
     def get_airline(self, airline_id: int) -> tuple[Response, int]:
         result = self.gateway_airline_service.get_airline(airline_id)
         if isinstance(result, ok):
@@ -57,7 +55,7 @@ class GatewayAirlineController:
     
     @require_json
     @authenticate
-    @authorize(Role.MANAGER)
+    @authorize(Role.ADMINISTRATOR, Role.MANAGER)
     def update_airline(self, airline_id: int) -> tuple[Response, int]:
         data = request.get_json()
         update_airline_dto = AirlineUpdateDTO.from_dict(data)
@@ -69,7 +67,7 @@ class GatewayAirlineController:
             return jsonify(message=result.message), result.status_code
     
     @authenticate
-    @authorize(Role.MANAGER)
+    @authorize(Role.ADMINISTRATOR, Role.MANAGER)
     def delete_airline(self, airline_id: int) -> tuple[Response, int]:
         result = self.gateway_airline_service.delete_airline(airline_id)
         if isinstance(result, ok):
