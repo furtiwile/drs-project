@@ -20,7 +20,7 @@ class GatewayAirportController:
         self._gateway_airport_blueprint.add_url_rule('/airports/<int:airport_id>', view_func=self.get_airport, methods=['GET'])
         self._gateway_airport_blueprint.add_url_rule('/airports/<int:airport_id>', view_func=self.update_airport, methods=['PATCH'])
         self._gateway_airport_blueprint.add_url_rule('/airports/<int:airport_id>', view_func=self.delete_airport, methods=['DELETE'])
-        self._gateway_airport_blueprint.add_url_rule('/airports/info/<airport_code>', view_func=self.get_airport_info, methods=['GET'])
+        self._gateway_airport_blueprint.add_url_rule('/airports/info/<string:airport_code>', view_func=self.get_airport_info, methods=['GET'])
 
     @require_json
     @authenticate

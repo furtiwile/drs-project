@@ -28,7 +28,7 @@ class GatewayAirlineService(IGatewayAirlineService):
     
     def get_all_airlines(self, page: int, per_page: int) -> GatewayResult[PaginatedAirlinesDTO]:
         try:
-            response = self.client.get(f"/airlines", params={'page': page, 'per_page': per_page})
+            response = self.client.get("/airlines", params={'page': page, 'per_page': per_page})
             if response.status_code == 200:
                 return ok(PaginatedAirlinesDTO.from_dict(response.json()))
             

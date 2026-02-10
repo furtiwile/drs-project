@@ -29,8 +29,7 @@ class GatewayFlightService(IGatewayFlightService):
             )
             return err(response.status_code, error_message)
         
-        except Exception as e:
-            print(e)
+        except Exception:
             return err(500, 'Internal Gateway Error')
 
     def get_all_flights(self, page: int, per_page: int, filters: dict[str, Any] | None = None) -> GatewayResult[PaginatedFlightsDTO]:
