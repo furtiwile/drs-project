@@ -1,9 +1,9 @@
 from abc import abstractmethod
-from app.domain.dtos.gateway.airline_create_dto import AirlineCreateDTO
-from app.domain.dtos.gateway.airline_dto import AirlineDTO
-from app.domain.dtos.gateway.airline_update_dto import AirlineUpdateDTO
+from app.domain.dtos.gateway.flights.airline.airline_create_dto import AirlineCreateDTO
+from app.domain.dtos.gateway.flights.airline.airline_dto import AirlineDTO
+from app.domain.dtos.gateway.flights.airline.airline_update_dto import AirlineUpdateDTO
 from app.domain.types.gateway_result import GatewayResult
-from app.domain.dtos.gateway.paginated_airlines_dto import PaginatedAirlinesDTO
+from app.domain.dtos.gateway.flights.airline.paginated_airlines_dto import PaginatedAirlinesDTO
 
 class IGatewayAirlineService:
     @abstractmethod

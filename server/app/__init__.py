@@ -19,11 +19,13 @@ from app.infrastructure.gateway.gateway_client import GatewayClient
 from app.services.auth.auth_service import AuthService
 from app.services.mail.mail_service import MailService
 from app.services.user.user_service import UserService
-from app.services.gateway.gateway_airline_service import GatewayAirlineService
+from app.services.gateway.flights.gateway_airline_service import GatewayAirlineService
+from app.services.gateway.flights.gateway_airport_service import GatewayAirportService
 
 from app.web_api.controllers.auth.auth_controller import AuthController
 from app.web_api.controllers.user.user_controller import UserController
-from app.web_api.controllers.gateway.gateway_flights_controller import GatewayFlightsController
+from app.web_api.controllers.gateway.flights.gateway_airline_controller import GatewayAirlineController
+from app.web_api.controllers.gateway.flights.gateway_airport_controller import GatewayAirportController
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -58,13 +60,16 @@ def create_app() -> Flask:
     gateway_flights_version = os.getenv("FLIGHTS_VERSION", "/api/v1")
     gateway_flights_client = GatewayClient(base_url=gateway_flights_base_url, version=gateway_flights_version)
     gateway_airline_service = GatewayAirlineService(gateway_flights_client)
+    gateway_airport_service = GatewayAirportService(gateway_flights_client)
 
     auth_controller = AuthController(auth_service)
     user_controller = UserController(user_service)
-    gateway_flights_controller = GatewayFlightsController(gateway_airline_service)
+    gateway_airline_controller = GatewayAirlineController(gateway_airline_service)
+    gateway_airport_controller = GatewayAirportController(gateway_airport_service)
 
     app.register_blueprint(auth_controller.blueprint)
     app.register_blueprint(user_controller.blueprint)
-    app.register_blueprint(gateway_flights_controller.blueprint)
+    app.register_blueprint(gateway_airline_controller.blueprint)
+    app.register_blueprint(gateway_airport_controller.blueprint)
 
     return app

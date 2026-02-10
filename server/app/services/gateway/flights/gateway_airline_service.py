@@ -1,10 +1,10 @@
 from app.infrastructure.gateway.gateway_client import GatewayClient
-from app.domain.dtos.gateway.airline_create_dto import AirlineCreateDTO
-from app.domain.dtos.gateway.airline_dto import AirlineDTO
-from app.domain.dtos.gateway.airline_update_dto import AirlineUpdateDTO
+from app.domain.dtos.gateway.flights.airline.airline_create_dto import AirlineCreateDTO
+from app.domain.dtos.gateway.flights.airline.airline_dto import AirlineDTO
+from app.domain.dtos.gateway.flights.airline.airline_update_dto import AirlineUpdateDTO
 from app.domain.types.gateway_result import GatewayResult, ok, err
-from app.domain.services.gateway.igateway_airline_service import IGatewayAirlineService
-from app.domain.dtos.gateway.paginated_airlines_dto import PaginatedAirlinesDTO
+from app.domain.services.gateway.flights.igateway_airline_service import IGatewayAirlineService
+from app.domain.dtos.gateway.flights.airline.paginated_airlines_dto import PaginatedAirlinesDTO
 
 class GatewayAirlineService(IGatewayAirlineService):
     def __init__(self, client: GatewayClient) -> None:
