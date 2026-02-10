@@ -23,6 +23,7 @@ from app.services.gateway.flights.gateway_airline_service import GatewayAirlineS
 from app.services.gateway.flights.gateway_airport_service import GatewayAirportService
 from app.services.gateway.flights.gateway_flight_service import GatewayFlightService
 from app.services.gateway.flights.gateway_rating_service import GatewayRatingService
+from app.services.gateway.flights.gateway_booking_service import GatewayBookingService
 
 from app.web_api.controllers.auth.auth_controller import AuthController
 from app.web_api.controllers.user.user_controller import UserController
@@ -30,6 +31,7 @@ from app.web_api.controllers.gateway.flights.gateway_airline_controller import G
 from app.web_api.controllers.gateway.flights.gateway_airport_controller import GatewayAirportController
 from app.web_api.controllers.gateway.flights.gateway_flight_controller import GatewayFlightController
 from app.web_api.controllers.gateway.flights.gateway_rating_controller import GatewayRatingController
+from app.web_api.controllers.gateway.flights.gateway_booking_controller import GatewayBookingController
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -67,6 +69,7 @@ def create_app() -> Flask:
     gateway_airport_service = GatewayAirportService(gateway_flights_client)
     gateway_flight_service = GatewayFlightService(gateway_flights_client)
     gateway_rating_service = GatewayRatingService(gateway_flights_client)
+    gateway_booking_service = GatewayBookingService(gateway_flights_client)
 
     auth_controller = AuthController(auth_service)
     user_controller = UserController(user_service)
@@ -74,6 +77,7 @@ def create_app() -> Flask:
     gateway_airport_controller = GatewayAirportController(gateway_airport_service)
     gateway_flight_controller = GatewayFlightController(gateway_flight_service)
     gateway_rating_controller = GatewayRatingController(gateway_rating_service)
+    gateway_booking_controller = GatewayBookingController(gateway_booking_service)
 
     app.register_blueprint(auth_controller.blueprint)
     app.register_blueprint(user_controller.blueprint)
@@ -81,5 +85,6 @@ def create_app() -> Flask:
     app.register_blueprint(gateway_airport_controller.blueprint)
     app.register_blueprint(gateway_flight_controller.blueprint)
     app.register_blueprint(gateway_rating_controller.blueprint)
+    app.register_blueprint(gateway_booking_controller.blueprint)
 
     return app
