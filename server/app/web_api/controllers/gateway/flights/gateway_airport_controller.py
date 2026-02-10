@@ -1,12 +1,15 @@
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, request
+
 from app.domain.services.gateway.flights.igateway_airport_service import IGatewayAirportService
+from app.domain.dtos.gateway.flights.airport.airport_create_dto import AirportCreateDTO
+from app.domain.dtos.gateway.flights.airport.airport_update_dto import AirportUpdateDTO
+from app.domain.enums.role import Role
+
 from app.middlewares.json.json_middleware import require_json
 from app.middlewares.authentication.authentication import authenticate
-from app.domain.enums.role import Role
 from app.middlewares.authorization.authorization import authorize
-from app.domain.dtos.gateway.flights.airport.airport_create_dto import AirportCreateDTO
-from app.domain.types.gateway_result import ok
-from app.domain.dtos.gateway.flights.airport.airport_update_dto import AirportUpdateDTO
+
+from app.web_api.utils.http.response_handlers import handle_response
 
 class GatewayAirportController:
     def __init__(self, gateway_airport_service: IGatewayAirportService) -> None:
@@ -30,10 +33,7 @@ class GatewayAirportController:
         create_airport_dto = AirportCreateDTO.from_dict(data)
 
         result = self.gateway_airport_service.create_airport(create_airport_dto)
-        if isinstance(result, ok):
-            return jsonify(result.data), 201
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result, success_code=201)
 
     @authenticate
     def get_all_airports(self) -> tuple[Response, int]:
@@ -41,18 +41,12 @@ class GatewayAirportController:
         per_page = request.args.get('per_page', 10, type=int)
 
         result = self.gateway_airport_service.get_all_airports(page, per_page)
-        if isinstance(result, ok):
-            return jsonify(result.data), 200
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result)
 
     @authenticate
     def get_airport(self, airport_id: int) -> tuple[Response, int]:
         result = self.gateway_airport_service.get_airport(airport_id)
-        if isinstance(result, ok):
-            return jsonify(result.data), 200
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result)
     
     @require_json
     @authenticate
@@ -62,27 +56,18 @@ class GatewayAirportController:
         update_airport_dto = AirportUpdateDTO.from_dict(data)
 
         result = self.gateway_airport_service.update_airport(airport_id, update_airport_dto)
-        if isinstance(result, ok):
-            return jsonify(result.data), 200
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result)
 
     @authenticate
     @authorize(Role.ADMINISTRATOR, Role.MANAGER)
     def delete_airport(self, airport_id: int) -> tuple[Response, int]:
         result = self.gateway_airport_service.delete_airport(airport_id)
-        if isinstance(result, ok):
-            return jsonify(None), 204
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result, success_code=204)
 
     @authenticate
     def get_airport_info(self, airport_code: str) -> tuple[Response, int]:
         result = self.gateway_airport_service.get_airport_info(airport_code)
-        if isinstance(result, ok):
-            return jsonify(result.data), 200
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result)
         
     @property
     def blueprint(self) -> Blueprint:

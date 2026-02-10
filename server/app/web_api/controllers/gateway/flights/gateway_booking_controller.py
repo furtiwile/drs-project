@@ -1,9 +1,12 @@
-from flask import Blueprint, Response, g, jsonify, request
-from app.middlewares.authentication.authentication import authenticate
-from app.middlewares.json.json_middleware import require_json
-from app.domain.types.gateway_result import ok
+from flask import Blueprint, Response, g, request
+
 from app.domain.dtos.gateway.flights.booking.booking_create_dto import BookingCreateDTO
 from app.domain.services.gateway.flights.igateway_booking_service import IGatewayBookingService
+
+from app.middlewares.json.json_middleware import require_json
+from app.middlewares.authentication.authentication import authenticate
+
+from app.web_api.utils.http.response_handlers import handle_response
 
 class GatewayBookingController:
     def __init__(self, gateway_booking_service: IGatewayBookingService) -> None:
@@ -26,10 +29,7 @@ class GatewayBookingController:
         created_by = g.user.user_id
 
         result = self.gateway_booking_service.create_booking(create_booking_dto, created_by)
-        if isinstance(result, ok):
-            return jsonify(result.data), 201
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result, success_code=201)
     
     @authenticate
     def get_all_bookings(self) -> tuple[Response, int]:
@@ -37,18 +37,12 @@ class GatewayBookingController:
         per_page = request.args.get('per_page', 10, type=int)
 
         result = self.gateway_booking_service.get_all_bookings(page, per_page)
-        if isinstance(result, ok):
-            return jsonify(result.data), 200
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result)
 
     @authenticate
     def get_booking(self, booking_id: int) -> tuple[Response, int]:
         result = self.gateway_booking_service.get_booking(booking_id)
-        if isinstance(result, ok):
-            return jsonify(result.data), 200
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result)
 
     @authenticate
     def get_user_bookings(self) -> tuple[Response, int]:
@@ -57,20 +51,14 @@ class GatewayBookingController:
         user_id = g.user.user_id
 
         result = self.gateway_booking_service.get_user_bookings(page, per_page, user_id)
-        if isinstance(result, ok):
-            return jsonify(result.data), 200
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result)
     
     @authenticate
     def delete_booking(self, booking_id: int) -> tuple[Response, int]:
         deleted_by = g.user.user_id
 
         result = self.gateway_booking_service.delete_booking(booking_id, deleted_by)
-        if isinstance(result, ok):
-            return jsonify(None), 204
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result, success_code=204)
 
     @property
     def blueprint(self) -> Blueprint:

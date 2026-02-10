@@ -4,6 +4,7 @@ from typing import Generic, TypeVar, Union
 from app.domain.enums.error_type import ErrorType
 
 T = TypeVar("T")
+E = TypeVar("E", int, ErrorType)
 
 @dataclass(frozen=True)
 class ok(Generic[T]):
@@ -11,9 +12,9 @@ class ok(Generic[T]):
     success: bool = True
 
 @dataclass(frozen=True)
-class err:
-    status_code: ErrorType
+class err(Generic[E]):
+    status_code: E
     message: str
     success: bool = False
 
-Result = Union[ok[T], err]
+Result = Union[ok[T], err[E]]

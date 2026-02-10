@@ -26,7 +26,7 @@ class AuthService(IAuthService):
         self.blacklist_repository = blacklist_repository
         self.blocklist_repository = blocklist_repository
     
-    def login(self, login_dto: LoginUserDTO, ip_address: str) -> Result[User]:
+    def login(self, login_dto: LoginUserDTO, ip_address: str) -> Result[User, ErrorType]:
         try:
             with get_db() as db:
                 if(self.blocklist_repository.is_blocked(ip_address)):
@@ -45,7 +45,7 @@ class AuthService(IAuthService):
             logger.error(f'Login failed: {str(e)}')
             return err(ErrorType.INTERNAL_ERR, 'Internal server error - failed to log in')
     
-    def register(self, register_dto: RegisterUserDTO) -> Result[User]:
+    def register(self, register_dto: RegisterUserDTO) -> Result[User, ErrorType]:
         try:
             with get_db_transaction() as db:
                 assert register_dto.email is not None and register_dto.password is not None
@@ -65,7 +65,7 @@ class AuthService(IAuthService):
             logger.error(f"Registration failed: {str(e)}")
             return err(ErrorType.INTERNAL_ERR, 'Internal server error - failed to register')
         
-    def logout(self, jwt_token: str) -> Result[None]:
+    def logout(self, jwt_token: str) -> Result[None, ErrorType]:
         try:
             self.blacklist_repository.add_to_blacklist(jwt_token)
             return ok(None)

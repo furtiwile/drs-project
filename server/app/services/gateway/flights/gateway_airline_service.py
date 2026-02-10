@@ -2,7 +2,7 @@ from app.infrastructure.gateway.gateway_client import GatewayClient
 from app.domain.dtos.gateway.flights.airline.airline_create_dto import AirlineCreateDTO
 from app.domain.dtos.gateway.flights.airline.airline_dto import AirlineDTO
 from app.domain.dtos.gateway.flights.airline.airline_update_dto import AirlineUpdateDTO
-from app.domain.types.gateway_result import GatewayResult, ok, err
+from app.domain.types.result import Result, ok, err
 from app.domain.services.gateway.flights.igateway_airline_service import IGatewayAirlineService
 from app.domain.dtos.gateway.flights.airline.paginated_airlines_dto import PaginatedAirlinesDTO
 
@@ -10,7 +10,7 @@ class GatewayAirlineService(IGatewayAirlineService):
     def __init__(self, client: GatewayClient) -> None:
         self.client = client
 
-    def create_airline(self, data: AirlineCreateDTO) -> GatewayResult[AirlineDTO]:
+    def create_airline(self, data: AirlineCreateDTO) -> Result[AirlineDTO, int]:
         try:
             response = self.client.post("/airlines", json=data.to_dict())
             if response.status_code in (200, 201):
@@ -26,7 +26,7 @@ class GatewayAirlineService(IGatewayAirlineService):
         except Exception:
             return err(500, 'Internal Gateway Error')
     
-    def get_all_airlines(self, page: int, per_page: int) -> GatewayResult[PaginatedAirlinesDTO]:
+    def get_all_airlines(self, page: int, per_page: int) -> Result[PaginatedAirlinesDTO, int]:
         try:
             response = self.client.get("/airlines", params={'page': page, 'per_page': per_page})
             if response.status_code == 200:
@@ -42,7 +42,7 @@ class GatewayAirlineService(IGatewayAirlineService):
         except Exception:
             return err(500, 'Internal Gateway Error')
 
-    def get_airline(self, airline_id: int) -> GatewayResult[AirlineDTO]:
+    def get_airline(self, airline_id: int) -> Result[AirlineDTO, int]:
         try:
             response = self.client.get(f"/airlines/{airline_id}")
             if response.status_code == 200:
@@ -58,7 +58,7 @@ class GatewayAirlineService(IGatewayAirlineService):
         except Exception:
             return err(500, 'Internal Gateway Error')
     
-    def update_airline(self, airline_id: int, data: AirlineUpdateDTO) -> GatewayResult[AirlineDTO]:
+    def update_airline(self, airline_id: int, data: AirlineUpdateDTO) -> Result[AirlineDTO, int]:
         try:
             response = self.client.patch(f"/airlines/{airline_id}", json=data.to_dict())
             if response.status_code == 200:
@@ -74,7 +74,7 @@ class GatewayAirlineService(IGatewayAirlineService):
         except Exception:
             return err(500, 'Internal Gateway Error')
     
-    def delete_airline(self, airline_id: int) -> GatewayResult[None]:
+    def delete_airline(self, airline_id: int) -> Result[None, int]:
         try:
             response = self.client.delete(path=f"/airlines/{airline_id}")
             if response.status_code in (200, 204):

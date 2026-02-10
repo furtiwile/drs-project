@@ -1,22 +1,17 @@
 from typing import cast
 from flask import Blueprint, jsonify, request
 from flask.wrappers import Response
-from flask_jwt_extended import create_access_token # type: ignore
 
 from app.domain.dtos.auth.login_user_dto import LoginUserDTO
 from app.domain.dtos.auth.register_user_dto import RegisterUserDTO
-from app.domain.dtos.user.user_dto import UserDTO
-from app.domain.models.user import User
-from app.domain.types.result import ok
 
 from app.middlewares.json.json_middleware import require_json
 from app.middlewares.authentication.authentication import authenticate
 
 from app.services.auth.auth_service import IAuthService
 
-from app.utils.converters.error_type_converter import error_type_to_http
-
 from app.web_api.validators.auth.auth_validators import validate_login, validate_registration
+from app.web_api.utils.http.response_handlers import handle_auth_response, handle_response
 
 class AuthController:
     def __init__(self, auth_service: IAuthService) -> None:
@@ -39,16 +34,7 @@ class AuthController:
 
         ip_address = request.remote_addr if request.remote_addr else ""
         result = self.auth_service.login(login_dto, ip_address)
-        if isinstance(result, ok):
-            user: User = result.data
-            token = create_access_token(identity=str(user.user_id), additional_claims={"role": user.role.value})
-            
-            return jsonify({
-                "token": token,
-                "user": UserDTO.from_model(user).to_dict()
-            }), 200
-        else:
-            return jsonify(message=result.message), error_type_to_http(result.status_code)
+        return handle_auth_response(result)
 
     @require_json
     def register(self) -> tuple[Response, int]:
@@ -59,26 +45,14 @@ class AuthController:
             return jsonify(message=valid_data.message), 400
 
         result = self.auth_service.register(register_dto)
-        if isinstance(result, ok):
-            user: User = result.data
-            token = create_access_token(identity=str(user.user_id), additional_claims={"role": user.role.value})
-            print(token)
-            return jsonify({
-                "token": token,
-                "user": UserDTO.from_model(user).to_dict()
-            }), 201
-        else:
-            return jsonify(message=result.message), error_type_to_http(result.status_code)
+        return handle_auth_response(result, 201)
 
     @authenticate
     def logout(self) -> tuple[Response, int]:
         jwt_token = cast(str, request.headers.get('Authorization')).split(" ")[1]
        
         result = self.auth_service.logout(jwt_token)
-        if isinstance(result, ok):
-            return jsonify(None), 204
-        else:
-            return jsonify(message=result.message), error_type_to_http(result.status_code)
+        return handle_response(result, success_code=204)
 
     @property
     def blueprint(self) -> Blueprint:

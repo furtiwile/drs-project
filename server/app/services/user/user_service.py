@@ -22,7 +22,7 @@ class UserService(IUserService):
         self.user_repository = user_repository
         self.mail_service = mail_service
 
-    def get_all_users(self) -> Result[list[User]]:
+    def get_all_users(self) -> Result[list[User], ErrorType]:
         try:
             with get_db() as db:
                 users = self.user_repository.get_all(db)
@@ -32,7 +32,7 @@ class UserService(IUserService):
             logger.error(f"Failed to fetch users: {str(e)}")
             return err(status_code=ErrorType.INTERNAL_ERR, message='Failed to fetch all users')
     
-    def get_user_by_id(self, user_id: int) -> Result[User]:
+    def get_user_by_id(self, user_id: int) -> Result[User, ErrorType]:
         try:
             with get_db() as db:
                 user = self.user_repository.get_by_id(user_id, db)
@@ -46,7 +46,7 @@ class UserService(IUserService):
             logger.error(f"Failed to fetch the user with id {user_id}: {str(e)}")
             return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to retrieve user with id {user_id}')
 
-    def get_user_by_email(self, email: str)-> Result[User]:
+    def get_user_by_email(self, email: str)-> Result[User, ErrorType]:
         try:
             with get_db() as db:
                 user = self.user_repository.get_by_email(email, db)
@@ -60,7 +60,7 @@ class UserService(IUserService):
             logger.error(f"Failed to fetch user with email {email}: {str(e)}")
             return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to retrieve user with email {email}')
 
-    def update_user_role_by_id(self, user_id: int, data: UpdateRoleDTO)-> Result[None]:
+    def update_user_role_by_id(self, user_id: int, data: UpdateRoleDTO)-> Result[None, ErrorType]:
         try:
             user_role = Role(data.role)
             with get_db_transaction() as db:
@@ -84,7 +84,7 @@ class UserService(IUserService):
             logger.error(f"Failed to update role of the user with id {user_id}: {str(e)}")
             return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to update role to {data.role} for user with id {user_id}')
 
-    def update_user(self, user_id: int, data: UpdateUserDTO)-> Result[User]:
+    def update_user(self, user_id: int, data: UpdateUserDTO)-> Result[User, ErrorType]:
         try:
             with get_db_transaction() as db:
                 user = self.user_repository.get_by_id(user_id, db)
@@ -108,7 +108,7 @@ class UserService(IUserService):
             logger.error(f"Failed to update use with id {user_id}: {str(e)}")
             return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to update profile for user with id {user_id}')
 
-    def delete_user_by_id(self, user_id: int)-> Result[None]:
+    def delete_user_by_id(self, user_id: int)-> Result[None, ErrorType]:
         try:
             with get_db_transaction() as db:
                 user = self.user_repository.get_by_id(user_id, db)
@@ -126,7 +126,7 @@ class UserService(IUserService):
             logger.error(f"Failed to delete user with id {user_id}: {str(e)}")
             return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to delete user with id {user_id}')
         
-    def deposit(self, user_id: int, data: TransactionDTO) -> Result[None]:
+    def deposit(self, user_id: int, data: TransactionDTO) -> Result[None, ErrorType]:
         try:
             with get_db_transaction() as db:
                 user = self.user_repository.get_by_id(user_id, db)
@@ -142,7 +142,7 @@ class UserService(IUserService):
             logger.error(f"Failed to deposit money for user with id {user_id}: {str(e)}")
             return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to deposit money for user with id {user_id}')
 
-    def withdraw(self, user_id: int, data: TransactionDTO) -> Result[None]:
+    def withdraw(self, user_id: int, data: TransactionDTO) -> Result[None, ErrorType]:
         try:
             with get_db_transaction() as db:
                     user = self.user_repository.get_by_id(user_id, db)

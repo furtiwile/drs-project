@@ -1,10 +1,13 @@
-from flask import Blueprint, Response, g, jsonify, request
-from app.middlewares.authentication.authentication import authenticate
-from app.middlewares.json.json_middleware import require_json
-from app.domain.types.gateway_result import ok
+from flask import Blueprint, Response, g, request
+
+from app.domain.services.gateway.flights.igateway_rating_service import IGatewayRatingService
 from app.domain.dtos.gateway.flights.rating.rating_create_dto import RatingCreateDTO
 from app.domain.dtos.gateway.flights.rating.rating_update_dto import RatingUpdateDTO
-from app.domain.services.gateway.flights.igateway_rating_service import IGatewayRatingService
+
+from app.middlewares.json.json_middleware import require_json
+from app.middlewares.authentication.authentication import authenticate
+
+from app.web_api.utils.http.response_handlers import handle_response
 
 class GatewayRatingController:
     def __init__(self, gateway_rating_service: IGatewayRatingService) -> None:
@@ -28,10 +31,7 @@ class GatewayRatingController:
         created_by = g.user.user_id
 
         result = self.gateway_rating_service.create_rating(create_rating_dto, created_by)
-        if isinstance(result, ok):
-            return jsonify(result.data), 201
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result, success_code=201)
     
     @authenticate
     def get_all_ratings(self) -> tuple[Response, int]:
@@ -39,10 +39,7 @@ class GatewayRatingController:
         per_page = request.args.get('per_page', 10, type=int)
 
         result = self.gateway_rating_service.get_all_ratings(page, per_page)
-        if isinstance(result, ok):
-            return jsonify(result.data), 200
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result)
 
     @authenticate
     def get_user_ratings(self) -> tuple[Response, int]:
@@ -51,18 +48,12 @@ class GatewayRatingController:
         user_id = g.user.user_id
 
         result = self.gateway_rating_service.get_user_ratings(page, per_page, user_id)
-        if isinstance(result, ok):
-            return jsonify(result.data), 200
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result)
 
     @authenticate
     def get_rating(self, rating_id: int) -> tuple[Response, int]:
         result = self.gateway_rating_service.get_rating(rating_id)
-        if isinstance(result, ok):
-            return jsonify(result.data), 200
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result)
     
     @require_json
     @authenticate
@@ -72,20 +63,14 @@ class GatewayRatingController:
         updated_by = g.user.user_id
 
         result = self.gateway_rating_service.update_rating(rating_id, update_rating_dto, updated_by)
-        if isinstance(result, ok):
-            return jsonify(result.data), 200
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result)
     
     @authenticate
     def delete_rating(self, rating_id: int) -> tuple[Response, int]:
         deleted_by = g.user.user_id
 
         result = self.gateway_rating_service.delete_rating(rating_id, deleted_by)
-        if isinstance(result, ok):
-            return jsonify(None), 204
-        else:
-            return jsonify(message=result.message), result.status_code
+        return handle_response(result, success_code=204)
 
     @property
     def blueprint(self) -> Blueprint:

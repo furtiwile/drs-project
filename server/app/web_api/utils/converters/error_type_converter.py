@@ -1,5 +1,8 @@
 from app.domain.enums.error_type import ErrorType
 
+def normalize_status_code(code: int | ErrorType) -> int:
+    return code if isinstance(code, int) else error_type_to_http(code)
+
 def error_type_to_http(err_type: ErrorType) -> int:
     match err_type:
         case ErrorType.BAD_REQUEST:

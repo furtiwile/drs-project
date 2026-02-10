@@ -7,13 +7,12 @@ from app.domain.dtos.user.update_user_dto import UpdateUserDTO
 from app.domain.dtos.user.transaction_dto import TransactionDTO
 from app.domain.dtos.user.update_role_dto import UpdateRoleDTO
 from app.domain.enums.role import Role
-from app.domain.types.result import ok
 
 from app.middlewares.authentication.authentication import authenticate
 from app.middlewares.authorization.authorization import authorize
 from app.middlewares.json.json_middleware import require_json
 
-from app.utils.converters.error_type_converter import error_type_to_http
+from app.web_api.utils.http.response_handlers import handle_response
 from app.web_api.validators.user.user_validators import (
     validate_transaction, 
     validate_update_user, 
@@ -40,10 +39,7 @@ class UserController:
     @authorize(Role.ADMINISTRATOR)
     def get_all_users(self) -> tuple[Response, int]:
         result = self.user_service.get_all_users()
-        if isinstance(result, ok):
-            return jsonify([UserDTO.from_model(user).to_dict() for user in result.data]), 200
-        else:
-            return jsonify(message=result.message), error_type_to_http(result.status_code)
+        return handle_response(result, to_json=lambda users: [UserDTO.from_model(u).to_dict() for u in users])
 
     @authenticate
     @authorize(Role.ADMINISTRATOR)
@@ -52,10 +48,7 @@ class UserController:
             return jsonify(message=valid_data.message), 400
 
         result = self.user_service.get_user_by_id(user_id)
-        if isinstance(result, ok):
-            return jsonify(UserDTO.from_model(result.data).to_dict()), 200
-        else:
-            return jsonify(message=result.message), error_type_to_http(result.status_code)
+        return handle_response(result, to_json=lambda u: UserDTO.from_model(u).to_dict())
 
     @require_json
     @authenticate
@@ -67,10 +60,7 @@ class UserController:
             return jsonify(message=valid_data.message), 400
 
         result = self.user_service.update_user_role_by_id(user_id, update_role_dto)
-        if isinstance(result, ok):
-            return jsonify(None), 204
-        else:
-            return jsonify(message=result.message), error_type_to_http(result.status_code)
+        return handle_response(result, success_code=204)
     
     @require_json
     @authenticate
@@ -82,10 +72,7 @@ class UserController:
             return jsonify(message=valid_data.message), 400
 
         result = self.user_service.update_user(user_id, update_user_dto)
-        if isinstance(result, ok):
-            return jsonify(UserDTO.from_model(result.data).to_dict()), 200
-        else:
-            return jsonify(message=result.message), error_type_to_http(result.status_code)
+        return handle_response(result, to_json=lambda u: UserDTO.from_model(u).to_dict())
 
     @authenticate
     @authorize(Role.ADMINISTRATOR)
@@ -94,10 +81,7 @@ class UserController:
             return jsonify(message=valid_data.message), 400
         
         result = self.user_service.delete_user_by_id(user_id)
-        if isinstance(result, ok):
-            return jsonify(None), 204
-        else:
-            return jsonify(message=result.message), error_type_to_http(result.status_code)
+        return handle_response(result, success_code=204)
 
     @require_json
     @authenticate
@@ -109,10 +93,7 @@ class UserController:
             return jsonify(message=valid_data.message), 400
 
         result = self.user_service.deposit(user_id, transaction_dto)
-        if isinstance(result, ok):
-            return jsonify(None), 204
-        else:
-            return jsonify(message=result.message), error_type_to_http(result.status_code)
+        return handle_response(result, success_code=204)
 
     @require_json
     @authenticate
@@ -124,10 +105,7 @@ class UserController:
             return jsonify(message=valid_data.message), 400
         
         result = self.user_service.withdraw(user_id, transaction_dto)
-        if isinstance(result, ok):
-            return jsonify(None), 204
-        else:
-            return jsonify(message=result.message), error_type_to_http(result.status_code)
+        return handle_response(result, success_code=204)
 
     @property
     def blueprint(self) -> Blueprint:
