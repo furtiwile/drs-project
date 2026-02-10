@@ -1,5 +1,6 @@
 from marshmallow import Schema, fields, validate
 from dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass
@@ -42,3 +43,12 @@ class BookingWithUserDTO(Schema):
     flight_id = fields.Int()
     flight_name = fields.Str()
     purchased_at = fields.DateTime()
+
+
+@dataclass
+class BookingCreateDTOReturn:
+    """DTO for returning booking creation data."""
+    flight_id: int
+    user_id: int
+    purchased_at: datetime
+    flight_price: float

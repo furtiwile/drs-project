@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from ..domain.dtos.booking_dto import (
     BookingCreateDTO,
+    BookingCreateDTOReturn,
     BookingResponseDTO
 )
 from app.domain.interfaces.services.booking_service_interface import BookingServiceInterface
@@ -22,9 +23,6 @@ class BookingController(BookingControllerInterface):
         """
         POST /bookings
         Creates a new booking.
-        
-        The booking process is handled in the background, allowing the user to continue
-        using the application. Returns a task_id for tracking progress.
 
         Request JSON format:
         {
@@ -35,7 +33,7 @@ class BookingController(BookingControllerInterface):
             user-id: "integer (required)"
 
         Returns:
-            tuple: JSON response with task_id for tracking, and HTTP status code.
+            tuple: JSON response with booking data, and HTTP status code.
         """
         data = request.get_json()
         if not data:
@@ -50,15 +48,19 @@ class BookingController(BookingControllerInterface):
         except ValueError as e:
             return jsonify(e.args[0]), 400
         
-        task_id = self.booking_service.create_booking(user_id, validated_data)
-        if not task_id:
-            return jsonify({'error': 'Failed to submit booking task'}), 400
+        booking_result = self.booking_service.create_booking(user_id, validated_data)
+        if not booking_result:
+            return jsonify({'error': 'Failed to create booking'}), 400
         
         return jsonify({
-            'message': 'Booking is being processed',
-            'task_id': task_id,
-            'status_url': f'/api/v1/bookings/tasks/{task_id}'
-        }), 202
+            'message': 'Booking created successfully',
+            'booking': {
+                'flight_id': booking_result.flight_id,
+                'user_id': booking_result.user_id,
+                'purchased_at': booking_result.purchased_at.isoformat(),
+                'flight_price': booking_result.flight_price
+            }
+        }), 201
     
     def get_booking_task_status(self, task_id: str):
         """

@@ -4,7 +4,7 @@ from ..domain.models.flights import Booking
 from app.domain.interfaces.repositories.ibooking_repository import BookingPaginationResult, IBookingRepository
 from app.domain.interfaces.repositories.iflight_repository import IFlightRepository
 from app.domain.interfaces.services.booking_service_interface import BookingServiceInterface
-from app.domain.dtos.booking_dto import BookingCreateDTO
+from app.domain.dtos.booking_dto import BookingCreateDTO, BookingCreateDTOReturn
 from app.domain.models.enums import FlightStatus
 from app.domain.types.task_types import TaskStatus
 import time
@@ -21,7 +21,7 @@ class BookingService(BookingServiceInterface):
         self.flight_repository = flight_repository
         self.task_manager = task_manager
 
-    def create_booking(self, user_id: int, booking_data: BookingCreateDTO) -> Optional[str]:
+    def create_booking(self, user_id: int, booking_data: BookingCreateDTO) -> Optional[BookingCreateDTOReturn]:
         """
         Create a booking
         Returns task_id for tracking the booking process
@@ -52,54 +52,72 @@ class BookingService(BookingServiceInterface):
             if existing_booking.flight_id == booking_data.flight_id:
                 return None
         
-        # Submit to background task queue
-        task_id = self.task_manager.submit_task(
-            self._process_booking_async,
-            user_id=user_id,
-            flight_id=booking_data.flight_id
-        )
-        
-        logger.info(f"Booking task {task_id} submitted for user {user_id}, flight {booking_data.flight_id}")
-        return task_id
+        # # Submit to background task queue
+        # task_id = self.task_manager.submit_task(
+        #     self._process_booking_async,
+        #     user_id=user_id,
+        #     flight_id=booking_data.flight_id
+        # )
+
+        time.sleep(1)
+        booking = Booking(user_id=user_id, flight_id=booking_data.flight_id)
+        saved_booking = self.booking_repository.save_booking(booking)
+        time.sleep(1)
+
+        if saved_booking:
+            logger.info(f"Booking {saved_booking.id} created for user {user_id}, flight {booking_data.flight_id}")
+            return BookingCreateDTOReturn(
+                saved_booking.flight_id,
+                user_id=saved_booking.user_id,
+                purchased_at=saved_booking.purchased_at,
+                flight_price=flight.price
+            )
+        else:
+            logger.error(f"Failed to create booking for user {user_id}, flight {booking_data.flight_id}")
+            return None
+
+
+
+        # logger.info(f"Booking task {task_id} submitted for user {user_id}, flight {booking_data.flight_id}")
     
-    def _process_booking_async(self, user_id: int, flight_id: int) -> dict:
-        """
-        Internal method to process booking
-        This simulates a long-running process
-        """
-        try:
-            logger.info(f"Processing async booking for user {user_id}, flight {flight_id}")
+    # def _process_booking_async(self, user_id: int, flight_id: int) -> dict:
+    #     """
+    #     Internal method to process booking
+    #     This simulates a long-running process
+    #     """
+    #     try:
+    #         logger.info(f"Processing async booking for user {user_id}, flight {flight_id}")
             
-            # Simulate long processing time
-            time.sleep(5)  # 5 seconds - adjust for testing
+    #         # Simulate long processing time
+    #         time.sleep(5)  # 5 seconds - adjust for testing
             
-            booking = Booking(user_id=user_id, flight_id=flight_id)
-            saved_booking = self.booking_repository.save_booking(booking)
+    #         booking = Booking(user_id=user_id, flight_id=flight_id)
+    #         saved_booking = self.booking_repository.save_booking(booking)
             
-            if saved_booking:
-                logger.info(f"Booking {saved_booking.id} completed for user {user_id}")
-                return {
-                    'success': True,
-                    'booking_id': saved_booking.id,
-                    'flight_id': flight_id,
-                    'user_id': user_id,
-                    'message': 'Booking processed successfully'
-                }
-            else:
-                return {
-                    'success': False,
-                    'error': 'Failed to save booking',
-                    'flight_id': flight_id,
-                    'user_id': user_id
-                }
-        except Exception as e:
-            logger.error(f"Async booking processing failed: {str(e)}")
-            return {
-                'success': False,
-                'error': str(e),
-                'flight_id': flight_id,
-                'user_id': user_id
-            }
+    #         if saved_booking:
+    #             logger.info(f"Booking {saved_booking.id} completed for user {user_id}")
+    #             return {
+    #                 'success': True,
+    #                 'booking_id': saved_booking.id,
+    #                 'flight_id': flight_id,
+    #                 'user_id': user_id,
+    #                 'message': 'Booking processed successfully'
+    #             }
+    #         else:
+    #             return {
+    #                 'success': False,
+    #                 'error': 'Failed to save booking',
+    #                 'flight_id': flight_id,
+    #                 'user_id': user_id
+    #             }
+    #     except Exception as e:
+    #         logger.error(f"Async booking processing failed: {str(e)}")
+    #         return {
+    #             'success': False,
+    #             'error': str(e),
+    #             'flight_id': flight_id,
+    #             'user_id': user_id
+    #         }
     
     def get_booking_task_status(self, task_id: str) -> Optional[TaskStatus]:
         """Get the status of an async booking task"""

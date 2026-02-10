@@ -64,3 +64,5 @@ class AirportService(AirportServiceInterface):
             return None
         airport_code = airport_code.upper().strip()
         return self.airport_repository.get_airport_by_code(airport_code)
+    
+    

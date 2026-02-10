@@ -333,4 +333,11 @@ class FlightService(FlightServiceInterface):
             'arrival_time': flight.arrival_time.isoformat(),
             'status': 'in_progress'
         }
+        
+    def get_price_for_flight(self, flight_id: int) -> Optional[float]:
+        """Get the price of a flight"""
+        if flight_id <= 0:
+            return None
+        return self.flight_repository.get_flight_price(flight_id)
+
 

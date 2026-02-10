@@ -44,3 +44,7 @@ class FlightServiceInterface(ABC):
     @abstractmethod
     def get_flight_remaining_time(self, flight_id: int) -> Optional[Dict]:
         """Get remaining time for in-progress flight."""
+
+    @abstractmethod
+    def get_price_for_flight(self, flight_id: int) -> Optional[float]:
+        """Get the price of a flight"""

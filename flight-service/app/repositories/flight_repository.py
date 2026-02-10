@@ -180,3 +180,10 @@ class SqlAlchemyFlightRepository(IFlightRepository):
         """Get list of user IDs who have booked this flight"""
         bookings = Booking.query.filter_by(flight_id=flight_id).all()
         return [booking.user_id for booking in bookings]
+    
+    def get_flight_price(self, flight_id: int) -> Optional[float]:
+        """Get the price of a flight"""
+        flight = Flight.query.get(flight_id)
+        if not flight:
+            return None
+        return flight.price

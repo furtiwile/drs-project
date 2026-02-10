@@ -61,3 +61,7 @@ class IFlightRepository(ABC):
     @abstractmethod
     def get_user_bookings_for_flight(self, flight_id: int) -> List[int]:
         """Get list of user IDs who have booked this flight"""
+
+    @abstractmethod
+    def get_flight_price(self, flight_id: int) -> Optional[float]:
+        """Get the price of a flight"""

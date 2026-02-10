@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 from app.domain.models.flights import Booking
-from app.domain.dtos.booking_dto import BookingCreateDTO
+from app.domain.dtos.booking_dto import BookingCreateDTO, BookingCreateDTOReturn
 from app.domain.interfaces.repositories.ibooking_repository import BookingPaginationResult
 from ...types.task_types import TaskStatus
 
@@ -23,7 +23,7 @@ class BookingServiceInterface(ABC):
         """Delete a booking by ID."""
 
     @abstractmethod
-    def create_booking(self, user_id: int, booking_data: BookingCreateDTO) -> Optional[str]:
+    def create_booking(self, user_id: int, booking_data: BookingCreateDTO) -> Optional[BookingCreateDTOReturn]:
         """
         Asynchronously creates a booking and returns a task ID for tracking.
         
@@ -32,7 +32,7 @@ class BookingServiceInterface(ABC):
             booking_data (BookingCreateDTO): Validated booking creation data.
         
         Returns:
-            Optional[str]: Task ID if submission succeeds, None otherwise.
+            Optional[BookingCreateDTOReturn]: Booking creation details if successful, None otherwise.
         """
 
     @abstractmethod
