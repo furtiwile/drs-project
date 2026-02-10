@@ -17,13 +17,13 @@ config:
 request:
   variables:
     - name: local_server_url
-      value: http://localhost:5000
+      value: http://localhost:5000/api/v1
     - name: local_flights_url
-      value: http://localhost:5555
+      value: http://127.0.0.1:5555/api/v1
     - name: docker_server_url
-      value: http://localhost:8000
+      value: http://localhost:8000/api/v1
     - name: docker_flights_url
-      value: http://localhost:8001
+      value: http://localhost:8001/api/v1
 bundled: false
 extensions:
   ignore:
