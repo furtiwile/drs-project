@@ -1,6 +1,6 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
-class IBlacklistRepository:
+class IBlacklistRepository(ABC):
     @abstractmethod
     def add_to_blacklist(self, jwt_token: str) -> None:
         pass

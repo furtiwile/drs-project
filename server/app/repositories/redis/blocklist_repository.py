@@ -18,7 +18,11 @@ class BlocklistRepository(IBlocklistRepository):
 
     def is_blocked(self, ip_address: str) -> bool:
         attempts = self.redis_client.get(f"{self.blocklist_key}{ip_address}")
-        return attempts is not None and int(str(attempts)) >= self.block_threshold
+        if attempts is None:
+            return False
+        if isinstance(attempts, bytes):
+            attempts = attempts.decode()
+        return int(str(attempts)) >= self.block_threshold
 
     def remove_from_blocklist(self, ip_address: str) -> None:
         self.redis_client.delete(f"{self.blocklist_key}{ip_address}")

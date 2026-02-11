@@ -13,6 +13,7 @@ from app.database import get_redis_client, init_redis
 from app.repositories.user.user_repository import UserRepository
 from app.repositories.redis.blacklist_repository import BlacklistRepository
 from app.repositories.redis.blocklist_repository import BlocklistRepository
+from app.repositories.redis.cache_repository import CacheRepository
 
 from app.infrastructure.gateway.gateway_client import GatewayClient
 
@@ -57,10 +58,11 @@ def create_app() -> Flask:
     user_repository = UserRepository()
     blacklist_repository = BlacklistRepository(get_redis_client(), ttl=3600)
     blocklist_repository = BlocklistRepository(get_redis_client(), block_threshold=3, ttl=60)
+    cache_repository = CacheRepository(get_redis_client())
 
     mail_service = MailService()
     auth_service = AuthService(user_repository, blacklist_repository, blocklist_repository)
-    user_service = UserService(user_repository, mail_service)
+    user_service = UserService(user_repository, mail_service, cache_repository)
 
     gateway_flights_base_url = os.getenv("FLIGHTS_URL", "0.0.0.0")
     gateway_flights_version = os.getenv("FLIGHTS_VERSION", "/api/v1")

@@ -1,6 +1,6 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
-class IBlocklistRepository:
+class IBlocklistRepository(ABC):
     @abstractmethod
     def add_attempt_to_blocklist(self, ip_address: str) -> None:
         pass

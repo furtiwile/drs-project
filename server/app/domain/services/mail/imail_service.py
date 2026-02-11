@@ -1,8 +1,8 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from app.domain.types.mail_data import MailData
 
-class IMailService:
+class IMailService(ABC):
     @abstractmethod
     def send(self, to_email: str, subject: str, content: str) -> None:
         pass

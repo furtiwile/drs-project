@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from app.domain.dtos.user.update_user_dto import UpdateUserDTO
 from app.domain.models.user import User
@@ -7,7 +7,7 @@ from app.domain.dtos.user.transaction_dto import TransactionDTO
 from app.domain.dtos.user.update_role_dto import UpdateRoleDTO
 from app.domain.enums.error_type import ErrorType
 
-class IUserService:
+class IUserService(ABC):
     @abstractmethod
     def get_all_users(self) -> Result[list[User], ErrorType]:
         pass

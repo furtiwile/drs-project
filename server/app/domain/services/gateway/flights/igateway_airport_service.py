@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from app.domain.dtos.gateway.flights.airport.airport_dto import AirportDTO
 from app.domain.types.result import Result
@@ -6,8 +6,7 @@ from app.domain.dtos.gateway.flights.airport.airport_create_dto import AirportCr
 from app.domain.dtos.gateway.flights.airport.paginated_airports_dto import PaginatedAirportsDTO
 from app.domain.dtos.gateway.flights.airport.airport_update_dto import AirportUpdateDTO
 
-
-class IGatewayAirportService:
+class IGatewayAirportService(ABC):
     @abstractmethod
     def create_airport(self, data: AirportCreateDTO) -> Result[AirportDTO, int]:
         pass

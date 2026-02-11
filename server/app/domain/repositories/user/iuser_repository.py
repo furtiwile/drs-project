@@ -1,9 +1,9 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from sqlalchemy.orm import Session
 
 from app.domain.models.user import User
 
-class IUserRepository:
+class IUserRepository(ABC):
     @abstractmethod
     def get_all(self, db: Session) -> list[User]:
         pass

@@ -1,11 +1,12 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+
 from app.domain.dtos.gateway.flights.airline.airline_create_dto import AirlineCreateDTO
 from app.domain.dtos.gateway.flights.airline.airline_dto import AirlineDTO
 from app.domain.dtos.gateway.flights.airline.airline_update_dto import AirlineUpdateDTO
 from app.domain.types.result import Result
 from app.domain.dtos.gateway.flights.airline.paginated_airlines_dto import PaginatedAirlinesDTO
 
-class IGatewayAirlineService:
+class IGatewayAirlineService(ABC):
     @abstractmethod
     def create_airline(self, data: AirlineCreateDTO) -> Result[AirlineDTO, int]:
         pass

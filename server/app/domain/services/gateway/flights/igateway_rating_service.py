@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from app.domain.dtos.gateway.flights.rating.rating_create_dto import RatingCreateDTO
 from app.domain.types.result import Result
@@ -6,7 +6,7 @@ from app.domain.dtos.gateway.flights.rating.rating_dto import RatingDTO
 from app.domain.dtos.gateway.flights.rating.paginated_ratings_dto import PaginatedRatingsDTO
 from app.domain.dtos.gateway.flights.rating.rating_update_dto import RatingUpdateDTO
 
-class IGatewayRatingService:
+class IGatewayRatingService(ABC):
     @abstractmethod
     def create_rating(self, data: RatingCreateDTO, created_by: int) -> Result[RatingDTO, int]:
         pass

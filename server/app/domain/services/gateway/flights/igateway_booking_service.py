@@ -1,11 +1,11 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from app.domain.types.result import Result
 from app.domain.dtos.gateway.flights.booking.booking_dto import BookingDTO
 from app.domain.dtos.gateway.flights.booking.booking_create_dto import BookingCreateDTO
 from app.domain.dtos.gateway.flights.booking.paginated_bookings_dto import PaginatedBookingsDTO
 
-class IGatewayBookingService:
+class IGatewayBookingService(ABC):
     @abstractmethod
     def create_booking(self, data: BookingCreateDTO, created_by: int) -> Result[BookingDTO, int]:
         pass

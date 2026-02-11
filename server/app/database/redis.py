@@ -17,7 +17,7 @@ def init_redis() -> None:
     _redis_client = redis.Redis.from_url( # type: ignore
         REDIS_URL,
         max_connections=REDIS_MAX_CONNECTIONS,
-        decode_responses=True
+        decode_responses=False
     )
 
 def get_redis_client() -> redis.Redis:

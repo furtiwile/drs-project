@@ -8,24 +8,32 @@ from app.domain.types.result import ok, err, Result
 from app.domain.models.user import User
 from app.domain.enums.role import Role
 from app.domain.enums.error_type import ErrorType
-from app.domain.repositories.user.iuser_repository import IUserRepository
 from app.domain.dtos.user.transaction_dto import TransactionDTO
 from app.domain.dtos.user.update_role_dto import UpdateRoleDTO
 from app.domain.services.mail.imail_service import IMailService
+from app.domain.repositories.user.iuser_repository import IUserRepository
+from app.domain.repositories.redis.icache_repository import ICacheRepository
 
 from app.services.mail.mail_formatter import MailFormatter
 
 logger = logging.getLogger(__name__)
 
 class UserService(IUserService):
-    def __init__(self, user_repository: IUserRepository, mail_service: IMailService) -> None:
+    def __init__(self, user_repository: IUserRepository, mail_service: IMailService, cache_repository: ICacheRepository) -> None:
         self.user_repository = user_repository
         self.mail_service = mail_service
+        self.cache_repository = cache_repository
+        self.cache_prefix = "users:"
 
     def get_all_users(self) -> Result[list[User], ErrorType]:
         try:
+            cache_data = self.cache_repository.get_cache(f"{self.cache_prefix}all")
+            if cache_data is not None:
+                return ok(cache_data)
+
             with get_db() as db:
                 users = self.user_repository.get_all(db)
+                self.cache_repository.set_cache(f"{self.cache_prefix}all", users, 60)
                 return ok(users)
 
         except Exception as e:
@@ -34,12 +42,18 @@ class UserService(IUserService):
     
     def get_user_by_id(self, user_id: int) -> Result[User, ErrorType]:
         try:
+            cache_data = self.cache_repository.get_cache(f"{self.cache_prefix}{user_id}")
+            if cache_data is not None:
+                return ok(cache_data)
+
             with get_db() as db:
                 user = self.user_repository.get_by_id(user_id, db)
 
                 if not user:
                     logger.warning(f"Failed to fetch user with id {user_id}: user not found")
                     return err(status_code=ErrorType.NOT_FOUND, message=f'User with id {user_id} not found')
+
+                self._cache_user(user)
                 return ok(user)
 
         except Exception as e:
@@ -48,12 +62,18 @@ class UserService(IUserService):
 
     def get_user_by_email(self, email: str)-> Result[User, ErrorType]:
         try:
+            cache_data = self.cache_repository.get_cache(f"{self.cache_prefix}{email}")
+            if cache_data is not None:
+                return ok(cache_data)
+
             with get_db() as db:
                 user = self.user_repository.get_by_email(email, db)
                 
                 if not user:
                     logger.warning(f"Failed to fetch user with email {email}: user not found")
                     return err(status_code=ErrorType.NOT_FOUND, message=f'User with email {email} not found')
+                
+                self._cache_user(user)
                 return ok(user)
 
         except Exception as e:
@@ -78,6 +98,7 @@ class UserService(IUserService):
                 if previous_role == Role.USER and user_role == Role.MANAGER:
                     self.mail_service.send_async(user.email, MailFormatter.role_promotion_format(user.first_name))
 
+                self._invalidate_user(user)
                 return ok(None)
                 
         except Exception as e:
@@ -98,10 +119,12 @@ class UserService(IUserService):
                         logger.warning(f"Failed to update user with id {user_id}: email address already exists")
                         return err(status_code=ErrorType.CONFLICT, message=f'Email address already exists')
 
+                old_email = user.email
                 for field, value in data.__dict__.items():
                     if value is not None:
                         setattr(user, field, value)
 
+                self._invalidate_user(user, old_email)
                 return ok(user)
             
         except Exception as e:
@@ -120,6 +143,7 @@ class UserService(IUserService):
                     return err(status_code=ErrorType.FORBIDDEN, message=f'Not permitted to delete the user with id {user_id}')
 
                 self.user_repository.delete_user(user, db)
+                self._invalidate_user(user)
                 return ok(None)
 
         except Exception as e:
@@ -136,6 +160,8 @@ class UserService(IUserService):
 
                 assert data.amount is not None
                 user.account_balance += data.amount
+
+                self._invalidate_user(user)
                 return ok(None)
 
         except Exception as e:
@@ -156,8 +182,23 @@ class UserService(IUserService):
                         return err(status_code=ErrorType.BAD_REQUEST, message=f'Insufficient funds')
 
                     user.account_balance -= data.amount
+
+                    self._invalidate_user(user)
                     return ok(None)
 
         except Exception as e:
             logger.error(f"Failed to withdraw money for user with id {user_id}: {str(e)}")
             return err(status_code=ErrorType.INTERNAL_ERR, message=f'Failed to withdraw money for user with id {user_id}')
+        
+    def _cache_user(self, user: User) -> None:
+            self.cache_repository.set_cache(f"{self.cache_prefix}{user.user_id}", user, 300)
+            self.cache_repository.set_cache(f"{self.cache_prefix}{user.email}", user, 300)
+
+    def _invalidate_user(self, user: User, old_email: str | None = None) -> None:
+        self.cache_repository.delete_cache(f"{self.cache_prefix}{user.user_id}")
+        self.cache_repository.delete_cache(f"{self.cache_prefix}{user.email}")
+        
+        if old_email and old_email != user.email:
+            self.cache_repository.delete_cache(f"{self.cache_prefix}{old_email}")
+
+        self.cache_repository.delete_cache(f"{self.cache_prefix}all")

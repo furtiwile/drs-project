@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any
 
 from app.domain.types.result import Result
@@ -12,7 +12,7 @@ from app.domain.dtos.gateway.flights.flight.flight_available_seats_dto import Fl
 from app.domain.dtos.gateway.flights.flight.paginated_flights_by_tab import PaginatedFlightsByTabDTO
 from app.domain.dtos.gateway.flights.flight.flight_cancel_dto import FlightCancelDTO
 
-class IGatewayFlightService:
+class IGatewayFlightService(ABC):
     @abstractmethod
     def create_flight(self, data: FlightCreateDTO, created_by: int) -> Result[FlightDTO, int]:
         pass
