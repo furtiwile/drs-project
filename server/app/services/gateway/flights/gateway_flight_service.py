@@ -17,6 +17,8 @@ from app.domain.types.result import Result, ok
 from app.infrastructure.gateway.gateway_client import GatewayClient
 from app.infrastructure.gateway.utils.api_callers import make_api_call
 
+from app.web_socket.socket import send_to_room
+
 class GatewayFlightService(IGatewayFlightService):
     def __init__(self, gateway_client: GatewayClient, cache_repository: ICacheRepository) -> None:
         self.client = gateway_client
@@ -33,6 +35,8 @@ class GatewayFlightService(IGatewayFlightService):
         if isinstance(result, ok):
             self.cache_repository.set_cache(f"{self.cache_prefix}{result.data.flight_id}", result.data, 300)
             self.cache_repository.delete_pattern(f"{self.cache_prefix}page:*")
+
+            send_to_room('admins', 'flight-created', result.data.to_dict())
 
         return result
 
