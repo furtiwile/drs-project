@@ -1,18 +1,16 @@
 info:
-  name: Login Copy
+  name: Cancel Flight
   type: http
-  seq: 5
+  seq: 7
 
 http:
-  method: POST
-  url: "{{docker_server_url}}/auth/login"
+  method: PATCH
+  url: "{{local_flights_url}}/flights/5/status"
   body:
     type: json
     data: "{\r
 
-      \    \"email\" : \"admin@example.com\",\r
-
-      \    \"password\" : \"password\"\r
+      \    \"status\" : \"COMPLETED\"\r
 
       }"
   auth: inherit

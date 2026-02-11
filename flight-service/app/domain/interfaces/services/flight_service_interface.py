@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Dict
 from app.domain.models.flights import Flight
-from app.domain.dtos.flight_dto import FlightCreateDTO, FlightUpdateDTO, FlightStatusUpdateDTO, FlightUpdateDTO
+from app.domain.dtos.flight_dto import DeleteFlightDTO, FlightCreateDTO, FlightUpdateDTO, FlightStatusUpdateDTO, FlightUpdateDTO
 from app.domain.interfaces.repositories.iflight_repository import FlightPaginationResult
 
 class FlightServiceInterface(ABC):
@@ -38,7 +38,7 @@ class FlightServiceInterface(ABC):
         """Get flights by tab (upcoming, in-progress, completed/cancelled)."""
     
     @abstractmethod
-    def cancel_flight(self, flight_id: int, admin_id: int) -> Optional[Flight]:
+    def cancel_flight(self, flight_id: int, admin_id: int) -> Optional[DeleteFlightDTO]:
         """Cancel an approved flight and notify users."""
     
     @abstractmethod

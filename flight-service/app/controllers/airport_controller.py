@@ -100,12 +100,10 @@ class AirportController(AirportControllerInterface):
         response_dto = AirportResponseDTO(many=True)
         return jsonify({
             'airports': response_dto.dump(result['airports']),
-            'pagination': {
-                'page': result['page'],
-                'per_page': result['per_page'],
-                'total': result['total'],
-                'pages': result['pages']
-            }
+            'page': result['page'],
+            'per_page': result['per_page'],
+            'total': result['total'],
+            'pages': result['pages']
         })
 
     def update_airport(self, airport_id: int):

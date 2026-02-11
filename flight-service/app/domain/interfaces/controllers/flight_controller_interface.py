@@ -23,9 +23,9 @@ class FlightControllerInterface(ABC):
     def update_flight_status(self, flight_id: int) -> Any:
         pass
 
-    @abstractmethod
-    def delete_flight(self, flight_id: int) -> Any:
-        pass
+    # @abstractmethod
+    # def delete_flight(self, flight_id: int) -> Any:
+    #     pass
 
     @abstractmethod
     def get_available_seats(self, flight_id: int) -> Any:

@@ -90,16 +90,17 @@ def create_app():
     
     airport_service = AirportService(airport_repo)
     airline_service = AirlineService(airline_repo)
-    flight_service = FlightService(
-        flight_repo, 
-        airport_repo, 
-        airline_repo,
-        socket_manager
-    )
     booking_service = BookingService(
         booking_repo, 
         flight_repo,
         task_manager
+    )
+    flight_service = FlightService(
+        flight_repo, 
+        airport_repo, 
+        airline_repo,
+        booking_service,
+        socket_manager
     )
     rating_service = RatingService(rating_repo, booking_repo)
     report_service = ReportService(report_repo)

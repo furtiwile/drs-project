@@ -70,5 +70,6 @@ jobs:
         uses: docker/build-push-action@v6.18.0
         with:
           context: ./server
+          file: ./server/Dockerfile.prod
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/server:latest

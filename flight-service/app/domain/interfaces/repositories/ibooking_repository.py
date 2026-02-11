@@ -33,5 +33,9 @@ class IBookingRepository(ABC):
         pass
 
     @abstractmethod
+    def get_uid_bookings_by_flight_id(self, flight_id: int) -> List[int]:
+        pass
+
+    @abstractmethod
     def delete_booking(self, booking_id: int) -> bool:
         pass

@@ -73,6 +73,11 @@ class SqlAlchemyBookingRepository(IBookingRepository):
             db.joinedload(Booking.flight).joinedload(Flight.arrival_airport)
         ).all()
         return bookings
+    
+    def get_uid_bookings_by_flight_id(self, flight_id: int) -> List[int]:
+        """Get list of user IDs who have booked this flight"""
+        bookings = Booking.query.filter_by(flight_id=flight_id).all()
+        return [booking.user_id for booking in bookings]
 
     def delete_booking(self, booking_id: int) -> bool:
         booking = Booking.query.get(booking_id)

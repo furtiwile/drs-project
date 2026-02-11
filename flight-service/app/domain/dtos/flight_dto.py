@@ -1,8 +1,9 @@
-from typing import Optional
+from typing import List, Optional
 from marshmallow import Schema, fields, validate, validates, ValidationError
 from datetime import datetime, timezone
 from dataclasses import dataclass
 from decimal import Decimal
+from app.domain.models.flights import Flight
 
 
 @dataclass
@@ -130,3 +131,9 @@ class FlightFilterDTO(Schema):
     min_price = fields.Decimal(required=False)
     max_price = fields.Decimal(required=False)
     departure_date = fields.Date(required=False)
+
+
+@dataclass
+class DeleteFlightDTO:
+    flight : Optional[Flight]
+    affected_user_ids: Optional[List[int]] = None

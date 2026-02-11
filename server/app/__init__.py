@@ -34,6 +34,8 @@ from app.web_api.controllers.gateway.flights.gateway_flight_controller import Ga
 from app.web_api.controllers.gateway.flights.gateway_rating_controller import GatewayRatingController
 from app.web_api.controllers.gateway.flights.gateway_booking_controller import GatewayBookingController
 
+from app.web_socket.socket import socketio
+
 def create_app() -> Flask:
     app = Flask(__name__)
 
@@ -88,5 +90,7 @@ def create_app() -> Flask:
     app.register_blueprint(gateway_flight_controller.blueprint)
     app.register_blueprint(gateway_rating_controller.blueprint)
     app.register_blueprint(gateway_booking_controller.blueprint)
+
+    socketio.init_app(app)
 
     return app

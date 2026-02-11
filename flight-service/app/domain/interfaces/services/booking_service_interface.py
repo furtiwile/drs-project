@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, List
 from app.domain.models.flights import Booking
 from app.domain.dtos.booking_dto import BookingCreateDTO, BookingCreateDTOReturn
 from app.domain.interfaces.repositories.ibooking_repository import BookingPaginationResult
@@ -17,6 +17,10 @@ class BookingServiceInterface(ABC):
     @abstractmethod
     def get_all_bookings(self, page: int, per_page: int) -> BookingPaginationResult:
         """Retrieve all bookings with pagination."""
+
+    @abstractmethod
+    def get_uid_bookings_by_flight_id(self, flight_id: int) -> List[int]:
+        """Get list of user IDs who have active bookings for a flight."""
 
     @abstractmethod
     def delete_booking(self, booking_id: int) -> bool:
