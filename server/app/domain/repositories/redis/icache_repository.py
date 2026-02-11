@@ -13,3 +13,7 @@ class ICacheRepository(ABC):
     @abstractmethod
     def delete_cache(self, key: str) -> None:
         pass
+
+    @abstractmethod
+    def delete_pattern(self, pattern: str) -> None:
+        pass

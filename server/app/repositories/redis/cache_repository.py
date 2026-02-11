@@ -58,3 +58,12 @@ class CacheRepository(ICacheRepository):
 
         except redis.RedisError as e:
             logger.error(f"Failed to delete cache '{key}': {e}")
+        
+    def delete_pattern(self, pattern: str) -> None:
+        try:
+            keys: list[str] = list(self.redis_client.scan_iter(f"{self.cache_key}{pattern}")) # type: ignore
+            if keys:
+                self.redis_client.delete(*keys)
+
+        except redis.RedisError as e:
+            logger.error(f"Failed to delete cache for pattern '{self.cache_key}{pattern}': {e}")
