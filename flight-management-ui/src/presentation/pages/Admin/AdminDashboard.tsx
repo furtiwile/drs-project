@@ -66,10 +66,12 @@ export const AdminDashboard: React.FC = () => {
         flightService.getAllFlights({ status: FlightStatus.PENDING, per_page: 100 }),
         flightService.getAllFlights({ status: FlightStatus.APPROVED, per_page: 100 }),
       ]);
-      setPendingFlights(pending.data);
-      setApprovedFlights(approved.data);
+      setPendingFlights(pending?.flights || []);
+      setApprovedFlights(approved?.flights || []);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to load flights');
+      setPendingFlights([]);
+      setApprovedFlights([]);
     } finally {
       setLoading(false);
     }
@@ -154,7 +156,7 @@ export const AdminDashboard: React.FC = () => {
       <div className="flight-card-header">
         <h3>{flight.flight_name}</h3>
         <span className="flight-badge">
-          {flight.airline?.airline_name || `Airline #${flight.airline_id}`}
+          {flight.airline?.name || `Airline #${flight.airline_id}`}
         </span>
       </div>
 
@@ -162,19 +164,19 @@ export const AdminDashboard: React.FC = () => {
         <div className="flight-route">
           <div className="airport">
             <span className="airport-code">
-              {flight.departure_airport?.airport_code || 'N/A'}
+              {flight.departure_airport?.code || 'N/A'}
             </span>
             <span className="airport-name">
-              {flight.departure_airport?.city || 'Unknown'}
+              {flight.departure_airport?.name || 'Unknown'}
             </span>
           </div>
           <div className="flight-arrow">→</div>
           <div className="airport">
             <span className="airport-code">
-              {flight.arrival_airport?.airport_code || 'N/A'}
+              {flight.arrival_airport?.code || 'N/A'}
             </span>
             <span className="airport-name">
-              {flight.arrival_airport?.city || 'Unknown'}
+              {flight.arrival_airport?.name || 'Unknown'}
             </span>
           </div>
         </div>
@@ -196,12 +198,6 @@ export const AdminDashboard: React.FC = () => {
             <span className="detail-label">Seats:</span>
             <span className="detail-value">{flight.total_seats}</span>
           </div>
-          {flight.created_by_name && (
-            <div className="detail-item">
-              <span className="detail-label">Created by:</span>
-              <span className="detail-value">{flight.created_by_name}</span>
-            </div>
-          )}
         </div>
       </div>
 

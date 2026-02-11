@@ -4,37 +4,37 @@ import type { Role } from '../../domain/enums/Role';
 
 export class UserService {
   async getAllUsers(): Promise<User[]> {
-    const response = await apiClient.get<User[]>('/api/v1/users/');
+    const response = await apiClient.get<User[]>('users/');
     return response.data;
   }
 
   async getUserById(userId: number): Promise<User> {
-    const response = await apiClient.get<User>(`/api/v1/users/${userId}`);
+    const response = await apiClient.get<User>(`/users/${userId}`);
     return response.data;
   }
 
   async updateUserRole(userId: number, role: Role): Promise<void> {
-    await apiClient.patch(`/api/v1/users/${userId}`, { role });
+    await apiClient.patch(`/users/${userId}`, { role });
   }
 
   async updateProfile(formData: any): Promise<void> {
-    await apiClient.patch('/api/v1/users/', formData);
+    await apiClient.patch('/users/', formData);
   }
 
   async deleteUser(userId: number): Promise<void> {
-    await apiClient.delete(`/api/v1/users/${userId}`);
+    await apiClient.delete(`/users/${userId}`);
   }
 
   async deposit(amount: number): Promise<void> {
-    await apiClient.patch('/api/v1/users/deposit', { amount });
+    await apiClient.patch('/users/deposit', { amount });
   }
 
   async withdraw(amount: number): Promise<void> {
-    await apiClient.patch('/api/v1/users/withdraw', { amount });
+    await apiClient.patch('/users/withdraw', { amount });
   }
 
   async updateProfilePicture(profilePictureBase64: string): Promise<void> {
-    await apiClient.patch('/api/v1/users/', { profile_picture: profilePictureBase64 });
+    await apiClient.patch('/users/', { profile_picture: profilePictureBase64 });
   }
 }
 

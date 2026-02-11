@@ -82,32 +82,41 @@ export const ManagerDashboard: React.FC = () => {
         flightService.getAllFlights({ status: FlightStatus.COMPLETED, per_page: 100 }),
       ]);
       setFlights({
-        pending: pending.data,
-        approved: approved.data,
-        rejected: rejected.data,
-        in_progress: inProgress.data,
-        completed: completed.data,
+        pending: pending?.flights || [],
+        approved: approved?.flights || [],
+        rejected: rejected?.flights || [],
+        in_progress: inProgress?.flights || [],
+        completed: completed?.flights || [],
       });
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to load flights');
+      setFlights({
+        pending: [],
+        approved: [],
+        rejected: [],
+        in_progress: [],
+        completed: [],
+      });
     }
   };
 
   const loadAirlines = async () => {
     try {
       const data = await airlineService.getAllAirlines();
-      setAirlines(data);
+      setAirlines(data || []);
     } catch (error) {
       toast.error('Failed to load airlines');
+      setAirlines([]);
     }
   };
 
   const loadAirports = async () => {
     try {
       const data = await airportService.getAllAirports();
-      setAirports(data);
+      setAirports(data || []);
     } catch (error) {
       toast.error('Failed to load airports');
+      setAirports([]);
     }
   };
 
@@ -172,19 +181,19 @@ export const ManagerDashboard: React.FC = () => {
           <div className="flight-route">
             <div className="airport">
               <span className="airport-code">
-                {flight.departure_airport?.airport_code || 'N/A'}
+                {flight.departure_airport?.code || 'N/A'}
               </span>
               <span className="airport-name">
-                {flight.departure_airport?.city || 'Unknown'}
+                {flight.departure_airport?.name || 'Unknown'}
               </span>
             </div>
             <div className="flight-arrow">→</div>
             <div className="airport">
               <span className="airport-code">
-                {flight.arrival_airport?.airport_code || 'N/A'}
+                {flight.arrival_airport?.code || 'N/A'}
               </span>
               <span className="airport-name">
-                {flight.arrival_airport?.city || 'Unknown'}
+                {flight.arrival_airport?.name || 'Unknown'}
               </span>
             </div>
           </div>
@@ -193,7 +202,7 @@ export const ManagerDashboard: React.FC = () => {
             <div className="detail-item">
               <span className="detail-label">Airline:</span>
               <span className="detail-value">
-                {flight.airline?.airline_name || `#${flight.airline_id}`}
+                {flight.airline?.name || `#${flight.airline_id}`}
               </span>
             </div>
             <div className="detail-item">
@@ -332,8 +341,8 @@ export const ManagerDashboard: React.FC = () => {
                     >
                       <option value={0}>Select Airline</option>
                       {airlines.map((airline) => (
-                        <option key={airline.airline_id} value={airline.airline_id}>
-                          {airline.airline_name} ({airline.airline_code})
+                        <option key={airline.id} value={airline.id}>
+                          {airline.name}
                         </option>
                       ))}
                     </select>
@@ -349,8 +358,8 @@ export const ManagerDashboard: React.FC = () => {
                     >
                       <option value={0}>Select Airport</option>
                       {airports.map((airport) => (
-                        <option key={airport.airport_id} value={airport.airport_id}>
-                          {airport.airport_name} ({airport.airport_code})
+                        <option key={airport.id} value={airport.id}>
+                          {airport.name} ({airport.code})
                         </option>
                       ))}
                     </select>
@@ -366,8 +375,8 @@ export const ManagerDashboard: React.FC = () => {
                     >
                       <option value={0}>Select Airport</option>
                       {airports.map((airport) => (
-                        <option key={airport.airport_id} value={airport.airport_id}>
-                          {airport.airport_name} ({airport.airport_code})
+                        <option key={airport.id} value={airport.id}>
+                          {airport.name} ({airport.code})
                         </option>
                       ))}
                     </select>

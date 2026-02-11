@@ -264,6 +264,7 @@
   color: #ffffff;
   padding: 0.875rem 2rem;
   font-size: 1rem;
+  max-width: 150px;
 }
 
 .btn-book:hover:not(:disabled) {

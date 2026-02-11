@@ -55,10 +55,12 @@ export const FlightsPage: React.FC = () => {
       if (maxPrice > 0) params.max_price = maxPrice;
 
       const response = await flightService.getAllFlights(params);
-      setFlights(response.data);
-      setTotalPages(response.total_pages);
+      setFlights(response?.flights || []);
+      setTotalPages(response?.pages || 1);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to load flights');
+      setFlights([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
@@ -67,18 +69,20 @@ export const FlightsPage: React.FC = () => {
   const loadAirlines = async () => {
     try {
       const data = await airlineService.getAllAirlines();
-      setAirlines(data);
+      setAirlines(data || []);
     } catch (error) {
       console.error('Failed to load airlines');
+      setAirlines([]);
     }
   };
 
   const loadAirports = async () => {
     try {
       const data = await airportService.getAllAirports();
-      setAirports(data);
+      setAirports(data || []);
     } catch (error) {
       console.error('Failed to load airports');
+      setAirports([]);
     }
   };
 
@@ -145,8 +149,8 @@ export const FlightsPage: React.FC = () => {
             >
               <option value={0}>All Airlines</option>
               {airlines.map((airline) => (
-                <option key={airline.airline_id} value={airline.airline_id}>
-                  {airline.airline_name}
+                <option key={airline.id} value={airline.id}>
+                  {airline.name}
                 </option>
               ))}
             </select>
@@ -164,8 +168,8 @@ export const FlightsPage: React.FC = () => {
             >
               <option value={0}>Any Airport</option>
               {airports.map((airport) => (
-                <option key={airport.airport_id} value={airport.airport_id}>
-                  {airport.city} ({airport.airport_code})
+                <option key={airport.id} value={airport.id}>
+                  {airport.name} ({airport.code})
                 </option>
               ))}
             </select>
@@ -183,8 +187,8 @@ export const FlightsPage: React.FC = () => {
             >
               <option value={0}>Any Airport</option>
               {airports.map((airport) => (
-                <option key={airport.airport_id} value={airport.airport_id}>
-                  {airport.city} ({airport.airport_code})
+                <option key={airport.id} value={airport.id}>
+                  {airport.name} ({airport.code})
                 </option>
               ))}
             </select>
@@ -249,7 +253,7 @@ export const FlightsPage: React.FC = () => {
                     <div key={flight.flight_id} className="flight-item">
                       <div className="flight-item-header">
                         <div className="airline-info">
-                          <h3>{flight.airline?.airline_name || 'Airline'}</h3>
+                          <h3>{flight.airline?.name || 'Airline'}</h3>
                           <span className="flight-name">{flight.flight_name}</span>
                         </div>
                         <div className="price-info">
@@ -263,10 +267,10 @@ export const FlightsPage: React.FC = () => {
                           <div className="time-location">
                             <span className="time">{formatTime(flight.departure_time)}</span>
                             <span className="airport-code">
-                              {flight.departure_airport?.airport_code || 'N/A'}
+                              {flight.departure_airport?.code || 'N/A'}
                             </span>
                             <span className="city">
-                              {flight.departure_airport?.city || 'Unknown'}
+                              {flight.departure_airport?.name || 'Unknown'}
                             </span>
                           </div>
 
@@ -283,10 +287,10 @@ export const FlightsPage: React.FC = () => {
                           <div className="time-location">
                             <span className="time">{formatTime(flight.arrival_time)}</span>
                             <span className="airport-code">
-                              {flight.arrival_airport?.airport_code || 'N/A'}
+                              {flight.arrival_airport?.code || 'N/A'}
                             </span>
                             <span className="city">
-                              {flight.arrival_airport?.city || 'Unknown'}
+                              {flight.arrival_airport?.name || 'Unknown'}
                             </span>
                           </div>
                         </div>

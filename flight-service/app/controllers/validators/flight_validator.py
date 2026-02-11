@@ -18,6 +18,9 @@ class FlightCreateValidationSchema(Schema):
 
     @validates('departure_time')
     def validate_departure_time(self, value):
+        # Make value timezone-aware if it's naive, assuming UTC
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
         if value < datetime.now(timezone.utc):
             raise ValidationError('Departure time must be in the future')
 
@@ -55,8 +58,12 @@ class FlightUpdateValidationSchema(Schema):
 
     @validates('departure_time')
     def validate_departure_time(self, value):
-        if value and value < datetime.now(timezone.utc):
-            raise ValidationError('Departure time must be in the future')
+        if value:
+            # Make value timezone-aware if it's naive, assuming UTC
+            if value.tzinfo is None:
+                value = value.replace(tzinfo=timezone.utc)
+            if value < datetime.now(timezone.utc):
+                raise ValidationError('Departure time must be in the future')
 
 
 def validate_update_flight_data(data: Dict[str, Any]) -> FlightUpdateDTO:
@@ -73,7 +80,7 @@ def validate_update_flight_data(data: Dict[str, Any]) -> FlightUpdateDTO:
 class FlightStatusUpdateValidationSchema(Schema):
     """Validation schema for flight status update data"""
     status = fields.Str(required=True, validate=validate.OneOf([e.value for e in FlightStatus]))
-    rejection_reason = fields.Str(required=False)
+    rejection_reason = fields.Str(required=False, allow_none=True)
 
 
 def validate_update_flight_status_data(data: Dict[str, Any], admin_id: int) -> FlightStatusUpdateDTO:

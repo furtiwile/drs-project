@@ -79,7 +79,14 @@ class SqlAlchemyFlightRepository(IFlightRepository):
 
         total = query.count()
         orms = query.offset((page - 1) * per_page).limit(per_page).all()
-        flights = [orm for orm in orms]
+        
+        # Calculate available_seats for each flight
+        flights = []
+        for orm in orms:
+            booked_seats = Booking.query.filter_by(flight_id=orm.flight_id).count()
+            orm.available_seats = orm.total_seats - booked_seats
+            flights.append(orm)
+        
         pages = (total + per_page - 1) // per_page
 
         return {

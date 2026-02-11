@@ -52,7 +52,7 @@ export const MyBookingsPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const data = await bookingService.getUserBookings(user.user_id);
+      const data = await bookingService.getUserBookings();
       setBookings(data);
 
       // Join flight rooms for real-time updates
@@ -143,9 +143,9 @@ export const MyBookingsPage: React.FC = () => {
     const statusCategory = getStatusCategory(flight.status);
 
     return (
-      <div key={booking.booking_id} className="booking-card">
+      <div key={booking.id} className="booking-card">
         <div className="booking-header">
-          <div className="booking-id">Booking #{booking.booking_id}</div>
+          <div className="booking-id">Booking #{booking.id}</div>
           <span className={`status-badge ${FlightStatusColors[flight.status]}`}>
             {statusCategory}
           </span>
@@ -155,7 +155,7 @@ export const MyBookingsPage: React.FC = () => {
           <div className="flight-info-section">
             <h3>{flight.flight_name}</h3>
             <span className="airline-name">
-              {flight.airline?.airline_name || `Airline #${flight.airline_id}`}
+              {flight.airline?.name || `Airline #${flight.airline_id}`}
             </span>
           </div>
 
@@ -163,9 +163,9 @@ export const MyBookingsPage: React.FC = () => {
             <div className="location">
               <span className="time">{formatTime(flight.departure_time)}</span>
               <span className="airport-code">
-                {flight.departure_airport?.airport_code || 'N/A'}
+                {flight.departure_airport?.code || 'N/A'}
               </span>
-              <span className="city">{flight.departure_airport?.city || 'Unknown'}</span>
+              <span className="city">{flight.departure_airport?.name || 'Unknown'}</span>
             </div>
 
             <div className="route-line">
@@ -180,9 +180,9 @@ export const MyBookingsPage: React.FC = () => {
             <div className="location">
               <span className="time">{formatTime(flight.arrival_time)}</span>
               <span className="airport-code">
-                {flight.arrival_airport?.airport_code || 'N/A'}
+                {flight.arrival_airport?.code || 'N/A'}
               </span>
-              <span className="city">{flight.arrival_airport?.city || 'Unknown'}</span>
+              <span className="city">{flight.arrival_airport?.name || 'Unknown'}</span>
             </div>
           </div>
 
@@ -193,7 +193,7 @@ export const MyBookingsPage: React.FC = () => {
             </div>
             <div className="detail-row">
               <span className="label">Booked On:</span>
-              <span className="value">{formatDateTime(booking.purchased_at)}</span>
+              <span className="value">{formatDateTime(booking.created_at)}</span>
             </div>
             <div className="detail-row">
               <span className="label">Price:</span>

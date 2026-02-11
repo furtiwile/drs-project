@@ -146,6 +146,8 @@
 .dropdown-email {
   font-size: 0.875rem;
   color: #a1a1aa;
+  word-break: break-all;
+  overflow-wrap: break-word;
 }
 
 .dropdown-role {

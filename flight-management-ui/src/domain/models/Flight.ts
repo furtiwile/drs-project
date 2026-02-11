@@ -16,7 +16,6 @@ export interface Flight {
   arrival_airport_id: number;
   arrival_airport?: Airport;
   created_by: number;
-  created_by_name?: string;
   price: number;
   total_seats: number;
   available_seats?: number;

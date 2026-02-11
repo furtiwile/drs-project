@@ -9,11 +9,11 @@ import type {
 import { FlightStatus } from '../../domain/enums/FlightStatus';
 
 interface PaginatedResponse<T> {
-  data: T[];
+  flights: T[];
   total: number;
   page: number;
   per_page: number;
-  total_pages: number;
+  pages: number;
 }
 
 interface GetFlightsParams {
@@ -29,7 +29,7 @@ interface GetFlightsParams {
 }
 
 class FlightService {
-  private basePath = '/api/flights';
+  private basePath = 'flights';
 
   async createFlight(dto: CreateFlightDto): Promise<Flight> {
     const response = await apiClient.post<Flight>(this.basePath, dto);
@@ -44,8 +44,8 @@ class FlightService {
   }
 
   async getFlightsByTab(tab: string): Promise<Flight[]> {
-    const response = await apiClient.get<Flight[]>(`${this.basePath}/tabs/${tab}`);
-    return response.data;
+    const response = await apiClient.get<{flights: Flight[]}>(`${this.basePath}/tabs/${tab}`);
+    return response.data.flights;
   }
 
   async getFlightById(id: number): Promise<Flight> {
@@ -77,7 +77,7 @@ class FlightService {
   }
 
   async cancelFlight(id: number): Promise<Flight> {
-    const response = await apiClient.post<Flight>(`${this.basePath}/${id}/cancel`);
+    const response = await apiClient.post<Flight>(`${this.basePath}/${id}/cancel`, {});
     return response.data;
   }
 

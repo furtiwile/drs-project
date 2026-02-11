@@ -59,7 +59,13 @@ class FlightService(FlightServiceInterface):
                                          'Flight creation failed: invalid airline',
                                          airline_id=data.airline_id)
             return None
-        if data.departure_time <= datetime.now(timezone.utc):
+        
+        # Make departure_time timezone-aware if it's naive, assuming UTC
+        departure_time = data.departure_time
+        if departure_time.tzinfo is None:
+            departure_time = departure_time.replace(tzinfo=timezone.utc)
+        
+        if departure_time <= datetime.now(timezone.utc):
             LoggerService.log_with_context(logger, 'WARNING',
                                          'Flight creation failed: departure time in the past',
                                          departure_time=data.departure_time.isoformat())

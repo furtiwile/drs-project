@@ -5,17 +5,17 @@ import type { AuthResponse } from '../../domain/dtos/AuthResponse';
 
 export class AuthService {
   async login(credentials: LoginDto): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/api/v1/auth/login', credentials);
+    const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
     return response.data;
   }
 
   async register(data: RegisterDto): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/api/v1/auth/register', data);
+    const response = await apiClient.post<AuthResponse>('/auth/register', data);
     return response.data;
   }
 
   async logout(): Promise<void> {
-    await apiClient.post<AuthResponse>("/api/v1/auth/logout");
+    await apiClient.post<AuthResponse>("/auth/logout");
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   }

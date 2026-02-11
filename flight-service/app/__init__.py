@@ -30,7 +30,7 @@ def index():
 def health():
     return {'status': 'healthy', 'service': 'flight-service'}
 
-API_PREFIX = '/api/v1'
+API_PREFIX = os.environ.get('API_PREFIX', '/api')
 
 def create_app():
     # Initialize logging system
@@ -49,7 +49,7 @@ def create_app():
 
     db.init_app(app)
 
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, resources={r"/api/*": {"origins": os.getenv("CORS_ORIGINS", "").split(',')}}, supports_credentials=True)
     logger.info("CORS configured for API endpoints")
 
     # Initialize WebSocket

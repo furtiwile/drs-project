@@ -1,6 +1,9 @@
 import requests
 from urllib.parse import urljoin
 from typing import Any
+import logging
+
+logger = logging.getLogger(__name__)
 
 class GatewayClient:
     def __init__(self, base_url: str, version: str, headers: dict[str, str] | None = None) -> None:
@@ -11,12 +14,19 @@ class GatewayClient:
         if headers:
             default_headers.update(headers)
         self.session.headers.update(default_headers)
+        logger.info(f"Gateway client initialized: base_url={base_url}, version={version}")
     
     def request(self, path: str, method: str = "GET", **kwargs: Any) -> requests.Response:
         url = urljoin(self.base_url, f"{self.version}{path}")
-        response = self.session.request(method=method.upper(), url=url, **kwargs)
-        #response.raise_for_status()
-        return response
+        logger.info(f"Gateway request: {method} {url}")
+        try:
+            response = self.session.request(method=method.upper(), url=url, **kwargs)
+            logger.info(f"Gateway response: {method} {url} -> {response.status_code}")
+            #response.raise_for_status()
+            return response
+        except Exception as e:
+            logger.error(f"Gateway request failed: {method} {url} -> {str(e)}")
+            raise
     
     def get(self, path: str, **kwargs: Any) -> requests.Response:
         return self.request(path, method="GET", **kwargs)

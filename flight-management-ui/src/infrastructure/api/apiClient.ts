@@ -1,13 +1,14 @@
 import axios, { type AxiosInstance, type AxiosError } from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_PREFIX = import.meta.env.VITE_API_PREFIX || '/api/v1';
 
 class ApiClient {
   private client: AxiosInstance;
 
   constructor() {
     this.client = axios.create({
-      baseURL: API_BASE_URL,
+      baseURL: `${API_BASE_URL}${API_PREFIX}`,
       headers: {
         'Content-Type': 'application/json',
       },
