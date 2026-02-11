@@ -77,6 +77,58 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
 										</div>
 									</div>
 									<div className="dropdown-divider" />
+									
+									{user?.role === 'ADMINISTRATOR' && (
+										<Link
+											to="/admin/dashboard"
+											className="dropdown-item"
+											onClick={() => setDropdownOpen(false)}
+										>
+											<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+												<path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+											</svg>
+											Admin Dashboard
+										</Link>
+									)}
+									
+									{user?.role === 'MANAGER' && (
+										<Link
+											to="/manager/dashboard"
+											className="dropdown-item"
+											onClick={() => setDropdownOpen(false)}
+										>
+											<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+												<path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+											</svg>
+											Manager Dashboard
+										</Link>
+									)}
+									
+									<Link
+										to="/flights"
+										className="dropdown-item"
+										onClick={() => setDropdownOpen(false)}
+									>
+										<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+											<path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+										</svg>
+										Available Flights
+									</Link>
+									
+									<Link
+										to="/bookings"
+										className="dropdown-item"
+										onClick={() => setDropdownOpen(false)}
+									>
+										<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+											<path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+											<path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+										</svg>
+										My Bookings
+									</Link>
+									
+									<div className="dropdown-divider" />
+									
 									<Link
 										to="/account"
 										className="dropdown-item"
