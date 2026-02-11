@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime, timedelta, timezone
 from ..domain.models.flights import Booking
 from app.domain.interfaces.repositories.ibooking_repository import BookingPaginationResult, IBookingRepository
@@ -155,6 +155,13 @@ class BookingService(BookingServiceInterface):
             per_page = 100
         
         return self.booking_repository.get_all_bookings(page, per_page)
+
+    def get_uid_bookings_by_flight_id(self, flight_id: int) -> List[int]:
+        """Get list of user IDs who have active bookings for a flight."""
+        if flight_id <= 0:
+            return []
+        
+        return self.booking_repository.get_uid_bookings_by_flight_id(flight_id)
 
     def delete_booking(self, booking_id: int) -> bool:
         """Delete a booking by ID with validation."""

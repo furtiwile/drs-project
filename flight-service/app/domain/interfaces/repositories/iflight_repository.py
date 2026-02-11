@@ -59,9 +59,5 @@ class IFlightRepository(ABC):
         """Get in-progress flights that should complete (arrival_time <= current_time)"""
     
     @abstractmethod
-    def get_user_bookings_for_flight(self, flight_id: int) -> List[int]:
-        """Get list of user IDs who have booked this flight"""
-
-    @abstractmethod
     def get_flight_price(self, flight_id: int) -> Optional[float]:
         """Get the price of a flight"""

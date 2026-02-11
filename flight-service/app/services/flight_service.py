@@ -1,4 +1,4 @@
-from typing import Optional, Dict, cast
+from typing import Optional, Dict, cast, Tuple, List
 from datetime import datetime, timezone
 from ..domain.models.flights import Flight
 from app.domain.interfaces.repositories.iflight_repository import IFlightRepository
@@ -6,9 +6,11 @@ from app.domain.interfaces.repositories.iairport_repository import IAirportRepos
 from app.domain.interfaces.repositories.iairline_repository import IAirlineRepository
 from app.domain.interfaces.services.flight_service_interface import FlightServiceInterface
 from app.domain.interfaces.repositories.iflight_repository import FlightPaginationResult
+from app.domain.interfaces.services.booking_service_interface import BookingServiceInterface
 from ..domain.models.enums import FlightStatus
 from ..domain.validators.flight_validator import FlightValidator
 from ..domain.dtos.flight_dto import (
+    DeleteFlightDTO,
     FlightCreateDTO,
     FlightStatusUpdateDTO,
     FlightUpdateDTO)
@@ -27,10 +29,12 @@ class FlightService(FlightServiceInterface):
     def __init__(self, flight_repository: IFlightRepository, 
                  airport_repository: IAirportRepository,
                  airline_repository: IAirlineRepository,
-                 socket_manager=None):
+                 booking_service: BookingServiceInterface,
+                 socket_manager = None):
         self.flight_repository = flight_repository
         self.airport_repository = airport_repository
         self.airline_repository = airline_repository
+        self.booking_service = booking_service
         self.socket_manager = socket_manager
 
     def create_flight(self, data: FlightCreateDTO, created_by: int) -> Optional[Flight]:
@@ -202,7 +206,7 @@ class FlightService(FlightServiceInterface):
         
         return updated_flight
 
-    def cancel_flight(self, flight_id: int, admin_id: int) -> Optional[Flight]:
+    def cancel_flight(self, flight_id: int, admin_id: int) -> Optional[DeleteFlightDTO]:
         """Cancel an approved flight and notify users."""
         flight = self.flight_repository.get_flight_by_id(flight_id)
         if not flight:
@@ -231,7 +235,7 @@ class FlightService(FlightServiceInterface):
         updated_flight = self.flight_repository.get_flight_by_id(flight_id)
         
         # Get users who booked this flight for potential refund processing
-        user_ids = self.flight_repository.get_user_bookings_for_flight(flight_id)
+        user_ids = self.booking_service.get_uid_bookings_by_flight_id(flight_id)
         
         if user_ids:
             logger.info(f"Flight {flight_id} cancelled. {len(user_ids)} users affected. Server will handle notifications.")
@@ -246,7 +250,7 @@ class FlightService(FlightServiceInterface):
             self.socket_manager.notify_flight_cancelled(flight_data)
             logger.info(f"Broadcasted cancellation of flight {flight_id}")
         
-        return updated_flight
+        return DeleteFlightDTO(flight=updated_flight, affected_user_ids=user_ids)
 
     def delete_flight(self, flight_id: int) -> bool:
         """Delete a flight by ID (admin only)."""

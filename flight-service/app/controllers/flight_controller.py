@@ -304,11 +304,14 @@ class FlightController(FlightControllerInterface):
         LoggerService.log_request(logger, 'POST', f'/flights/{flight_id}/cancel',
                                 flight_id=flight_id, admin_id=admin_id)
         
-        flight = self.flight_service.cancel_flight(flight_id, admin_id)
-        if not flight:
+        result = self.flight_service.cancel_flight(flight_id, admin_id)
+        if not result or not result.flight:
             duration_ms = (time.time() - start_time) * 1000
             LoggerService.log_response(logger, 'POST', f'/flights/{flight_id}/cancel', 400, duration_ms)
             return jsonify({'error': 'Flight not found or cannot be cancelled'}), 400
+        
+        flight = result.flight
+        cancelled_user_ids = result.affected_user_ids
         
         LoggerService.log_business_event(logger, 'FLIGHT_CANCELLED',
                                        flight_id=flight_id,
@@ -319,8 +322,8 @@ class FlightController(FlightControllerInterface):
         duration_ms = (time.time() - start_time) * 1000
         LoggerService.log_response(logger, 'POST', f'/flights/{flight_id}/cancel', 200, duration_ms)
         return jsonify({
-            'message': 'Flight cancelled successfully',
-            'flight': response_dto.dump(flight)
+            'flight': response_dto.dump(flight),
+            'affected_user_ids': cancelled_user_ids
         }), 200
 
     def delete_flight(self, flight_id: int):
