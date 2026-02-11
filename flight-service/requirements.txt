@@ -23,6 +23,7 @@ Jinja2==3.1.6
 MarkupSafe==3.0.3
 marshmallow==3.23.1
 packaging==25.0
+pillow==12.1.0
 psycopg2-binary==2.9.11
 pycparser==3.0
 PyJWT==2.10.1
@@ -30,6 +31,7 @@ python-dotenv==1.2.1
 python-engineio==4.12.3
 python-socketio==5.15.0
 redis==7.1.0
+reportlab==4.4.9
 requests==2.32.5
 simple-websocket==1.1.0
 SQLAlchemy==2.0.45

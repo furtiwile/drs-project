@@ -1,0 +1,24 @@
+info:
+  name: Get a pdf report
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{local_flights_url}}/reports/flights"
+  headers:
+    - name: admin-id
+      value: "1"
+  body:
+    type: json
+    data: |-
+      {
+        "report_types":["upcoming"]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

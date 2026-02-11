@@ -3,6 +3,7 @@ from .airline_controller import AirlineController, airline_bp
 from .flight_controller import FlightController, flight_bp
 from .booking_controller import BookingController, booking_bp
 from .rating_controller import RatingController, rating_bp
+from .report_controller import ReportController, report_bp, create_report_controller
 from .health_controller import health_bp
 from app.domain.interfaces.controllers.airport_controller_interface import AirportControllerInterface
 from app.domain.interfaces.controllers.airline_controller_interface import AirlineControllerInterface
@@ -16,12 +17,15 @@ __all__ = [
     'FlightController',
     'BookingController',
     'RatingController',
+    'ReportController',
     'airport_bp',
     'airline_bp',
     'flight_bp',
     'booking_bp',
     'rating_bp',
+    'report_bp',
     'health_bp',
+    'create_report_controller',
     'AirportControllerInterface',
     'AirlineControllerInterface',
     'FlightControllerInterface',

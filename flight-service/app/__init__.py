@@ -15,6 +15,7 @@ from .controllers import (
     flight_bp,
     booking_bp,
     rating_bp,
+    report_bp,
     health_bp
 )
 
@@ -68,12 +69,14 @@ def create_app():
         SqlAlchemyBookingRepository,
         SqlAlchemyRatingRepository
     )
+    from .repositories.report_repository import SqlAlchemyReportRepository
 
     airport_repo = SqlAlchemyAirportRepository()
     airline_repo = SqlAlchemyAirlineRepository()
     flight_repo = SqlAlchemyFlightRepository()
     booking_repo = SqlAlchemyBookingRepository()
     rating_repo = SqlAlchemyRatingRepository()
+    report_repo = SqlAlchemyReportRepository()
 
     # Create services with dependencies
     from .services import (
@@ -83,6 +86,7 @@ def create_app():
         BookingService,
         RatingService
     )
+    from .services.report_service import ReportService
     
     airport_service = AirportService(airport_repo)
     airline_service = AirlineService(airline_repo)
@@ -98,6 +102,7 @@ def create_app():
         task_manager
     )
     rating_service = RatingService(rating_repo, booking_repo)
+    report_service = ReportService(report_repo)
     
     logger.info("All services instantiated successfully")
 
@@ -107,7 +112,8 @@ def create_app():
         AirlineController,
         FlightController,
         BookingController,
-        RatingController
+        RatingController,
+        create_report_controller
     )
     
     airport_controller = AirportController(airport_service, airport_bp)
@@ -115,6 +121,7 @@ def create_app():
     flight_controller = FlightController(flight_service, flight_bp)
     booking_controller = BookingController(booking_service, booking_bp)
     rating_controller = RatingController(rating_service, rating_bp)
+    report_controller = create_report_controller(report_service)
     
     logger.info("All controllers instantiated successfully")
 
@@ -125,6 +132,7 @@ def create_app():
     app.register_blueprint(flight_bp, url_prefix=API_PREFIX)
     app.register_blueprint(booking_bp, url_prefix=API_PREFIX)
     app.register_blueprint(rating_bp, url_prefix=API_PREFIX)
+    app.register_blueprint(report_bp, url_prefix=API_PREFIX)
     app.register_blueprint(health_bp)
     
     logger.info("All blueprints registered successfully")
