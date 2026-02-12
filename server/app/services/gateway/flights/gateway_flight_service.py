@@ -127,9 +127,9 @@ class GatewayFlightService(IGatewayFlightService):
 
         return result
 
-    def delete_flight(self, flight_id: int, deleted_by: int) -> Result[None, int]:
+    def delete_flight(self, flight_id: int, admin_id: int) -> Result[None, int]:
         result = make_api_call(
-            lambda: self.client.delete(f"/flights/{flight_id}", headers={'user-id': str(deleted_by)}),
+            lambda: self.client.delete(f"/flights/{flight_id}", headers={'admin-id': str(admin_id)}),
             lambda _: None,
             success_codes=(200, 204)
         )

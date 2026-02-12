@@ -14,6 +14,7 @@ interface PaginatedResponse<T> {
   page: number;
   per_page: number;
   pages: number;
+  tab?: string;
 }
 
 interface GetFlightsParams {
@@ -43,9 +44,15 @@ class FlightService {
     return response.data;
   }
 
-  async getFlightsByTab(tab: string): Promise<Flight[]> {
-    const response = await apiClient.get<{flights: Flight[]}>(`${this.basePath}/tabs/${tab}`);
-    return response.data.flights;
+  async getFlightsByTab(
+    tab: string, 
+    params?: GetFlightsParams
+  ): Promise<PaginatedResponse<Flight>> {
+    const response = await apiClient.get<PaginatedResponse<Flight>>(
+      `${this.basePath}/tabs/${tab}`, 
+      { params }
+    );
+    return response.data;
   }
 
   async getFlightById(id: number): Promise<Flight> {

@@ -1,6 +1,6 @@
 from typing import Optional, Dict, cast, Tuple, List
 from datetime import datetime, timezone
-from ..domain.models.flights import Flight
+from ..domain.models.flights import Flight, Booking
 from app.domain.interfaces.repositories.iflight_repository import IFlightRepository
 from app.domain.interfaces.repositories.iairport_repository import IAirportRepository
 from app.domain.interfaces.repositories.iairline_repository import IAirlineRepository
@@ -258,8 +258,8 @@ class FlightService(FlightServiceInterface):
         
         return DeleteFlightDTO(flight=updated_flight, affected_user_ids=user_ids)
 
-    def delete_flight(self, flight_id: int) -> bool:
-        """Delete a flight by ID (admin only)."""
+    def delete_flight(self, flight_id: int, admin_id: int) -> bool:
+        """Delete a flight by ID (admin only). Notifies all clients via WebSocket."""
         if flight_id <= 0:
             return False
         
@@ -267,7 +267,22 @@ class FlightService(FlightServiceInterface):
         if not flight:
             return False
         
-        return self.flight_repository.delete_flight(flight_id)
+        # Store flight data before deletion for notification
+        flight_data: FlightNotificationData = {
+            'flight_id': flight.flight_id,
+            'flight_name': flight.flight_name,
+            'status': flight.status.value,
+            'departure_time': flight.departure_time.isoformat()
+        }
+        
+        success = self.flight_repository.delete_flight(flight_id)
+        
+        if success and self.socket_manager:
+            # Notify all clients about flight deletion
+            self.socket_manager.notify_flight_deleted(flight_data)
+            logger.info(f"Notified clients about deletion of flight {flight_id}")
+        
+        return success
 
     def get_available_seats(self, flight_id: int) -> int:
         """Get available seats for a flight."""
@@ -277,37 +292,92 @@ class FlightService(FlightServiceInterface):
     
     def get_flights_by_tab(self, tab: str, page: int, per_page: int, filters: Optional[Dict] = None) -> FlightPaginationResult:
         """
-        Get flights by tab:
-        - upcoming: APPROVED flights that haven't started
+        Get flights by tab with search support:
+        - upcoming: PENDING + APPROVED flights that haven't started
         - in-progress: IN_PROGRESS flights
-        - completed: COMPLETED and CANCELLED flights
+        - completed: COMPLETED, CANCELLED, and REJECTED flights
+        
+        Supports filters: flight_name, airline_id
         """
         current_time = datetime.now(timezone.utc)
         
         if tab == 'upcoming':
-            # Approved flights that haven't started yet
+            # PENDING and APPROVED flights that haven't started yet
+            # Note: Apply search filters if provided
             if filters is None:
                 filters = {}
-            filters['status'] = FlightStatus.APPROVED.value
-            result = self.flight_repository.get_all_flights(page, per_page, filters)
-            # Filter out flights that have already started
-            result['flights'] = [f for f in result['flights'] if f.departure_time > current_time]
-            result['total'] = len(result['flights'])
-            result['pages'] = (result['total'] + per_page - 1) // per_page
-            return result
+            
+            # Get both PENDING and APPROVED flights
+            pending_filters = {**filters, 'status': FlightStatus.PENDING.value}
+            approved_filters = {**filters, 'status': FlightStatus.APPROVED.value}
+            
+            pending_result = self.flight_repository.get_all_flights(1, 1000, pending_filters)
+            approved_result = self.flight_repository.get_all_flights(1, 1000, approved_filters)
+            
+            # Combine and filter out started flights
+            all_flights = pending_result['flights'] + approved_result['flights']
+            
+            # Filter flights that haven't started yet (handle timezone-naive datetimes)
+            upcoming_flights = []
+            for f in all_flights:
+                departure_time = f.departure_time
+                if departure_time.tzinfo is None:
+                    departure_time = departure_time.replace(tzinfo=timezone.utc)
+                if departure_time > current_time:
+                    upcoming_flights.append(f)
+            
+            # Sort by departure_time
+            upcoming_flights.sort(key=lambda f: f.departure_time)
+            
+            # Paginate
+            total = len(upcoming_flights)
+            start = (page - 1) * per_page
+            end = start + per_page
+            paginated_flights = upcoming_flights[start:end]
+            pages = (total + per_page - 1) // per_page if total > 0 else 1
+            
+            # Calculate available seats
+            for flight in paginated_flights:
+                booked_seats = Booking.query.filter_by(flight_id=flight.flight_id).count()
+                flight.available_seats = flight.total_seats - booked_seats
+            
+            return {
+                'flights': paginated_flights,
+                'page': page,
+                'per_page': per_page,
+                'total': total,
+                'pages': pages
+            }
         elif tab == 'in-progress':
+            # Apply filters to in-progress flights
+            if filters:
+                filters['status'] = FlightStatus.IN_PROGRESS.value
+                return self.flight_repository.get_all_flights(page, per_page, filters)
             return self.flight_repository.get_flights_by_status('IN_PROGRESS', page, per_page)
         elif tab == 'completed':
-            # Get both completed and cancelled flights
-            completed = self.flight_repository.get_flights_by_status('COMPLETED', 1, 1000)
-            cancelled = self.flight_repository.get_flights_by_status('CANCELLED', 1, 1000)
-            all_flights = completed['flights'] + cancelled['flights']
+            # Get COMPLETED, CANCELLED, and REJECTED flights with filters
+            completed_filters = {**filters} if filters else {}
+            cancelled_filters = {**filters} if filters else {}
+            rejected_filters = {**filters} if filters else {}
+            
+            completed_filters['status'] = FlightStatus.COMPLETED.value
+            cancelled_filters['status'] = FlightStatus.CANCELLED.value
+            rejected_filters['status'] = FlightStatus.REJECTED.value
+            
+            completed = self.flight_repository.get_all_flights(1, 1000, completed_filters)
+            cancelled = self.flight_repository.get_all_flights(1, 1000, cancelled_filters)
+            rejected = self.flight_repository.get_all_flights(1, 1000, rejected_filters)
+            
+            all_flights = completed['flights'] + cancelled['flights'] + rejected['flights']
+            
+            # Sort by updated_at descending (most recent first)
+            all_flights.sort(key=lambda f: f.updated_at, reverse=True)
             
             total = len(all_flights)
             start = (page - 1) * per_page
             end = start + per_page
             paginated_flights = all_flights[start:end]
-            pages = (total + per_page - 1) // per_page
+            pages = (total + per_page - 1) // per_page if total > 0 else 1
             
             return {
                 'flights': paginated_flights,

@@ -109,11 +109,11 @@ class GatewayFlightController:
         return handle_response(result)
     
     @authenticate
-    @authorize(Role.ADMINISTRATOR, Role.MANAGER)
+    @authorize(Role.ADMINISTRATOR)
     def delete_flight(self, flight_id: int) -> tuple[Response, int]:
-        deleted_by = g.user.user_id
+        admin_id = g.user.user_id
 
-        result = self.gateway_flight_service.delete_flight(flight_id, deleted_by)
+        result = self.gateway_flight_service.delete_flight(flight_id, admin_id)
         return handle_response(result, success_code=204)
     
     @authenticate

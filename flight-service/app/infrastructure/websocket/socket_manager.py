@@ -173,6 +173,22 @@ class SocketManager:
                 logger.info(f"Broadcasted flight completed: {flight_id}")
         except Exception as e:
             logger.error(f"Error broadcasting flight completion: {str(e)}")
+    
+    def notify_flight_deleted(self, flight_data: FlightNotificationData):
+        """Broadcast that a flight has been deleted to all connected clients"""
+        try:
+            flight_id = flight_data.get('flight_id')
+            # Notify both the specific flight room and broadcast to all
+            if flight_id:
+                room = f'flight_{flight_id}'
+                self.socketio.emit('flight_deleted', flight_data, to=room)
+                logger.info(f"Notified flight room {room} about deletion")
+            
+            # Also broadcast to all connected clients
+            self.socketio.emit('flight_deleted', flight_data)
+            logger.info(f"Broadcasted flight deletion: {flight_id}")
+        except Exception as e:
+            logger.error(f"Error broadcasting flight deletion: {str(e)}")
 
 
 def init_socketio(app):

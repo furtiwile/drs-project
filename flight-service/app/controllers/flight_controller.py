@@ -133,7 +133,7 @@ class FlightController(FlightControllerInterface):
             'pages': result['pages']
         })
     
-    def get_flights_by_tab(self):
+    def get_flights_by_tab(self, tab: str):
         """
         GET /flights/tabs/<tab>
         Get flights organized by tab:
@@ -141,7 +141,6 @@ class FlightController(FlightControllerInterface):
         - in-progress: Flights currently in progress with timer
         - completed: Completed and cancelled flights
         """
-        tab = request.view_args.get('tab', 'upcoming') if request.view_args else 'upcoming'
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
         
@@ -326,31 +325,42 @@ class FlightController(FlightControllerInterface):
             'affected_user_ids': cancelled_user_ids
         }), 200
 
-    # def delete_flight(self, flight_id: int):
-    #     """
-    #     DELETE /flights/<int:flight_id>
-    #     Deletes a flight by ID (ADMIN only)
-    #     """
-    #     start_time = time.time()
-    #     LoggerService.log_request(logger, 'DELETE', f'/flights/{flight_id}', flight_id=flight_id)
+    def delete_flight(self, flight_id: int):
+        """
+        DELETE /flights/<int:flight_id>
+        Deletes a flight by ID (ADMIN only)
         
-    #     # Get and validate user ID from header (assuming ADMIN role check in service)
-    #     try:
-    #         user_id = validate_user_id_header(request.headers.get('user-id'))
-    #     except ValueError as e:
-    #         duration_ms = (time.time() - start_time) * 1000
-    #         LoggerService.log_response(logger, 'DELETE', f'/flights/{flight_id}', 400, duration_ms, error='Invalid user-id header')
-    #         return jsonify(e.args[0]), 400
+        Admin can delete any flight regardless of status.
+        Associated bookings are cascade deleted.
+        All clients are notified via WebSocket.
         
-    #     success = self.flight_service.delete_flight(flight_id)
-    #     if not success:
-    #         duration_ms = (time.time() - start_time) * 1000
-    #         LoggerService.log_response(logger, 'DELETE', f'/flights/{flight_id}', 400, duration_ms, error='Flight not found or deletion failed')
-    #         return jsonify({'error': 'Flight not found or deletion failed'}), 400
+        Headers:
+            admin-id: integer (required)
+        """
+        start_time = time.time()
+        LoggerService.log_request(logger, 'DELETE', f'/flights/{flight_id}', flight_id=flight_id)
         
-    #     duration_ms = (time.time() - start_time) * 1000
-    #     LoggerService.log_response(logger, 'DELETE', f'/flights/{flight_id}', 200, duration_ms)
-    #     return jsonify({'message': 'Flight deleted'}), 200
+        # Get and validate admin ID from header
+        try:
+            admin_id = validate_admin_id_header(request.headers.get('admin-id'))
+        except ValueError as e:
+            duration_ms = (time.time() - start_time) * 1000
+            LoggerService.log_response(logger, 'DELETE', f'/flights/{flight_id}', 400, duration_ms, error='Invalid admin-id header')
+            return jsonify(e.args[0]), 400
+        
+        success = self.flight_service.delete_flight(flight_id, admin_id)
+        if not success:
+            duration_ms = (time.time() - start_time) * 1000
+            LoggerService.log_response(logger, 'DELETE', f'/flights/{flight_id}', 404, duration_ms, error='Flight not found or deletion failed')
+            return jsonify({'error': 'Flight not found or deletion failed'}), 404
+        
+        LoggerService.log_business_event(logger, 'FLIGHT_DELETED',
+                                       flight_id=flight_id,
+                                       admin_id=admin_id)
+        
+        duration_ms = (time.time() - start_time) * 1000
+        LoggerService.log_response(logger, 'DELETE', f'/flights/{flight_id}', 200, duration_ms)
+        return jsonify({'message': 'Flight deleted successfully'}), 200
 
     def get_available_seats(self, flight_id: int):
         """
@@ -369,6 +379,6 @@ class FlightController(FlightControllerInterface):
         bp.add_url_rule('/flights/<int:flight_id>', 'update_flight', self.update_flight, methods=['PATCH', 'PUT'])
         bp.add_url_rule('/flights/<int:flight_id>/status', 'update_flight_status', self.update_flight_status, methods=['PATCH', 'PUT'])
         bp.add_url_rule('/flights/<int:flight_id>/cancel', 'cancel_flight', self.cancel_flight, methods=['POST'])
-        # bp.add_url_rule('/flights/<int:flight_id>', 'delete_flight', self.delete_flight, methods=['DELETE'])
+        bp.add_url_rule('/flights/<int:flight_id>', 'delete_flight', self.delete_flight, methods=['DELETE'])
         bp.add_url_rule('/flights/<int:flight_id>/available-seats', 'get_available_seats', self.get_available_seats, methods=['GET'])
         bp.add_url_rule('/flights/<int:flight_id>/remaining-time', 'get_flight_remaining_time', self.get_flight_remaining_time, methods=['GET'])
