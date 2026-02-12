@@ -16,11 +16,6 @@ interface CancelModalData {
   isOpen: boolean;
 }
 
-interface DeleteModalData {
-  flight: Flight;
-  isOpen: boolean;
-}
-
 export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'pending' | 'approved'>('pending');
   const [pendingFlights, setPendingFlights] = useState<Flight[]>([]);
@@ -34,10 +29,6 @@ export const AdminDashboard: React.FC = () => {
     flight: null as any,
     isOpen: false,
   });
-  const [deleteModal, setDeleteModal] = useState<DeleteModalData>({
-    flight: null as any,
-    isOpen: false,
-  });
   const [rejectionReason, setRejectionReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -45,18 +36,18 @@ export const AdminDashboard: React.FC = () => {
   const socket = useSocket();
 
   useEffect(() => {
-    loadFlights();
-    setupWebSocketListeners();
-  }, []);
+    if (socket) {
+      loadFlights();
+      setupWebSocketListeners();
+    }
+  }, [socket]);
 
   const setupWebSocketListeners = () => {
-    // Listen for new pending flights
     socket.on('new_flight_pending', (data: any) => {
       toast.info(`New flight pending approval: ${data.flight_name}`);
-      loadFlights(); // Refresh the list
+      loadFlights();
     });
 
-    // Listen for flight cancellations
     socket.on('flight_cancelled', (data: any) => {
       toast.warning(`Flight ${data.flight_name} has been cancelled`);
       loadFlights();
@@ -150,28 +141,6 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const openDeleteModal = (flight: Flight) => {
-    setDeleteModal({ flight, isOpen: true });
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteModal({ flight: null as any, isOpen: false });
-  };
-
-  const handleDeleteFlight = async () => {
-    setActionLoading(true);
-    try {
-      await flightService.deleteFlight(deleteModal.flight.flight_id);
-      toast.success(`Flight ${deleteModal.flight.flight_name} deleted permanently`);
-      closeDeleteModal();
-      loadFlights();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to delete flight');
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
   const formatDateTime = (dateString: string) => {
     return new Date(dateString).toLocaleString('en-US', {
       month: 'short',
@@ -219,7 +188,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
           <div className="detail-item">
             <span className="detail-label">Duration:</span>
-            <span className="detail-value">{flight.flight_duration} min</span>
+            <span className="detail-value">{flight.flight_duration}</span>
           </div>
           <div className="detail-item">
             <span className="detail-label">Price:</span>
@@ -249,31 +218,15 @@ export const AdminDashboard: React.FC = () => {
             >
               Reject
             </button>
-            <button
-              className="btn btn-danger-outline"
-              onClick={() => openDeleteModal(flight)}
-              disabled={actionLoading}
-            >
-              Delete
-            </button>
           </>
         ) : (
-          <>
-            <button
-              className="btn btn-warning"
-              onClick={() => openCancelModal(flight)}
-              disabled={actionLoading}
-            >
-              Cancel Flight
-            </button>
-            <button
-              className="btn btn-danger-outline"
-              onClick={() => openDeleteModal(flight)}
-              disabled={actionLoading}
-            >
-              Delete
-            </button>
-          </>
+          <button
+            className="btn btn-warning"
+            onClick={() => openCancelModal(flight)}
+            disabled={actionLoading}
+          >
+            Cancel Flight
+          </button>
         )}
       </div>
     </div>
@@ -413,41 +366,6 @@ export const AdminDashboard: React.FC = () => {
                 disabled={actionLoading}
               >
                 {actionLoading ? 'Cancelling...' : 'Yes, Cancel Flight'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Modal */}
-      {deleteModal.isOpen && (
-        <div className="modal-overlay" onClick={closeDeleteModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Delete Flight</h2>
-              <button className="modal-close" onClick={closeDeleteModal}>
-                ×
-              </button>
-            </div>
-            <div className="modal-body">
-              <p>
-                Are you sure you want to permanently delete flight{' '}
-                <strong>{deleteModal.flight?.flight_name}</strong>?
-              </p>
-              <p className="warning-text">
-                ⚠️ This action cannot be undone. All associated bookings will be removed.
-              </p>
-            </div>
-            <div className="modal-actions">
-              <button className="btn btn-secondary" onClick={closeDeleteModal}>
-                Cancel
-              </button>
-              <button
-                className="btn btn-danger"
-                onClick={handleDeleteFlight}
-                disabled={actionLoading}
-              >
-                {actionLoading ? 'Deleting...' : 'Delete Permanently'}
               </button>
             </div>
           </div>

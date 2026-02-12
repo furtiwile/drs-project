@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { Booking } from '../../../domain/models/Booking';
-import { FlightStatus, FlightStatusColors } from '../../../domain/enums/FlightStatus';
+import { FlightStatusColors } from '../../../domain/enums/FlightStatus';
 import { bookingService } from '../../../infrastructure/services/bookingService';
 import { useToast } from '../../../application/context/ToastContext';
 import { useAuth } from '../../../application/context/AuthContext';
@@ -93,15 +93,17 @@ export const MyBookingsPage: React.FC = () => {
     });
   };
 
-  const getStatusCategory = (status: FlightStatus): string => {
-    switch (status) {
-      case FlightStatus.APPROVED:
+  const getStatusCategory = (status: string): string => {
+    const cleanStatus = status.replace('FlightStatus.', '');
+    
+    switch (cleanStatus) {
+      case 'APPROVED':
         return 'Upcoming';
-      case FlightStatus.IN_PROGRESS:
+      case 'IN_PROGRESS':
         return 'In Progress';
-      case FlightStatus.COMPLETED:
+      case 'COMPLETED':
         return 'Completed';
-      case FlightStatus.CANCELLED:
+      case 'CANCELLED':
         return 'Cancelled';
       default:
         return 'Unknown';
@@ -117,17 +119,19 @@ export const MyBookingsPage: React.FC = () => {
     bookings.forEach((booking) => {
       if (!booking.flight) return;
 
-      switch (booking.flight.status) {
-        case FlightStatus.APPROVED:
+      const cleanStatus = booking.flight.status.replace('FlightStatus.', '');
+
+      switch (cleanStatus) {
+        case 'APPROVED':
           upcoming.push(booking);
           break;
-        case FlightStatus.IN_PROGRESS:
+        case 'IN_PROGRESS':
           inProgress.push(booking);
           break;
-        case FlightStatus.COMPLETED:
+        case 'COMPLETED':
           completed.push(booking);
           break;
-        case FlightStatus.CANCELLED:
+        case 'CANCELLED':
           cancelled.push(booking);
           break;
       }
@@ -141,12 +145,13 @@ export const MyBookingsPage: React.FC = () => {
 
     const flight = booking.flight;
     const statusCategory = getStatusCategory(flight.status);
+    const cleanStatus = flight.status.replace('FlightStatus.', '');
 
     return (
       <div key={booking.id} className="booking-card">
         <div className="booking-header">
           <div className="booking-id">Booking #{booking.id}</div>
-          <span className={`status-badge ${FlightStatusColors[flight.status]}`}>
+          <span className={`status-badge ${FlightStatusColors[cleanStatus]}`}>
             {statusCategory}
           </span>
         </div>
@@ -169,7 +174,7 @@ export const MyBookingsPage: React.FC = () => {
             </div>
 
             <div className="route-line">
-              <span className="duration">{flight.flight_duration} min</span>
+              <span className="duration">{flight.flight_duration}</span>
               <div className="line-visual">
                 <span className="dot"></span>
                 <span className="line"></span>
@@ -201,7 +206,7 @@ export const MyBookingsPage: React.FC = () => {
             </div>
           </div>
 
-          {flight.status === FlightStatus.CANCELLED && (
+          {cleanStatus === 'CANCELLED' && (
             <div className="cancellation-notice">
               <strong>⚠ This flight has been cancelled</strong>
               <p>You should have received an email notification about this cancellation.</p>
