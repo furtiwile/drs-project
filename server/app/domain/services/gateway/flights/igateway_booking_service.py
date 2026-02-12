@@ -7,7 +7,7 @@ from app.domain.dtos.gateway.flights.booking.paginated_bookings_dto import Pagin
 
 class IGatewayBookingService(ABC):
     @abstractmethod
-    def create_booking(self, data: BookingCreateDTO, created_by: int) -> Result[BookingDTO, int]:
+    def create_booking(self, data: BookingCreateDTO, created_by: int) -> Result[None, int]:
         pass
 
     @abstractmethod

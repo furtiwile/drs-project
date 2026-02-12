@@ -17,7 +17,7 @@ class GatewayBookingService(IGatewayBookingService):
         self.flight_service = flight_service
         self.user_repository = user_repository
 
-    def create_booking(self, data: BookingCreateDTO, created_by: int) -> Result[BookingDTO, int]:
+    def create_booking(self, data: BookingCreateDTO, created_by: int) -> Result[None, int]:
         booking_result = self.flight_service.get_flight(data.flight_id or 0)
         if isinstance(booking_result, err):
             return err(404, "Unable to fetch the flight")
@@ -38,7 +38,7 @@ class GatewayBookingService(IGatewayBookingService):
 
             result = make_api_call(
                 lambda: self.client.post("/bookings", headers={'user-id': str(created_by)}, json=data.to_dict(), timeout=5),
-                lambda r: BookingDTO.from_dict(r.json().get('booking')),
+                lambda _: None,
                 success_codes=(200, 201)
             )
 

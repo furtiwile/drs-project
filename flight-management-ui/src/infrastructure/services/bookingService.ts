@@ -5,9 +5,8 @@ import type { CreateBookingDto } from '../../domain/dtos/FlightDtos';
 class BookingService {
   private basePath = '/bookings';
 
-  async createBooking(dto: CreateBookingDto): Promise<Booking> {
-    const response = await apiClient.post<Booking>(this.basePath, dto);
-    return response.data;
+  async createBooking(dto: CreateBookingDto): Promise<void> {
+    await apiClient.post<Booking>(this.basePath, dto);
   }
 
   async getUserBookings(): Promise<Booking[]> {

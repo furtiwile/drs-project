@@ -144,7 +144,7 @@ export const FlightsPage: React.FC = () => {
     try {
       await bookingService.createBooking({ flight_id: flight.flight_id });
       toast.success(`Successfully booked ${flight.flight_name}!`);
-      loadFlights();
+      loadFlights(); // Refresh to update available seats
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to book flight');
     } finally {
@@ -169,17 +169,19 @@ export const FlightsPage: React.FC = () => {
 
   const canBook = activeTab === 'upcoming';
 
-  const getStatusBadge = (status: FlightStatus) => {
-    const statusConfig: Record<FlightStatus, { label: string; className: string }> = {
-      [FlightStatus.PENDING]: { label: 'Pending', className: 'status-pending' },
-      [FlightStatus.APPROVED]: { label: 'Approved', className: 'status-approved' },
-      [FlightStatus.REJECTED]: { label: 'Rejected', className: 'status-rejected' },
-      [FlightStatus.IN_PROGRESS]: { label: 'In Flight', className: 'status-in-progress' },
-      [FlightStatus.COMPLETED]: { label: 'Completed', className: 'status-completed' },
-      [FlightStatus.CANCELLED]: { label: 'Cancelled', className: 'status-cancelled' },
+  const getStatusBadge = (status: FlightStatus | string) => {
+    const cleanStatus = typeof status === 'string' ? status.replace('FlightStatus.', '') : status;
+    
+    const statusConfig: Record<string, { label: string; className: string }> = {
+      'PENDING': { label: 'Pending', className: 'status-pending' },
+      'APPROVED': { label: 'Approved', className: 'status-approved' },
+      'REJECTED': { label: 'Rejected', className: 'status-rejected' },
+      'IN_PROGRESS': { label: 'In Flight', className: 'status-in-progress' },
+      'COMPLETED': { label: 'Completed', className: 'status-completed' },
+      'CANCELLED': { label: 'Cancelled', className: 'status-cancelled' },
     };
 
-    const config = statusConfig[status] || { label: status, className: 'status-default' };
+    const config = statusConfig[cleanStatus] || { label: cleanStatus, className: 'status-default' };
     return <span className={`status-badge ${config.className}`}>{config.label}</span>;
   };
 
@@ -402,7 +404,7 @@ export const FlightsPage: React.FC = () => {
                           </div>
 
                           <div className="flight-info-center">
-                            <span className="duration">{flight.flight_duration} min</span>
+                            <span className="duration">{flight.flight_duration}</span>
                             <div className="flight-line">
                               <span className="dot"></span>
                               <span className="line"></span>
@@ -450,13 +452,23 @@ export const FlightsPage: React.FC = () => {
 
                           <div className="flight-actions">
                             {/* Book button for upcoming flights */}
-                            {canBook && flight.status === FlightStatus.APPROVED && (
+                            {canBook && (
                               <button
                                 className="btn btn-book"
                                 onClick={() => handleBookFlight(flight)}
-                                disabled={bookingLoading === flight.flight_id || flight.available_seats === 0}
+                                disabled={
+                                  bookingLoading === flight.flight_id || 
+                                  flight.available_seats === 0 ||
+                                  !user
+                                }
                               >
-                                {bookingLoading === flight.flight_id ? 'Booking...' : 'Book Now'}
+                                {bookingLoading === flight.flight_id 
+                                  ? 'Booking...' 
+                                  : !user 
+                                    ? 'Login to Book' 
+                                    : flight.available_seats === 0 
+                                      ? 'Sold Out' 
+                                      : 'Book Now'}
                               </button>
                             )}
                           </div>

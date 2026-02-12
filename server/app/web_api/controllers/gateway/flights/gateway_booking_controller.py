@@ -29,7 +29,7 @@ class GatewayBookingController:
         created_by = g.user.user_id
 
         result = self.gateway_booking_service.create_booking(create_booking_dto, created_by)
-        return handle_response(result, success_code=201)
+        return handle_response(result, success_code=204)
     
     @authenticate
     def get_all_bookings(self) -> tuple[Response, int]:
