@@ -9,7 +9,6 @@ import time
 logger = get_logger(__name__)
 airline_bp = Blueprint('airline', __name__)
 
-
 class AirlineController(AirlineControllerInterface):
     def __init__(self, airline_service: AirlineServiceInterface, blueprint: Blueprint):
         self.airline_service = airline_service
