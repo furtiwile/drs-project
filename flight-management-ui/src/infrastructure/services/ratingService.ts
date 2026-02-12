@@ -1,6 +1,6 @@
 // Rating Service following Clean Architecture and SOLID principles
 // Single Responsibility: Managing all rating/comment related API calls
-// Uses user-id header as defined by server (not Bearer token)
+// Uses Bearer token authentication
 
 import axios from 'axios';
 import type {
@@ -18,23 +18,23 @@ const API_URL = `${API_BASE_URL}${API_PREFIX}`;
 /**
  * Service for managing ratings/comments
  * Follows Interface Segregation Principle - only exposes rating-related methods
- * Uses user-id header for authentication as per server specification
+ * Uses Bearer token authentication
  */
 class RatingService {
   private basePath = '/ratings';
 
   /**
    * Create a new rating for a flight
-   * Uses user-id header from authenticated user
+   * Uses Bearer token authentication
    */
   async createRating(dto: CreateRatingDto): Promise<RatingResponse> {
-    const userId = this.getUserId();
+    const token = this.getAuthToken();
     const response = await axios.post<RatingResponse>(
       `${API_URL}${this.basePath}`,
       dto,
       {
         headers: {
-          'user-id': userId,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       }
@@ -44,15 +44,16 @@ class RatingService {
 
   /**
    * Get all ratings for the current user
-   * Endpoint: GET /users/{user_id}/ratings
+   * Endpoint: GET /users/ratings
+   * Uses Bearer token - user ID is extracted from token on server
    */
   async getUserRatings(page: number = 1, per_page: number = 10): Promise<RatingsListResponse> {
-    const userId = this.getUserId();
+    const token = this.getAuthToken();
     const response = await axios.get<RatingsListResponse>(
-      `${API_URL}/users/${userId}/ratings`,
+      `${API_URL}/users/ratings`,
       {
         params: { page, per_page },
-        headers: { 'user-id': userId },
+        headers: { 'Authorization': `Bearer ${token}` },
       }
     );
     return response.data;
@@ -63,12 +64,12 @@ class RatingService {
    * This gets all ratings for display, filtered by flight_id in component
    */
   async getAllRatings(page: number = 1, per_page: number = 10): Promise<RatingsListResponse> {
-    const userId = this.getUserId();
+    const token = this.getAuthToken();
     const response = await axios.get<RatingsListResponse>(
       `${API_URL}${this.basePath}`,
       {
         params: { page, per_page },
-        headers: { 'user-id': userId },
+        headers: { 'Authorization': `Bearer ${token}` },
       }
     );
     return response.data;
@@ -81,12 +82,12 @@ class RatingService {
    */
   async getFlightRatings(flightId: number, page: number = 1, per_page: number = 10): Promise<RatingsListResponse> {
     // Get all ratings and filter by flight_id
-    const userId = this.getUserId();
+    const token = this.getAuthToken();
     const response = await axios.get<RatingsListResponse>(
       `${API_URL}${this.basePath}`,
       {
         params: { page, per_page },
-        headers: { 'user-id': userId },
+        headers: { 'Authorization': `Bearer ${token}` },
       }
     );
     
@@ -103,13 +104,13 @@ class RatingService {
    * Update a rating (only if user is the author)
    */
   async updateRating(ratingId: number, dto: UpdateRatingDto): Promise<RatingResponse> {
-    const userId = this.getUserId();
+    const token = this.getAuthToken();
     const response = await axios.put<RatingResponse>(
       `${API_URL}${this.basePath}/${ratingId}`,
       dto,
       {
         headers: {
-          'user-id': userId,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       }
@@ -121,33 +122,32 @@ class RatingService {
    * Delete a rating (only if user is the author or admin)
    */
   async deleteRating(ratingId: number): Promise<void> {
-    const userId = this.getUserId();
+    const token = this.getAuthToken();
     await axios.delete(`${API_URL}${this.basePath}/${ratingId}`, {
-      headers: { 'user-id': userId },
+      headers: { 'Authorization': `Bearer ${token}` },
     });
   }
 
   /**
-   * Helper method to get user ID from localStorage
+   * Helper method to get authentication token from localStorage
    */
-  private getUserId(): string {
-    const userJson = localStorage.getItem('user');
-    if (!userJson) {
+  private getAuthToken(): string {
+    const token = localStorage.getItem('token');
+    if (!token) {
       throw new Error('User not authenticated');
     }
-    const user = JSON.parse(userJson);
-    return user.user_id?.toString();
+    return token;
   }
 
   /**
    * Get a specific rating by ID
    */
   async getRatingById(ratingId: number): Promise<RatingWithUserInfo> {
-    const userId = this.getUserId();
+    const token = this.getAuthToken();
     const response = await axios.get<RatingWithUserInfo>(
       `${API_URL}${this.basePath}/${ratingId}`,
       {
-        headers: { 'user-id': userId },
+        headers: { 'Authorization': `Bearer ${token}` },
       }
     );
     return response.data;

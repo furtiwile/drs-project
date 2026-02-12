@@ -38,16 +38,16 @@ class FlightService {
   private basePath = 'flights';
 
   /**
-   * Create a new flight using user-id header
+   * Create a new flight using Bearer token authentication
    */
   async createFlight(dto: CreateFlightDto): Promise<Flight> {
-    const userId = this.getUserId();
+    const token = this.getAuthToken();
     const response = await axios.post<Flight>(
       `${API_URL}/${this.basePath}`,
       dto,
       {
         headers: {
-          'user-id': userId,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       }
@@ -111,15 +111,14 @@ class FlightService {
   }
 
   /**
-   * Helper method to get user ID from localStorage
+   * Helper method to get authentication token from localStorage
    */
-  private getUserId(): string {
-    const userJson = localStorage.getItem('user');
-    if (!userJson) {
+  private getAuthToken(): string {
+    const token = localStorage.getItem('token');
+    if (!token) {
       throw new Error('User not authenticated');
     }
-    const user = JSON.parse(userJson);
-    return user.user_id?.toString();
+    return token;
   }
 }
 

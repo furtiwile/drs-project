@@ -10,16 +10,16 @@ class BookingService {
   private basePath = '/bookings';
 
   /**
-   * Create a new booking using user-id header
+   * Create a new booking using Bearer token authentication
    */
   async createBooking(dto: CreateBookingDto): Promise<void> {
-    const userId = this.getUserId();
+    const token = this.getAuthToken();
     await axios.post<Booking>(
       `${API_URL}${this.basePath}`,
       dto,
       {
         headers: {
-          'user-id': userId,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       }
@@ -28,39 +28,43 @@ class BookingService {
 
   /**
    * Get all bookings for the current user
-   * Endpoint: GET /users/{user_id}/bookings
+   * Endpoint: GET /users/bookings
+   * Uses Bearer token authentication - user ID is extracted from token on server
    */
   async getUserBookings(): Promise<Booking[]> {
-    const userId = this.getUserId();
+    const token = this.getAuthToken();
     const response = await axios.get<{ bookings: Booking[] }>(
-      `${API_URL}/users/${userId}/bookings`,
+      `${API_URL}/users/bookings`,
       {
-        headers: { 'user-id': userId },
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+        },
       }
     );
     return response.data.bookings;
   }
 
   /**
-   * Cancel a booking using user-id header
+   * Cancel a booking using Bearer token authentication
    */
   async cancelBooking(bookingId: number): Promise<void> {
-    const userId = this.getUserId();
+    const token = this.getAuthToken();
     await axios.delete(`${API_URL}${this.basePath}/${bookingId}`, {
-      headers: { 'user-id': userId },
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+      },
     });
   }
 
   /**
-   * Helper method to get user ID from localStorage
+   * Helper method to get authentication token from localStorage
    */
-  private getUserId(): string {
-    const userJson = localStorage.getItem('user');
-    if (!userJson) {
+  private getAuthToken(): string {
+    const token = localStorage.getItem('token');
+    if (!token) {
       throw new Error('User not authenticated');
     }
-    const user = JSON.parse(userJson);
-    return user.user_id?.toString();
+    return token;
   }
 }
 
