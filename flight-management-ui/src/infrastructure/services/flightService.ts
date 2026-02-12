@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { apiClient } from '../api/apiClient';
 import type { Flight } from '../../domain/models/Flight';
 import type {
@@ -7,6 +8,10 @@ import type {
   RejectFlightDto,
 } from '../../domain/dtos/FlightDtos';
 import { FlightStatus } from '../../domain/enums/FlightStatus';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://metro.proxy.rlwy.net:12922";
+const API_PREFIX = import.meta.env.VITE_API_PREFIX || '/api/v1';
+const API_URL = `${API_BASE_URL}${API_PREFIX}`;
 
 interface PaginatedResponse<T> {
   flights: T[];
@@ -32,8 +37,21 @@ interface GetFlightsParams {
 class FlightService {
   private basePath = 'flights';
 
+  /**
+   * Create a new flight using user-id header
+   */
   async createFlight(dto: CreateFlightDto): Promise<Flight> {
-    const response = await apiClient.post<Flight>(this.basePath, dto);
+    const userId = this.getUserId();
+    const response = await axios.post<Flight>(
+      `${API_URL}/${this.basePath}`,
+      dto,
+      {
+        headers: {
+          'user-id': userId,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
     return response.data;
   }
 
@@ -91,6 +109,19 @@ class FlightService {
   async deleteFlight(id: number): Promise<void> {
     await apiClient.delete(`${this.basePath}/${id}`);
   }
+
+  /**
+   * Helper method to get user ID from localStorage
+   */
+  private getUserId(): string {
+    const userJson = localStorage.getItem('user');
+    if (!userJson) {
+      throw new Error('User not authenticated');
+    }
+    const user = JSON.parse(userJson);
+    return user.user_id?.toString();
+  }
 }
 
 export const flightService = new FlightService();
+

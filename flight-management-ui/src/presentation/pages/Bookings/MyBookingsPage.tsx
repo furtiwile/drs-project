@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Booking } from '../../../domain/models/Booking';
 import { FlightStatusColors } from '../../../domain/enums/FlightStatus';
 import { bookingService } from '../../../infrastructure/services/bookingService';
+import { BookingPreview } from '../../shared/BookingPreview/BookingPreview';
 import { useToast } from '../../../application/context/ToastContext';
 import { useAuth } from '../../../application/context/AuthContext';
 import { useSocket } from '../../../application/context/SocketContext';
@@ -10,6 +11,8 @@ import './MyBookingsPage.css';
 export const MyBookingsPage: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const toast = useToast();
   const { user } = useAuth();
@@ -212,6 +215,33 @@ export const MyBookingsPage: React.FC = () => {
               <p>You should have received an email notification about this cancellation.</p>
             </div>
           )}
+
+          <button
+            className="view-details-btn"
+            onClick={() => {
+              setSelectedBooking(booking);
+              setPreviewOpen(true);
+            }}
+            style={{
+              marginTop: '15px',
+              padding: '10px 20px',
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              transition: 'background-color 0.3s',
+            }}
+            onMouseEnter={(e) => {
+              (e.target as HTMLButtonElement).style.backgroundColor = '#0056b3';
+            }}
+            onMouseLeave={(e) => {
+              (e.target as HTMLButtonElement).style.backgroundColor = '#007bff';
+            }}
+          >
+            View Details & Reviews
+          </button>
         </div>
       </div>
     );
@@ -278,6 +308,19 @@ export const MyBookingsPage: React.FC = () => {
             </section>
           )}
         </div>
+      )}
+
+      {/* Booking Preview Modal */}
+      {selectedBooking && (
+        <BookingPreview
+          booking={selectedBooking}
+          isOpen={previewOpen}
+          onClose={() => {
+            setPreviewOpen(false);
+            setSelectedBooking(null);
+          }}
+          onBookingUpdated={loadBookings}
+        />
       )}
     </div>
   );

@@ -11,6 +11,7 @@ import { useToast } from '../../../application/context/ToastContext';
 import { useAuth } from '../../../application/context/AuthContext';
 import { useSocket } from '../../../application/context/SocketContext';
 import { FlightTimer } from '../../shared/FlightTimer/FlightTimer';
+import { FlightDetail } from '../../shared/FlightDetail/FlightDetail';
 import './FlightsPage.css';
 
 type TabType = 'upcoming' | 'in-progress' | 'completed';
@@ -32,6 +33,10 @@ export const FlightsPage: React.FC = () => {
   const [departureDate, setDepartureDate] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<number>(0);
   const [bookingLoading, setBookingLoading] = useState<number | null>(null);
+
+  // Flight Detail Modal
+  const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
+  const [flightDetailOpen, setFlightDetailOpen] = useState(false);
 
   const toast = useToast();
   const { user } = useAuth();
@@ -471,6 +476,17 @@ export const FlightsPage: React.FC = () => {
                                       : 'Book Now'}
                               </button>
                             )}
+
+                            {/* View Details button */}
+                            <button
+                              className="btn btn-details"
+                              onClick={() => {
+                                setSelectedFlight(flight);
+                                setFlightDetailOpen(true);
+                              }}
+                            >
+                              View Details
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -504,6 +520,20 @@ export const FlightsPage: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* Flight Detail Modal */}
+      {selectedFlight && (
+        <FlightDetail
+          flight={selectedFlight}
+          isOpen={flightDetailOpen}
+          onClose={() => {
+            setFlightDetailOpen(false);
+            setSelectedFlight(null);
+          }}
+          onBook={canBook ? handleBookFlight : undefined}
+          isBooking={bookingLoading === selectedFlight.flight_id}
+        />
+      )}
     </div>
   );
 };
