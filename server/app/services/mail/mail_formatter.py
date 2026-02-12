@@ -27,3 +27,10 @@ class MailFormatter:
             )
         
         return mails
+    
+    @classmethod
+    def flight_report_format(cls, user: User) -> MailData:
+        return {
+            "subject": "Flight report!",
+            "content": f"Hello {user.first_name}!\n\nHere is the flight report you requested!\n\n{cls.FOOTER}"
+        }

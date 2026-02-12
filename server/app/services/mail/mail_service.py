@@ -1,5 +1,6 @@
 import logging
 import os
+import base64
 from brevo_python import ApiClient, Configuration, TransactionalEmailsApi, SendSmtpEmail # type: ignore
 from concurrent.futures import ThreadPoolExecutor
 
@@ -24,26 +25,39 @@ class MailService(IMailService):
 
         self._executor = ThreadPoolExecutor(max_workers=max_workers)
 
-    def send(self, to_email: str, subject: str, content: str) -> None:
+    def send(self, to_email: str, subject: str, content: str, attachment_bytes: bytes | None = None, attachment_name: str | None = None) -> None:
         try:
+            attachments = None
+
+            if attachment_bytes is not None:
+                encoded_file: str = base64.b64encode(attachment_bytes).decode("utf-8")
+
+                attachments = [
+                    {
+                        "content": encoded_file,
+                        "name": attachment_name or "download.pdf",
+                    }
+                ]
+
             send_smtp_email = SendSmtpEmail(
                 sender=self.default_sender,
                 to=[{"email": to_email}],
                 subject=subject,
-                text_content=content
+                text_content=content,
+                attachment=attachments
             )            
             self.api_instance.send_transac_email(send_smtp_email) # type: ignore
 
         except Exception as e:
             logger.error(f"Failed to send email: {str(e)}")
         
-    def send_async(self, to_email: str, mail_data: MailData) -> None:
-        self._executor.submit(self.send, to_email, mail_data['subject'], mail_data['content'])
+    def send_async(self, to_email: str, mail_data: MailData, attachment_bytes: bytes | None = None, attachment_name: str | None = None) -> None:
+        self._executor.submit(self.send, to_email, mail_data['subject'], mail_data['content'], attachment_bytes, attachment_name)
 
-    def send_async_many(self, to_emails: list[str], mail_data: list[MailData]) -> None:
+    def send_async_many(self, to_emails: list[str], mail_data: list[MailData], attachment_bytes: bytes | None = None, attachment_name: str | None = None) -> None:
         if len(to_emails) != len(mail_data):
             logger.error("to_emails and mails must have the same length")
             return
         
         for email, mail in zip(to_emails, mail_data):
-            self.send_async(email, mail)
+            self.send_async(email, mail, attachment_bytes, attachment_name)
