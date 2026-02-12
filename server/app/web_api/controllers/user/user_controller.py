@@ -42,7 +42,6 @@ class UserController:
         return handle_response(result, to_json=lambda users: [UserDTO.from_model(u).to_dict() for u in users])
 
     @authenticate
-    @authorize(Role.ADMINISTRATOR)
     def get_user_by_id(self, user_id: int) -> tuple[Response, int]:
         if not (valid_data := validate_user_id(user_id)):
             return jsonify(message=valid_data.message), 400
