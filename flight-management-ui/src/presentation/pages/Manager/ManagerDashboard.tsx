@@ -3,7 +3,7 @@ import type { Flight } from '../../../domain/models/Flight';
 import type { Airline } from '../../../domain/models/Airline';
 import type{ Airport } from '../../../domain/models/Airport';
 import { FlightStatus, FlightStatusLabels, FlightStatusColors } from '../../../domain/enums/FlightStatus';
-import type { CreateFlightDto } from '../../../domain/dtos/FlightDtos';
+import type { CreateFlightDto, UpdateFlightDto } from '../../../domain/dtos/FlightDtos';
 import { flightService } from '../../../infrastructure/services/flightService';
 import { airlineService } from '../../../infrastructure/services/airlineService';
 import { airportService } from '../../../infrastructure/services/airportService';
@@ -27,6 +27,20 @@ export const ManagerDashboard: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createFormData, setCreateFormData] = useState<CreateFlightDto>({
+    flight_name: '',
+    airline_id: 0,
+    departure_airport_id: 0,
+    arrival_airport_id: 0,
+    departure_time: '',
+    arrival_time: '',
+    price: 0,
+    total_seats: 0,
+    flight_distance_km: 0,
+    flight_duration: 0,
+  });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingFlightId, setEditingFlightId] = useState<number | null>(null);
+  const [editFormData, setEditFormData] = useState<UpdateFlightDto>({
     flight_name: '',
     airline_id: 0,
     departure_airport_id: 0,
@@ -155,6 +169,85 @@ export const ManagerDashboard: React.FC = () => {
     setCreateFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleEditInputChange = (field: keyof UpdateFlightDto, value: any) => {
+    setEditFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const openEditModal = (flight: Flight) => {
+    // Convert date strings to datetime-local format
+    const formatDateTimeForInput = (dateString: string) => {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    setEditingFlightId(flight.flight_id);
+    setEditFormData({
+      flight_name: flight.flight_name,
+      airline_id: flight.airline_id,
+      departure_airport_id: flight.departure_airport_id,
+      arrival_airport_id: flight.arrival_airport_id,
+      departure_time: formatDateTimeForInput(flight.departure_time),
+      arrival_time: formatDateTimeForInput(flight.arrival_time),
+      price: flight.price,
+      total_seats: flight.total_seats,
+      flight_distance_km: flight.flight_distance_km,
+      flight_duration: flight.flight_duration,
+    });
+    setShowEditModal(true);
+  };
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setEditingFlightId(null);
+    setEditFormData({
+      flight_name: '',
+      airline_id: 0,
+      departure_airport_id: 0,
+      arrival_airport_id: 0,
+      departure_time: '',
+      arrival_time: '',
+      price: 0,
+      total_seats: 0,
+      flight_distance_km: 0,
+      flight_duration: 0,
+    });
+  };
+
+  const handleEditFlight = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingFlightId) return;
+    
+    setActionLoading(true);
+    try {
+      const updateData: UpdateFlightDto = {
+        flight_name: editFormData.flight_name,
+        airline_id: editFormData.airline_id,
+        departure_airport_id: editFormData.departure_airport_id,
+        arrival_airport_id: editFormData.arrival_airport_id,
+        departure_time: editFormData.departure_time,
+        arrival_time: editFormData.arrival_time,
+        price: editFormData.price,
+        total_seats: editFormData.total_seats,
+        flight_distance_km: editFormData.flight_distance_km,
+        flight_duration: editFormData.flight_duration,
+      };
+      
+      await flightService.updateFlight(editingFlightId, updateData);
+      toast.success('Flight updated and resubmitted for approval!');
+      closeEditModal();
+      loadFlights();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to update flight');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const formatDateTime = (dateString: string) => {
     return new Date(dateString).toLocaleString('en-US', {
       month: 'short',
@@ -166,8 +259,6 @@ export const ManagerDashboard: React.FC = () => {
   };
 
   const renderFlightCard = (flight: Flight) => {
-    const isRejected = flight.status === FlightStatus.REJECTED;
-    
     return (
       <div key={flight.flight_id} className="flight-card">
         <div className="flight-card-header">
@@ -219,7 +310,7 @@ export const ManagerDashboard: React.FC = () => {
             </div>
           </div>
 
-          {isRejected && flight.rejection_reason && (
+          {activeTab === 'rejected' && flight.rejection_reason && (
             <div className="rejection-reason">
               <strong>Rejection Reason:</strong>
               <p>{flight.rejection_reason}</p>
@@ -227,9 +318,9 @@ export const ManagerDashboard: React.FC = () => {
           )}
         </div>
 
-        {isRejected && (
+        {activeTab === 'rejected' && (
           <div className="flight-card-actions">
-            <button className="btn btn-primary" onClick={() => toast.info('Edit functionality coming soon')}>
+            <button className="btn btn-primary" onClick={() => openEditModal(flight)}>
               Edit & Resubmit
             </button>
           </div>
@@ -306,6 +397,166 @@ export const ManagerDashboard: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Edit Flight Modal */}
+      {showEditModal && (
+        <div className="modal-overlay" onClick={closeEditModal}>
+          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Edit & Resubmit Flight</h2>
+              <button className="modal-close" onClick={closeEditModal}>
+                ×
+              </button>
+            </div>
+            <form onSubmit={handleEditFlight}>
+              <div className="modal-body">
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>Flight Name</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      value={editFormData.flight_name}
+                      onChange={(e) => handleEditInputChange('flight_name', e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Airline</label>
+                    <select
+                      className="form-input"
+                      value={editFormData.airline_id}
+                      onChange={(e) => handleEditInputChange('airline_id', Number(e.target.value))}
+                      required
+                    >
+                      <option value={0}>Select Airline</option>
+                      {airlines.map((airline) => (
+                        <option key={airline.id} value={airline.id}>
+                          {airline.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Departure Airport</label>
+                    <select
+                      className="form-input"
+                      value={editFormData.departure_airport_id}
+                      onChange={(e) => handleEditInputChange('departure_airport_id', Number(e.target.value))}
+                      required
+                    >
+                      <option value={0}>Select Airport</option>
+                      {airports.map((airport) => (
+                        <option key={airport.id} value={airport.id}>
+                          {airport.name} ({airport.code})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Arrival Airport</label>
+                    <select
+                      className="form-input"
+                      value={editFormData.arrival_airport_id}
+                      onChange={(e) => handleEditInputChange('arrival_airport_id', Number(e.target.value))}
+                      required
+                    >
+                      <option value={0}>Select Airport</option>
+                      {airports.map((airport) => (
+                        <option key={airport.id} value={airport.id}>
+                          {airport.name} ({airport.code})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Departure Time</label>
+                    <input
+                      type="datetime-local"
+                      className="form-input"
+                      value={editFormData.departure_time}
+                      onChange={(e) => handleEditInputChange('departure_time', e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Arrival Time</label>
+                    <input
+                      type="datetime-local"
+                      className="form-input"
+                      value={editFormData.arrival_time}
+                      onChange={(e) => handleEditInputChange('arrival_time', e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Price ($)</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={editFormData.price || ''}
+                      onChange={(e) => handleEditInputChange('price', Number(e.target.value))}
+                      min="0"
+                      step="0.01"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Total Seats</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={editFormData.total_seats || ''}
+                      onChange={(e) => handleEditInputChange('total_seats', Number(e.target.value))}
+                      min="1"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Distance (km)</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={editFormData.flight_distance_km || ''}
+                      onChange={(e) => handleEditInputChange('flight_distance_km', Number(e.target.value))}
+                      min="0"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Duration (minutes)</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={editFormData.flight_duration || ''}
+                      onChange={(e) => handleEditInputChange('flight_duration', Number(e.target.value))}
+                      min="0"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn btn-secondary" onClick={closeEditModal}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={actionLoading}>
+                  {actionLoading ? 'Updating...' : 'Update & Resubmit'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Create Flight Modal */}
       {showCreateModal && (

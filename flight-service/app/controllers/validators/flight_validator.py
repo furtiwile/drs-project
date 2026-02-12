@@ -52,9 +52,7 @@ class FlightUpdateValidationSchema(Schema):
     arrival_airport_id = fields.Int(required=False, validate=validate.Range(min=1))
     price = fields.Decimal(required=False, validate=validate.Range(min=0.01))
     total_seats = fields.Int(required=False, validate=validate.Range(min=1))
-    rejection_reason = fields.Str(required=False)
-    approved_by = fields.Int(required=False, validate=validate.Range(min=1))
-    actual_start_time = fields.DateTime(required=False)
+    # Note: rejection_reason, approved_by, and actual_start_time are not user-editable fields
 
     @validates('departure_time')
     def validate_departure_time(self, value):

@@ -32,9 +32,7 @@ class FlightUpdateDTO:
     arrival_airport_id: Optional[int] = None
     price: Optional[Decimal] = None
     total_seats: Optional[int] = None
-    rejection_reason: Optional[str] = None
-    approved_by: Optional[int] = None
-    actual_start_time: Optional[datetime] = None
+    # Note: rejection_reason, approved_by, and actual_start_time are managed internally
 
 
 class FlightCreateValidationSchema(Schema):
@@ -66,9 +64,7 @@ class FlightUpdateValidationSchema(Schema):
     arrival_airport_id = fields.Int(required=False, validate=validate.Range(min=1))
     price = fields.Decimal(required=False, validate=validate.Range(min=0.01))
     total_seats = fields.Int(required=False, validate=validate.Range(min=1))
-    rejection_reason = fields.Str(required=False)
-    approved_by = fields.Int(required=False, validate=validate.Range(min=1))
-    actual_start_time = fields.DateTime(required=False)
+    # Note: rejection_reason, approved_by, and actual_start_time are managed internally
 
     @validates('departure_time')
     def validate_departure_time(self, value):
