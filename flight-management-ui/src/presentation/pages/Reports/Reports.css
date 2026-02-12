@@ -1,218 +1,250 @@
 /* Reports Page Styling */
 
 .reports-container {
-  padding: 30px;
-  background-color: #f5f5f5;
-  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
 .reports-header {
-  margin-bottom: 30px;
+  margin-bottom: 2rem;
 }
 
 .reports-title {
-  font-size: 32px;
+  font-size: 2.5rem;
   font-weight: 700;
-  color: #212529;
-  margin: 0 0 10px 0;
+  background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 0.5rem 0;
 }
 
 .reports-subtitle {
-  color: #6c757d;
-  font-size: 16px;
+  color: #a1a1aa;
+  font-size: 1rem;
   margin: 0;
 }
 
 .reports-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-  margin-bottom: 40px;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .report-card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 25px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #007bff;
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border-left: 4px solid #8b5cf6;
   transition: all 0.3s ease;
 }
 
 .report-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
+  border-color: #8b5cf6;
+  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.15);
+  transform: translateY(-4px);
 }
 
 .report-card.upcoming {
-  border-left-color: #28a745;
+  border-left-color: #10b981;
+}
+
+.report-card.upcoming:hover {
+  border-color: #10b981;
 }
 
 .report-card.in-progress {
-  border-left-color: #ffc107;
+  border-left-color: #f59e0b;
+}
+
+.report-card.in-progress:hover {
+  border-color: #f59e0b;
 }
 
 .report-card.completed {
-  border-left-color: #6c757d;
+  border-left-color: #6b7280;
+}
+
+.report-card.completed:hover {
+  border-color: #6b7280;
 }
 
 .report-card-icon {
-  font-size: 32px;
-  margin-bottom: 15px;
+  font-size: 2rem;
+  margin-bottom: 1rem;
 }
 
 .report-card-title {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 600;
-  color: #212529;
-  margin: 0 0 10px 0;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
   text-transform: capitalize;
 }
 
 .report-card-description {
-  color: #6c757d;
-  font-size: 14px;
+  color: #a1a1aa;
+  font-size: 0.875rem;
   line-height: 1.5;
-  margin: 0 0 15px 0;
+  margin: 0;
 }
 
 .select-report-section {
-  background-color: white;
-  border-radius: 8px;
-  padding: 25px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  margin-bottom: 2rem;
 }
 
 .section-title {
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #212529;
-  margin: 0 0 20px 0;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #e9ecef;
+  color: #ffffff;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #27272a;
 }
 
 .report-checkboxes {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-bottom: 20px;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .checkbox-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.75rem;
 }
 
 .checkbox-group input[type='checkbox'] {
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #007bff;
+  accent-color: #8b5cf6;
+  border: 2px solid #27272a;
+  border-radius: 4px;
+  background: #0f0f0f;
 }
 
 .checkbox-label {
   cursor: pointer;
-  font-size: 15px;
-  color: #212529;
+  font-size: 0.9375rem;
+  color: #d4d4d8;
   margin: 0;
   user-select: none;
+  font-weight: 500;
 }
 
 .checkbox-description {
   display: block;
-  font-size: 12px;
-  color: #6c757d;
-  margin-left: 28px;
-  margin-top: -8px;
-  margin-bottom: 8px;
+  font-size: 0.8125rem;
+  color: #a1a1aa;
+  margin-left: 2.5rem;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .action-buttons {
   display: flex;
-  gap: 12px;
+  gap: 1rem;
   flex-wrap: wrap;
 }
 
 .generate-btn {
-  background-color: #007bff;
+  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 4px;
-  font-size: 15px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 .generate-btn:hover:not(:disabled) {
-  background-color: #0056b3;
-  box-shadow: 0 4px 8px rgba(0, 86, 179, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
 }
 
 .generate-btn:disabled {
-  background-color: #ccc;
+  background: #4b5563;
   cursor: not-allowed;
   opacity: 0.6;
+  box-shadow: none;
 }
 
 .clear-btn {
-  background-color: #e9ecef;
-  color: #212529;
-  border: 1px solid #dee2e6;
-  padding: 12px 24px;
-  border-radius: 4px;
-  font-size: 15px;
+  background: transparent;
+  color: #a1a1aa;
+  border: 1px solid #27272a;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
 }
 
-.clear-btn:hover {
-  background-color: #dee2e6;
-  border-color: #adb5bd;
+.clear-btn:hover:not(:disabled) {
+  background: #27272a;
+  color: #d4d4d8;
+  border-color: #3f3f46;
+}
+
+.clear-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .report-history {
-  background-color: white;
-  border-radius: 8px;
-  padding: 25px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .report-history-empty {
   text-align: center;
-  color: #6c757d;
-  padding: 40px 20px;
-  font-size: 16px;
+  color: #a1a1aa;
+  padding: 2.5rem 1.25rem;
+  font-size: 1rem;
 }
 
 .report-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .report-item {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  padding: 15px;
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 8px;
+  padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   transition: all 0.3s;
 }
 
 .report-item:hover {
-  background-color: #e9ecef;
-  border-color: #adb5bd;
+  background: #36363f;
+  border-color: #8b5cf6;
 }
 
 .report-item-info {
@@ -221,62 +253,63 @@
 
 .report-item-title {
   font-weight: 600;
-  color: #212529;
-  margin: 0 0 5px 0;
+  color: #ffffff;
+  margin: 0 0 0.4rem 0;
 }
 
 .report-item-date {
-  font-size: 12px;
-  color: #6c757d;
+  font-size: 0.8125rem;
+  color: #a1a1aa;
   margin: 0;
 }
 
 .report-item-types {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
   flex-wrap: wrap;
-  margin-top: 8px;
+  margin-top: 0.5rem;
 }
 
 .report-type-badge {
-  background-color: #007bff;
+  background: #8b5cf6;
   color: white;
-  padding: 2px 8px;
+  padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: capitalize;
 }
 
 .download-btn {
-  background-color: #28a745;
+  background: #10b981;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
   transition: all 0.3s;
   white-space: nowrap;
 }
 
 .download-btn:hover {
-  background-color: #218838;
+  background: #059669;
+  transform: translateY(-2px);
 }
 
 .loading-indicator {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 20px;
-  color: #007bff;
+  gap: 0.625rem;
+  padding: 1.25rem;
+  color: #8b5cf6;
 }
 
 .spinner {
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #007bff;
+  border: 3px solid #27272a;
+  border-top: 3px solid #8b5cf6;
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -293,24 +326,24 @@
 }
 
 .success-message {
-  background-color: #d4edda;
-  color: #155724;
-  padding: 15px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  border: 1px solid #c3e6cb;
+  background: #064e3b;
+  color: #a7f3d0;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #10b981;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 15px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  border: 1px solid #f5c6cb;
+  background: #7c2d12;
+  color: #fed7aa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #f97316;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -319,38 +352,40 @@
 .close-btn {
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 1.25rem;
   color: inherit;
   cursor: pointer;
   padding: 0;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
   .reports-container {
-    padding: 20px;
+    padding: 1rem;
   }
 
   .reports-grid {
     grid-template-columns: 1fr;
   }
 
+  .reports-title {
+    font-size: 1.875rem;
+  }
+
   .report-item {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
   }
 
   .action-buttons {
     flex-direction: column;
+    width: 100%;
   }
 
   .generate-btn,
   .clear-btn {
     width: 100%;
-  }
-
-  .reports-title {
-    font-size: 24px;
+    justify-content: center;
   }
 }

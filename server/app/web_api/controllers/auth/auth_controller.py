@@ -20,9 +20,24 @@ class AuthController:
         self._register_routes()
 
     def _register_routes(self) -> None:
-        self._auth_blueprint.add_url_rule('/login', view_func=self.login, methods=['POST'])
-        self._auth_blueprint.add_url_rule('/register', view_func=self.register, methods=['POST'])
-        self._auth_blueprint.add_url_rule('/logout', view_func=self.logout, methods=['POST'])
+        self._auth_blueprint.add_url_rule('/login', view_func=self._handle_login, methods=['POST', 'OPTIONS'])
+        self._auth_blueprint.add_url_rule('/register', view_func=self._handle_register, methods=['POST', 'OPTIONS'])
+        self._auth_blueprint.add_url_rule('/logout', view_func=self._handle_logout, methods=['POST', 'OPTIONS'])
+
+    def _handle_login(self) -> tuple[Response, int]:
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.login()
+
+    def _handle_register(self) -> tuple[Response, int]:
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.register()
+
+    def _handle_logout(self) -> tuple[Response, int]:
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.logout()
 
     @require_json
     def login(self) -> tuple[Response, int]:

@@ -112,7 +112,7 @@ class ReportController(ReportControllerInterface):
             '/reports/flights',
             'generate_flight_report',
             self.generate_flight_report,
-            methods=['POST']
+            methods=['POST', 'OPTIONS']
         )
 
 

@@ -14,12 +14,15 @@ class BookingService {
    */
   async createBooking(dto: CreateBookingDto): Promise<void> {
     const userId = this.getUserId();
+    const token = localStorage.getItem('token');
+    
     await axios.post<Booking>(
       `${API_URL}${this.basePath}`,
       dto,
       {
         headers: {
           'user-id': userId,
+          'Authorization': token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
         },
       }
@@ -32,10 +35,15 @@ class BookingService {
    */
   async getUserBookings(): Promise<Booking[]> {
     const userId = this.getUserId();
+    const token = localStorage.getItem('token');
+    
     const response = await axios.get<{ bookings: Booking[] }>(
       `${API_URL}/users/${userId}/bookings`,
       {
-        headers: { 'user-id': userId },
+        headers: { 
+          'user-id': userId,
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
       }
     );
     return response.data.bookings;
@@ -46,8 +54,13 @@ class BookingService {
    */
   async cancelBooking(bookingId: number): Promise<void> {
     const userId = this.getUserId();
+    const token = localStorage.getItem('token');
+    
     await axios.delete(`${API_URL}${this.basePath}/${bookingId}`, {
-      headers: { 'user-id': userId },
+      headers: { 
+        'user-id': userId,
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
     });
   }
 

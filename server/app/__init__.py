@@ -41,8 +41,9 @@ from app.web_socket.socket import socketio
 
 def create_app() -> Flask:
     app = Flask(__name__)
-
+    
     CORS(app, origins="*", supports_credentials=True)
+
 
     app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 

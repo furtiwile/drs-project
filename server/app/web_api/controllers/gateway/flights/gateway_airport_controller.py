@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, request
+from flask import Blueprint, Response, request, jsonify
 
 from app.domain.services.gateway.flights.igateway_airport_service import IGatewayAirportService
 from app.domain.dtos.gateway.flights.airport.airport_create_dto import AirportCreateDTO
@@ -18,12 +18,42 @@ class GatewayAirportController:
         self._register_routes()
     
     def _register_routes(self) -> None:
-        self._gateway_airport_blueprint.add_url_rule('/airports', view_func=self.create_airport, methods=['POST'])
-        self._gateway_airport_blueprint.add_url_rule('/airports', view_func=self.get_all_airports, methods=['GET'])
-        self._gateway_airport_blueprint.add_url_rule('/airports/<int:airport_id>', view_func=self.get_airport, methods=['GET'])
-        self._gateway_airport_blueprint.add_url_rule('/airports/<int:airport_id>', view_func=self.update_airport, methods=['PATCH'])
-        self._gateway_airport_blueprint.add_url_rule('/airports/<int:airport_id>', view_func=self.delete_airport, methods=['DELETE'])
-        self._gateway_airport_blueprint.add_url_rule('/airports/info/<string:airport_code>', view_func=self.get_airport_info, methods=['GET'])
+        self._gateway_airport_blueprint.add_url_rule('/airports', view_func=self._handle_create_airport, methods=['POST', 'OPTIONS'])
+        self._gateway_airport_blueprint.add_url_rule('/airports', view_func=self._handle_get_all_airports, methods=['GET', 'OPTIONS'])
+        self._gateway_airport_blueprint.add_url_rule('/airports/<int:airport_id>', view_func=self._handle_get_airport, methods=['GET', 'OPTIONS'])
+        self._gateway_airport_blueprint.add_url_rule('/airports/<int:airport_id>', view_func=self._handle_update_airport, methods=['PATCH', 'OPTIONS'])
+        self._gateway_airport_blueprint.add_url_rule('/airports/<int:airport_id>', view_func=self._handle_delete_airport, methods=['DELETE', 'OPTIONS'])
+        self._gateway_airport_blueprint.add_url_rule('/airports/info/<string:airport_code>', view_func=self._handle_get_airport_info, methods=['GET', 'OPTIONS'])
+
+    def _handle_create_airport(self):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.create_airport()
+
+    def _handle_get_all_airports(self):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_all_airports()
+
+    def _handle_get_airport(self, airport_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_airport(airport_id)
+
+    def _handle_update_airport(self, airport_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.update_airport(airport_id)
+
+    def _handle_delete_airport(self, airport_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.delete_airport(airport_id)
+
+    def _handle_get_airport_info(self, airport_code: str):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_airport_info(airport_code)
 
     @require_json
     @authenticate

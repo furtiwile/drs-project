@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, g, request
+from flask import Blueprint, Response, g, request, jsonify
 
 from app.domain.services.gateway.flights.igateway_flight_service import IGatewayFlightService
 from app.domain.dtos.gateway.flights.flight.flight_create_dto import FlightCreateDTO
@@ -20,16 +20,71 @@ class GatewayFlightController:
         self._register_routes()
     
     def _register_routes(self) -> None:
-        self._gateway_flight_blueprint.add_url_rule('/flights', view_func=self.create_flight, methods=['POST'])
-        self._gateway_flight_blueprint.add_url_rule('/flights', view_func=self.get_all_flights, methods=['GET'])
-        self._gateway_flight_blueprint.add_url_rule('/flights/tabs/<string:tab>', view_func=self.get_flights_by_tab, methods=['GET'])
-        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>', view_func=self.get_flight, methods=['GET'])
-        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>', view_func=self.update_flight, methods=['PATCH'])
-        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>/status', view_func=self.update_flight_status, methods=['PATCH'])
-        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>/cancel', view_func=self.cancel_flight, methods=['POST'])
-        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>', view_func=self.delete_flight, methods=['DELETE'])
-        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>/available-seats', view_func=self.get_available_seats, methods=['GET'])
-        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>/remaining-time', view_func=self.get_flight_remaining_time, methods=['GET'])
+        self._gateway_flight_blueprint.add_url_rule('/flights', view_func=self._handle_create_flight, methods=['POST', 'OPTIONS'])
+        self._gateway_flight_blueprint.add_url_rule('/flights', view_func=self._handle_get_all_flights, methods=['GET', 'OPTIONS'])
+        self._gateway_flight_blueprint.add_url_rule('/flights/tabs/<string:tab>', view_func=self._handle_get_flights_by_tab, methods=['GET', 'OPTIONS'])
+        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>', view_func=self._handle_get_flight, methods=['GET', 'OPTIONS'])
+        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>', view_func=self._handle_update_flight, methods=['PATCH', 'OPTIONS'])
+        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>/status', view_func=self._handle_update_flight_status, methods=['PATCH', 'OPTIONS'])
+        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>/cancel', view_func=self._handle_cancel_flight, methods=['POST', 'OPTIONS'])
+        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>', view_func=self._handle_delete_flight, methods=['DELETE', 'OPTIONS'])
+        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>/available-seats', view_func=self._handle_get_available_seats, methods=['GET', 'OPTIONS'])
+        self._gateway_flight_blueprint.add_url_rule('/flights/<int:flight_id>/remaining-time', view_func=self._handle_get_flight_remaining_time, methods=['GET', 'OPTIONS'])
+    
+    def _handle_options(self, method):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return method()
+    
+    def _handle_create_flight(self):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.create_flight()
+
+    def _handle_get_all_flights(self):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_all_flights()
+
+    def _handle_get_flights_by_tab(self, tab: str):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_flights_by_tab(tab)
+
+    def _handle_get_flight(self, flight_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_flight(flight_id)
+
+    def _handle_update_flight(self, flight_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.update_flight(flight_id)
+
+    def _handle_update_flight_status(self, flight_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.update_flight_status(flight_id)
+
+    def _handle_cancel_flight(self, flight_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.cancel_flight(flight_id)
+
+    def _handle_delete_flight(self, flight_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.delete_flight(flight_id)
+
+    def _handle_get_available_seats(self, flight_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_available_seats(flight_id)
+
+    def _handle_get_flight_remaining_time(self, flight_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_flight_remaining_time(flight_id)
 
     @require_json
     @authenticate

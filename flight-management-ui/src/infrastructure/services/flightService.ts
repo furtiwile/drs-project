@@ -42,12 +42,15 @@ class FlightService {
    */
   async createFlight(dto: CreateFlightDto): Promise<Flight> {
     const userId = this.getUserId();
+    const token = localStorage.getItem('token');
+    
     const response = await axios.post<Flight>(
       `${API_URL}/${this.basePath}`,
       dto,
       {
         headers: {
           'user-id': userId,
+          'Authorization': token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
         },
       }

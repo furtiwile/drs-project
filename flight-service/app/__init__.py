@@ -49,7 +49,11 @@ def create_app():
 
     db.init_app(app)
 
-    CORS(app, resources={r"/api/*": {"origins": os.getenv("CORS_ORIGINS", "").split(',')}}, supports_credentials=True)
+    CORS(app, resources={r"/api/*": {
+        "origins": os.getenv("CORS_ORIGINS", "").split(','),
+        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "admin-id", "user-id"]
+    }}, supports_credentials=True)
     logger.info("CORS configured for API endpoints")
 
     # Initialize WebSocket

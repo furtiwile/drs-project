@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, g, request
+from flask import Blueprint, Response, g, request, jsonify
 
 from app.domain.dtos.gateway.flights.report.report_request_dto import ReportRequestDTO
 from app.domain.services.gateway.flights.igateway_report_service import IGatewayReportService
@@ -17,7 +17,12 @@ class GatewayReportController:
         self._register_routes()
     
     def _register_routes(self) -> None:
-        self._gateway_report_blueprint.add_url_rule('/reports/flights', view_func=self.generate_report, methods=['POST'])
+        self._gateway_report_blueprint.add_url_rule('/reports/flights', view_func=self._handle_generate_report, methods=['POST', 'OPTIONS'])
+
+    def _handle_generate_report(self):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.generate_report()
 
     @require_json
     @authenticate

@@ -159,8 +159,8 @@ class AirlineController(AirlineControllerInterface):
         return jsonify({'message': 'Airline deleted'}), 200
 
     def register_routes(self, bp: Blueprint):
-        bp.add_url_rule('/airlines', 'create_airline', self.create_airline, methods=['POST'])
-        bp.add_url_rule('/airlines', 'get_all_airlines', self.get_all_airlines, methods=['GET'])
-        bp.add_url_rule('/airlines/<int:airline_id>', 'get_airline', self.get_airline, methods=['GET'])
-        bp.add_url_rule('/airlines/<int:airline_id>', 'update_airline', self.update_airline, methods=['PATCH'])
-        bp.add_url_rule('/airlines/<int:airline_id>', 'delete_airline', self.delete_airline, methods=['DELETE'])
+        bp.add_url_rule('/airlines', 'create_airline', self.create_airline, methods=['POST', 'OPTIONS'])
+        bp.add_url_rule('/airlines', 'get_all_airlines', self.get_all_airlines, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/airlines/<int:airline_id>', 'get_airline', self.get_airline, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/airlines/<int:airline_id>', 'update_airline', self.update_airline, methods=['PATCH', 'OPTIONS'])
+        bp.add_url_rule('/airlines/<int:airline_id>', 'delete_airline', self.delete_airline, methods=['DELETE', 'OPTIONS'])

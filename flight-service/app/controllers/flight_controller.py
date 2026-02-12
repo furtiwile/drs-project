@@ -372,13 +372,13 @@ class FlightController(FlightControllerInterface):
 
     def register_routes(self, bp: Blueprint):
         """Register routes to the blueprint."""
-        bp.add_url_rule('/flights', 'create_flight', self.create_flight, methods=['POST'])
-        bp.add_url_rule('/flights', 'get_all_flights', self.get_all_flights, methods=['GET'])
-        bp.add_url_rule('/flights/tabs/<string:tab>', 'get_flights_by_tab', self.get_flights_by_tab, methods=['GET'])
-        bp.add_url_rule('/flights/<int:flight_id>', 'get_flight', self.get_flight, methods=['GET'])
-        bp.add_url_rule('/flights/<int:flight_id>', 'update_flight', self.update_flight, methods=['PATCH', 'PUT'])
-        bp.add_url_rule('/flights/<int:flight_id>/status', 'update_flight_status', self.update_flight_status, methods=['PATCH', 'PUT'])
-        bp.add_url_rule('/flights/<int:flight_id>/cancel', 'cancel_flight', self.cancel_flight, methods=['POST'])
+        bp.add_url_rule('/flights', 'create_flight', self.create_flight, methods=['POST', 'OPTIONS'])
+        bp.add_url_rule('/flights', 'get_all_flights', self.get_all_flights, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/flights/tabs/<string:tab>', 'get_flights_by_tab', self.get_flights_by_tab, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/flights/<int:flight_id>', 'get_flight', self.get_flight, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/flights/<int:flight_id>', 'update_flight', self.update_flight, methods=['PATCH', 'PUT', 'OPTIONS'])
+        bp.add_url_rule('/flights/<int:flight_id>/status', 'update_flight_status', self.update_flight_status, methods=['PATCH', 'PUT', 'OPTIONS'])
+        bp.add_url_rule('/flights/<int:flight_id>/cancel', 'cancel_flight', self.cancel_flight, methods=['POST', 'OPTIONS'])
         # bp.add_url_rule('/flights/<int:flight_id>', 'delete_flight', self.delete_flight, methods=['DELETE'])
-        bp.add_url_rule('/flights/<int:flight_id>/available-seats', 'get_available_seats', self.get_available_seats, methods=['GET'])
-        bp.add_url_rule('/flights/<int:flight_id>/remaining-time', 'get_flight_remaining_time', self.get_flight_remaining_time, methods=['GET'])
+        bp.add_url_rule('/flights/<int:flight_id>/available-seats', 'get_available_seats', self.get_available_seats, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/flights/<int:flight_id>/remaining-time', 'get_flight_remaining_time', self.get_flight_remaining_time, methods=['GET', 'OPTIONS'])
