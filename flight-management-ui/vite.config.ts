@@ -7,11 +7,10 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
-    cors: true,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    cors: {
+      origin: ['http://metro.proxy.rlwy.net:12922', 'http://localhost:5173', 'http://127.0.0.1:5173'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      credentials: true
     }
   }
 })
