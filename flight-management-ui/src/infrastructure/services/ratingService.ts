@@ -29,12 +29,15 @@ class RatingService {
    */
   async createRating(dto: CreateRatingDto): Promise<RatingResponse> {
     const userId = this.getUserId();
+    const token = localStorage.getItem('token');
+    
     const response = await axios.post<RatingResponse>(
       `${API_URL}${this.basePath}`,
       dto,
       {
         headers: {
           'user-id': userId,
+          'Authorization': token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
         },
       }
@@ -48,11 +51,16 @@ class RatingService {
    */
   async getUserRatings(page: number = 1, per_page: number = 10): Promise<RatingsListResponse> {
     const userId = this.getUserId();
+    const token = localStorage.getItem('token');
+    
     const response = await axios.get<RatingsListResponse>(
       `${API_URL}/users/${userId}/ratings`,
       {
         params: { page, per_page },
-        headers: { 'user-id': userId },
+        headers: { 
+          'user-id': userId,
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
       }
     );
     return response.data;
@@ -64,11 +72,16 @@ class RatingService {
    */
   async getAllRatings(page: number = 1, per_page: number = 10): Promise<RatingsListResponse> {
     const userId = this.getUserId();
+    const token = localStorage.getItem('token');
+    
     const response = await axios.get<RatingsListResponse>(
       `${API_URL}${this.basePath}`,
       {
         params: { page, per_page },
-        headers: { 'user-id': userId },
+        headers: { 
+          'user-id': userId,
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
       }
     );
     return response.data;
@@ -82,11 +95,16 @@ class RatingService {
   async getFlightRatings(flightId: number, page: number = 1, per_page: number = 10): Promise<RatingsListResponse> {
     // Get all ratings and filter by flight_id
     const userId = this.getUserId();
+    const token = localStorage.getItem('token');
+    
     const response = await axios.get<RatingsListResponse>(
       `${API_URL}${this.basePath}`,
       {
         params: { page, per_page },
-        headers: { 'user-id': userId },
+        headers: { 
+          'user-id': userId,
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
       }
     );
     
@@ -104,12 +122,15 @@ class RatingService {
    */
   async updateRating(ratingId: number, dto: UpdateRatingDto): Promise<RatingResponse> {
     const userId = this.getUserId();
+    const token = localStorage.getItem('token');
+    
     const response = await axios.put<RatingResponse>(
       `${API_URL}${this.basePath}/${ratingId}`,
       dto,
       {
         headers: {
           'user-id': userId,
+          'Authorization': token ? `Bearer ${token}` : '',
           'Content-Type': 'application/json',
         },
       }
@@ -122,8 +143,13 @@ class RatingService {
    */
   async deleteRating(ratingId: number): Promise<void> {
     const userId = this.getUserId();
+    const token = localStorage.getItem('token');
+    
     await axios.delete(`${API_URL}${this.basePath}/${ratingId}`, {
-      headers: { 'user-id': userId },
+      headers: { 
+        'user-id': userId,
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
     });
   }
 
@@ -144,10 +170,15 @@ class RatingService {
    */
   async getRatingById(ratingId: number): Promise<RatingWithUserInfo> {
     const userId = this.getUserId();
+    const token = localStorage.getItem('token');
+    
     const response = await axios.get<RatingWithUserInfo>(
       `${API_URL}${this.basePath}/${ratingId}`,
       {
-        headers: { 'user-id': userId },
+        headers: { 
+          'user-id': userId,
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
       }
     );
     return response.data;

@@ -388,6 +388,9 @@
   gap: 2rem;
   align-items: center;
   margin-bottom: 1.5rem;
+  background-color: #1f1f23;
+  padding: 1rem;
+  border-radius: 8px;
 }
 
 .time-location {

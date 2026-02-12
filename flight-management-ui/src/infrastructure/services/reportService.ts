@@ -29,6 +29,8 @@ class ReportService {
 
     try {
       const adminId = this.getAdminId();
+      const token = localStorage.getItem('token');
+      
       const response = await axios.post(
         `${API_URL}${this.basePath}/flights`,
         payload,
@@ -36,6 +38,7 @@ class ReportService {
           responseType: 'blob',
           headers: {
             'admin-id': adminId,
+            'Authorization': token ? `Bearer ${token}` : '',
             'Content-Type': 'application/json',
           },
         }
