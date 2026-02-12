@@ -1,4 +1,4 @@
-/* Flight Detail Modal Styling */
+/* Flight Detail Modal Styling - Dark Theme */
 
 .flight-detail-overlay {
   position: fixed;
@@ -6,18 +6,19 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: 1rem;
 }
 
 .flight-detail-modal {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   max-width: 900px;
   width: 100%;
   max-height: 90vh;
@@ -40,27 +41,29 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 25px;
-  border-bottom: 2px solid #e9ecef;
-  background-color: #f8f9fa;
-  border-radius: 12px 12px 0 0;
+  padding: 1.5rem;
+  border-bottom: 1px solid #27272a;
+  border-radius: 16px 16px 0 0;
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
 .flight-detail-title {
-  font-size: 28px;
+  font-size: 1.75rem;
   font-weight: 700;
-  color: #212529;
+  background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
 }
 
 .flight-detail-close {
-  background: none;
+  background: transparent;
   border: none;
-  font-size: 28px;
-  color: #6c757d;
+  font-size: 1.75rem;
+  color: #a1a1aa;
   cursor: pointer;
   padding: 0;
   width: 36px;
@@ -68,66 +71,67 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 8px;
   transition: all 0.3s;
 }
 
 .flight-detail-close:hover {
-  background-color: #e9ecef;
-  color: #212529;
+  background: #27272a;
+  color: #fafafa;
 }
 
 .flight-detail-content {
-  padding: 30px;
+  padding: 1.5rem;
 }
 
 .flight-detail-section {
-  margin-bottom: 20px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid #27272a;
+  border-radius: 12px;
   overflow: hidden;
 }
 
 .section-header {
-  background-color: #f8f9fa;
-  padding: 15px 20px;
+  background: #27272a;
+  padding: 1rem;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
   user-select: none;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
 }
 
 .section-header:hover {
-  background-color: #e9ecef;
+  background: #3f3f46;
 }
 
 .section-title {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
-  color: #212529;
+  color: #ffffff;
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.75rem;
 }
 
 .section-body {
-  padding: 20px;
-  border-top: 1px solid #e9ecef;
+  padding: 1.5rem;
+  border-top: 1px solid #27272a;
+  background: #18181b;
 }
 
 .route-section {
-  background-color: #f8f9fa;
+  background: #27272a;
 }
 
 .flight-route-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 20px;
+  gap: 1.5rem;
+  padding: 1.5rem;
 }
 
 .airport-detail {
@@ -136,23 +140,23 @@
 }
 
 .airport-code-detail {
-  font-size: 28px;
+  font-size: 1.75rem;
   font-weight: 700;
-  color: #007bff;
-  margin: 0 0 8px 0;
+  color: #8b5cf6;
+  margin: 0 0 0.5rem 0;
 }
 
 .airport-name-detail {
-  font-size: 13px;
-  color: #6c757d;
-  margin: 5px 0;
+  font-size: 0.8125rem;
+  color: #a1a1aa;
+  margin: 0.25rem 0;
 }
 
 .airport-time-detail {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
-  color: #212529;
-  margin: 10px 0 0 0;
+  color: #d4d4d8;
+  margin: 0.75rem 0 0 0;
 }
 
 .route-connector {
@@ -160,20 +164,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 0.75rem;
   min-width: 120px;
 }
 
 .connector-label {
-  font-size: 12px;
-  color: #6c757d;
+  font-size: 0.75rem;
+  color: #a1a1aa;
   font-weight: 600;
 }
 
 .connector-line {
   width: 100%;
   height: 2px;
-  background-color: #dee2e6;
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
   position: relative;
 }
 
@@ -186,123 +190,133 @@
   height: 0;
   border-left: 8px solid transparent;
   border-right: 0;
-  border-top: 6px solid #dee2e6;
-  border-bottom: 6px solid #dee2e6;
+  border-top: 6px solid #a78bfa;
+  border-bottom: 6px solid #a78bfa;
 }
 
 .details-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
+  gap: 1rem;
 }
 
 .detail-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.5rem;
 }
 
 .detail-label {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
-  color: #6c757d;
+  color: #a1a1aa;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .detail-value {
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: #212529;
+  color: #d4d4d8;
 }
 
 .detail-value.price {
-  font-size: 18px;
-  color: #28a745;
+  font-size: 1.125rem;
+  color: #10b981;
+  font-weight: 700;
 }
 
 .status-badge-detail {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 6px;
   width: fit-content;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
 }
 
 .status-badge-detail.pending {
-  background-color: #fff3cd;
-  color: #856404;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .status-badge-detail.approved {
-  background-color: #d1ecf1;
-  color: #0c5460;
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .status-badge-detail.in-progress {
-  background-color: #fff3cd;
-  color: #856404;
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .status-badge-detail.completed {
-  background-color: #d4edda;
-  color: #155724;
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .status-badge-detail.cancelled {
-  background-color: #f8d7da;
-  color: #721c24;
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .status-badge-detail.rejected {
-  background-color: #f8d7da;
-  color: #721c24;
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .flight-detail-footer {
   display: flex;
-  gap: 12px;
-  padding: 20px 30px;
-  background-color: #f8f9fa;
-  border-top: 2px solid #e9ecef;
-  border-radius: 0 0 12px 12px;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  background: #27272a;
+  border-top: 1px solid #3f3f46;
+  border-radius: 0 0 16px 16px;
   position: sticky;
   bottom: 0;
   z-index: 10;
 }
 
 .action-btn {
-  padding: 12px 24px;
-  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
   border: none;
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .action-btn.primary {
-  background-color: #007bff;
+  background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
   color: white;
   flex: 1;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 .action-btn.primary:hover:not(:disabled) {
-  background-color: #0056b3;
-  box-shadow: 0 4px 8px rgba(0, 86, 179, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
 }
 
 .action-btn.secondary {
-  background-color: #e9ecef;
-  color: #212529;
-  border: 1px solid #dee2e6;
+  background: transparent;
+  color: #a1a1aa;
+  border: 1px solid #3f3f46;
 }
 
-.action-btn.secondary:hover {
-  background-color: #dee2e6;
+.action-btn.secondary:hover:not(:disabled) {
+  background: #3f3f46;
+  color: #d4d4d8;
+  border-color: #52525b;
 }
 
 .action-btn:disabled {
@@ -312,7 +326,7 @@
 
 @media (max-width: 768px) {
   .flight-detail-overlay {
-    padding: 10px;
+    padding: 0.5rem;
   }
 
   .flight-detail-modal {
@@ -320,27 +334,27 @@
   }
 
   .flight-detail-header {
-    padding: 20px;
-    gap: 15px;
+    padding: 1.25rem;
+    gap: 1rem;
   }
 
   .flight-detail-title {
-    font-size: 22px;
+    font-size: 1.5rem;
   }
 
   .flight-detail-content {
-    padding: 20px;
+    padding: 1rem;
   }
 
   .flight-route-info {
     flex-direction: column;
-    gap: 15px;
+    gap: 1rem;
   }
 
   .route-connector {
     width: 100%;
     flex-direction: row;
-    margin: 10px 0;
+    margin: 0.75rem 0;
   }
 
   .connector-line {
@@ -354,7 +368,7 @@
 
   .flight-detail-footer {
     flex-direction: column;
-    padding: 15px 20px;
+    padding: 1rem;
   }
 
   .action-btn {
@@ -362,6 +376,6 @@
   }
 
   .airport-code-detail {
-    font-size: 24px;
+    font-size: 1.5rem;
   }
 }
