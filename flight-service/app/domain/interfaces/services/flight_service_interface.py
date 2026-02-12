@@ -25,9 +25,9 @@ class FlightServiceInterface(ABC):
     def update_flight_status(self, flight_id: int, data: FlightStatusUpdateDTO, admin_id: int) -> Optional[Flight]:
         """Update flight status (approve/reject/cancel)."""
 
-    @abstractmethod
-    def delete_flight(self, flight_id: int) -> bool:
-        """Delete a flight by ID."""
+    # @abstractmethod
+    # def delete_flight(self, flight_id: int) -> bool:
+    #     """Delete a flight by ID."""
 
     @abstractmethod
     def get_available_seats(self, flight_id: int) -> int:
