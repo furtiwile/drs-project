@@ -12,6 +12,7 @@ import { AdminDashboard } from './presentation/pages/Admin/AdminDashboard';
 import { ManagerDashboard } from './presentation/pages/Manager/ManagerDashboard';
 import { FlightsPage } from './presentation/pages/Flights/FlightsPage';
 import { MyBookingsPage } from './presentation/pages/Bookings/MyBookingsPage';
+import { Reports } from './presentation/pages/Reports/Reports';
 import { MainLayout } from './presentation/layouts/MainLayout/MainLayout';
 import { Role } from './domain/enums/Role';
 import './App.css';
@@ -65,6 +66,17 @@ function App() {
                   <ProtectedRoute requiredRole={Role.ADMINISTRATOR}>
                     <MainLayout>
                       <AdminDashboard />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/reports"
+                element={
+                  <ProtectedRoute requiredRole={Role.ADMINISTRATOR}>
+                    <MainLayout>
+                      <Reports />
                     </MainLayout>
                   </ProtectedRoute>
                 }
