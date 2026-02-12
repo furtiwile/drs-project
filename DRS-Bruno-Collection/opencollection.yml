@@ -21,7 +21,7 @@ request:
     - name: local_flights_url
       value: http://127.0.0.1:5555/api/v1
     - name: docker_server_url
-      value: http://localhost:8000/api/v1
+      value: http://metro.proxy.rlwy.net:12922/api/v1
     - name: docker_flights_url
       value: http://localhost:8001/api/v1
 bundled: false

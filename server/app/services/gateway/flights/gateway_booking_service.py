@@ -38,7 +38,7 @@ class GatewayBookingService(IGatewayBookingService):
 
             result = make_api_call(
                 lambda: self.client.post("/bookings", headers={'user-id': str(created_by)}, json=data.to_dict(), timeout=5),
-                lambda r: BookingDTO.from_dict(r.json()),
+                lambda r: BookingDTO.from_dict(r.json().get('booking')),
                 success_codes=(200, 201)
             )
 

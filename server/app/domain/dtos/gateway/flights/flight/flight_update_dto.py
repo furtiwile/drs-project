@@ -15,9 +15,7 @@ class FlightUpdateDTO:
     arrival_airport_id: int | None
     price: Decimal | None
     total_seats: int | None
-    rejection_reason: str | None
-    approved_by: int | None
-    actual_start_time: datetime | None
+    # Note: rejection_reason, approved_by, and actual_start_time are managed by flight-service
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
@@ -39,13 +37,6 @@ class FlightUpdateDTO:
                 else None
             ),
             total_seats=data.get("total_seats"),
-            rejection_reason=data.get("rejection_reason"),
-            approved_by=data.get("approved_by"),
-            actual_start_time=(
-                datetime.fromisoformat(data["actual_start_time"])
-                if data.get("actual_start_time")
-                else None
-            ),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -67,11 +58,4 @@ class FlightUpdateDTO:
                 else None
             ),
             "total_seats": self.total_seats,
-            "rejection_reason": self.rejection_reason,
-            "approved_by": self.approved_by,
-            "actual_start_time": (
-                self.actual_start_time.isoformat()
-                if self.actual_start_time
-                else None
-            ),
         }

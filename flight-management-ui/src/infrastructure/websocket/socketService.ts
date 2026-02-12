@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5555';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://nozomi.proxy.rlwy.net:17971';
 
 class SocketService {
   private socket: Socket | null = null;
