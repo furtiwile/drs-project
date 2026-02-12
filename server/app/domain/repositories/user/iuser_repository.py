@@ -13,6 +13,10 @@ class IUserRepository(ABC):
         pass
 
     @abstractmethod
+    def get_by_ids(self, user_ids: list[int], db: Session) -> list[User]:
+        pass
+
+    @abstractmethod
     def get_by_email(self, email: str, db: Session) -> User | None:
         pass
     

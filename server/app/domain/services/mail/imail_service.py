@@ -10,3 +10,7 @@ class IMailService(ABC):
     @abstractmethod
     def send_async(self, to_email: str, mail_data: MailData) -> None:
         pass
+
+    @abstractmethod
+    def send_async_many(self, to_emails: list[str], mail_data: list[MailData]) -> None:
+        pass

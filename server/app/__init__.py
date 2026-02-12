@@ -71,7 +71,7 @@ def create_app() -> Flask:
     gateway_flights_client = GatewayClient(base_url=gateway_flights_base_url, version=gateway_flights_version)
     gateway_airline_service = GatewayAirlineService(gateway_flights_client, cache_repository)
     gateway_airport_service = GatewayAirportService(gateway_flights_client, cache_repository)
-    gateway_flight_service = GatewayFlightService(gateway_flights_client, cache_repository)
+    gateway_flight_service = GatewayFlightService(gateway_flights_client, user_repository, mail_service, cache_repository)
     gateway_rating_service = GatewayRatingService(gateway_flights_client)
     gateway_booking_service = GatewayBookingService(gateway_flights_client)
 

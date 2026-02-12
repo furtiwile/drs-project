@@ -96,7 +96,7 @@ class UserService(IUserService):
                 previous_role = user.role
                 user.role = user_role
                 if previous_role == Role.USER and user_role == Role.MANAGER:
-                    self.mail_service.send_async(user.email, MailFormatter.role_promotion_format(user.first_name))
+                    self.mail_service.send_async(user.email, MailFormatter.role_promotion_format(user))
 
                 self._invalidate_user(user)
                 return ok(None)

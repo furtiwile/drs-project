@@ -38,11 +38,11 @@ class IGatewayFlightService(ABC):
         pass
 
     @abstractmethod
-    def cancel_flight(self, flight_id: int, data: FlightCancelDTO, admin_id: int) -> Result[FlightDTO, int]:
+    def cancel_flight(self, flight_id: int, data: FlightCancelDTO, admin_id: int) -> Result[None, int]:
         pass
 
     @abstractmethod
-    def delete_flight(self, flight_id: int, deleted_by: int) -> Result[None, int]:
+    def delete_flight(self, flight_id: int, admin_id: int) -> Result[None, int]:
         pass
 
     @abstractmethod

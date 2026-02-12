@@ -10,6 +10,13 @@ class UserRepository(IUserRepository):
     def get_by_id(self, user_id: int, db: Session)-> User | None:
         return db.query(User).filter(User.user_id == user_id).first()
 
+    def get_by_ids(self, user_ids: list[int], db: Session) -> list[User]:
+        if not user_ids:
+            return []
+        
+        users = db.query(User).filter(User.user_id.in_(user_ids)).all()
+        return users
+        
     def get_by_email(self, email: str, db: Session)-> User | None:
         return db.query(User).filter(User.email == email).first()
     
