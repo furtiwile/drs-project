@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class MailService(IMailService):
     def __init__(self, max_workers: int = 10) -> None:
-        api_key = os.getenv("BREVO_API_KEY")
+        api_key = os.getenv("BREVO_API_KEY", "")
         configuration = Configuration()
         configuration.api_key['api-key'] = api_key # type: ignore
         

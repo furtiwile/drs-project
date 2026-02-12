@@ -40,6 +40,9 @@ class BookingService(BookingServiceInterface):
         if flight.status != FlightStatus.APPROVED:
             return None
         
+        if flight.departure_time.tzinfo is None:
+            flight.departure_time = flight.departure_time.replace(tzinfo=timezone.utc)
+
         if flight.departure_time <= datetime.now(timezone.utc):
             return None
         
@@ -51,13 +54,6 @@ class BookingService(BookingServiceInterface):
         for existing_booking in user_bookings.get('bookings', []):
             if existing_booking.flight_id == booking_data.flight_id:
                 return None
-        
-        # # Submit to background task queue
-        # task_id = self.task_manager.submit_task(
-        #     self._process_booking_async,
-        #     user_id=user_id,
-        #     flight_id=booking_data.flight_id
-        # )
 
         time.sleep(1)
         booking = Booking(user_id=user_id, flight_id=booking_data.flight_id)
@@ -75,49 +71,6 @@ class BookingService(BookingServiceInterface):
         else:
             logger.error(f"Failed to create booking for user {user_id}, flight {booking_data.flight_id}")
             return None
-
-
-
-        # logger.info(f"Booking task {task_id} submitted for user {user_id}, flight {booking_data.flight_id}")
-    
-    # def _process_booking_async(self, user_id: int, flight_id: int) -> dict:
-    #     """
-    #     Internal method to process booking
-    #     This simulates a long-running process
-    #     """
-    #     try:
-    #         logger.info(f"Processing async booking for user {user_id}, flight {flight_id}")
-            
-    #         # Simulate long processing time
-    #         time.sleep(5)  # 5 seconds - adjust for testing
-            
-    #         booking = Booking(user_id=user_id, flight_id=flight_id)
-    #         saved_booking = self.booking_repository.save_booking(booking)
-            
-    #         if saved_booking:
-    #             logger.info(f"Booking {saved_booking.id} completed for user {user_id}")
-    #             return {
-    #                 'success': True,
-    #                 'booking_id': saved_booking.id,
-    #                 'flight_id': flight_id,
-    #                 'user_id': user_id,
-    #                 'message': 'Booking processed successfully'
-    #             }
-    #         else:
-    #             return {
-    #                 'success': False,
-    #                 'error': 'Failed to save booking',
-    #                 'flight_id': flight_id,
-    #                 'user_id': user_id
-    #             }
-    #     except Exception as e:
-    #         logger.error(f"Async booking processing failed: {str(e)}")
-    #         return {
-    #             'success': False,
-    #             'error': str(e),
-    #             'flight_id': flight_id,
-    #             'user_id': user_id
-    #         }
     
     def get_booking_task_status(self, task_id: str) -> Optional[TaskStatus]:
         """Get the status of an async booking task"""
