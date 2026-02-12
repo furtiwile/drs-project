@@ -142,13 +142,39 @@ class FlightService(FlightServiceInterface):
         if dep_id == arr_id:
             return None
         
-        if data.departure_time is not None and data.departure_time <= datetime.now(timezone.utc):
-            return None
+        # Validate departure time if provided
+        if data.departure_time is not None:
+            # Make timezone-aware if naive
+            departure_time = data.departure_time
+            if departure_time.tzinfo is None:
+                departure_time = departure_time.replace(tzinfo=timezone.utc)
+            if departure_time <= datetime.now(timezone.utc):
+                return None
         
         update_data: FlightUpdateData = cast(FlightUpdateData, {k: v for k, v in asdict(data).items() if v is not None})
 
+        # If editing a REJECTED flight, auto-resubmit it for approval
+        was_rejected = flight.status == FlightStatus.REJECTED
+        if was_rejected:
+            update_data['status'] = FlightStatus.PENDING.value
+            update_data['rejection_reason'] = None
+            logger.info(f"Flight {flight_id} is being resubmitted (REJECTED -> PENDING)")
+
         try:
-            return self.flight_repository.update_flight_details(flight_id, update_data)
+            updated_flight = self.flight_repository.update_flight_details(flight_id, update_data)
+            
+            # Notify admins via WebSocket if flight was resubmitted
+            if was_rejected and updated_flight and self.socket_manager:
+                flight_data: FlightNotificationData = {
+                    'flight_id': updated_flight.flight_id,
+                    'flight_name': updated_flight.flight_name,
+                    'status': updated_flight.status.value,
+                    'departure_time': updated_flight.departure_time.isoformat()
+                }
+                self.socket_manager.notify_new_flight(flight_data)
+                logger.info(f"Notified admins about resubmitted flight {flight_id}")
+            
+            return updated_flight
         except Exception as e:
             logger.error(f"Error updating flight: {str(e)}")
             return None

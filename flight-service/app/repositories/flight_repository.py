@@ -124,13 +124,33 @@ class SqlAlchemyFlightRepository(IFlightRepository):
         return True
 
     def update_flight_details(self, flight_id: int, data: FlightUpdateData) -> Optional[Flight]:
+        from datetime import timedelta
+        
         flight = Flight.query.get(flight_id)
         if not flight:
             return None
         update_data = {k: v for k, v in data.items() if v is not None}
+        
+        # Track if we need to recalculate arrival_time
+        duration_changed = False
+        departure_changed = False
+        
         for key, value in update_data.items():
             if hasattr(flight, key):
-                setattr(flight, key, value)
+                # Convert flight_duration from minutes (int) to timedelta for database
+                if key == 'flight_duration' and isinstance(value, int):
+                    setattr(flight, key, timedelta(minutes=value))
+                    duration_changed = True
+                elif key == 'departure_time':
+                    setattr(flight, key, value)
+                    departure_changed = True
+                else:
+                    setattr(flight, key, value)
+        
+        # Recalculate arrival_time if departure_time or flight_duration changed
+        if duration_changed or departure_changed:
+            flight.arrival_time = flight.departure_time + flight.flight_duration
+        
         db.session.commit()
         return flight
 
