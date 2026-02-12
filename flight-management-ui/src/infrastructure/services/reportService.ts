@@ -1,6 +1,6 @@
 // Report Service following Clean Architecture and SOLID principles
 // Single Responsibility: Managing all report-related API calls
-// Uses admin-id header as defined by server (not Bearer token)
+// Uses Bearer token authentication from localStorage
 
 import axios from 'axios';
 import type { GenerateReportRequest, ReportType } from '../../domain/dtos/ReportDtos';
@@ -12,14 +12,14 @@ const API_URL = `${API_BASE_URL}${API_PREFIX}`;
 /**
  * Service for managing reports (admin only)
  * Follows Interface Segregation Principle - only exposes report-related methods
- * Uses admin-id header for admin authentication as per server specification
+ * Uses Bearer token authentication as per server specification
  */
 class ReportService {
   private basePath = '/reports';
 
   /**
    * Generate PDF report for flights (admin only)
-   * Uses admin-id header from authenticated admin user
+   * Uses Bearer token authentication from localStorage
    * This returns a PDF blob that can be downloaded
    */
   async generateFlightReport(reportTypes: ReportType[]): Promise<Blob> {
@@ -28,14 +28,14 @@ class ReportService {
     };
 
     try {
-      const adminId = this.getAdminId();
+      const token = this.getAuthToken();
       const response = await axios.post(
         `${API_URL}${this.basePath}/flights`,
         payload,
         {
           responseType: 'blob',
           headers: {
-            'admin-id': adminId,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -82,15 +82,14 @@ class ReportService {
   }
 
   /**
-   * Helper method to get admin ID from user data in localStorage
+   * Helper method to get authentication token from localStorage
    */
-  private getAdminId(): string {
-    const userJson = localStorage.getItem('user');
-    if (!userJson) {
+  private getAuthToken(): string {
+    const token = localStorage.getItem('token');
+    if (!token) {
       throw new Error('User not authenticated');
     }
-    const user = JSON.parse(userJson);
-    return user.user_id?.toString();
+    return token;
   }
 }
 
