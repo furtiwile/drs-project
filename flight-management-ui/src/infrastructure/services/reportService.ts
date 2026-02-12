@@ -51,6 +51,16 @@ class ReportService {
   }
 
   /**
+   * Generate and download a report for a specific report type
+   * Convenience method used by AdminDashboard
+   */
+  async generateReport(reportType: ReportType): Promise<void> {
+    const blob = await this.generateFlightReport([reportType]);
+    const filename = this.generateFilename([reportType]);
+    this.downloadPDF(blob, filename);
+  }
+
+  /**
    * Helper method to download PDF
    * Automatically downloads the PDF to the user's device
    */

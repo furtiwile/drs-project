@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Flight } from '../../../domain/models/Flight';
 import { FlightStatus } from '../../../domain/enums/FlightStatus';
 import { flightService } from '../../../infrastructure/services/flightService';
+import { reportService } from '../../../infrastructure/services/reportService';
 import { useToast } from '../../../application/context/ToastContext';
 import { useSocket } from '../../../application/context/SocketContext';
 import './AdminDashboard.css';
@@ -31,6 +32,7 @@ export const AdminDashboard: React.FC = () => {
   });
   const [rejectionReason, setRejectionReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
 
   const toast = useToast();
   const socket = useSocket();
@@ -74,6 +76,19 @@ export const AdminDashboard: React.FC = () => {
       setApprovedFlights([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    setReportLoading(true);
+    try {
+      const tab = activeTab == "pending" ? "upcoming" : "in_progress";
+      await reportService.generateReport(tab);
+      toast.success('Flight report generated successfully!');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to generate report');
+    } finally {
+      setReportLoading(false);
     }
   };
 
@@ -235,8 +250,12 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="admin-dashboard">
       <div className="dashboard-header">
-        <h1>Admin Dashboard</h1>
-        <p>Manage flight approvals and cancellations</p>
+        <div className="header-content">
+          <div>
+            <h1>Admin Dashboard</h1>
+            <p>Manage flight approvals and cancellations</p>
+          </div>
+        </div>
       </div>
 
       <div className="dashboard-tabs">
@@ -251,6 +270,7 @@ export const AdminDashboard: React.FC = () => {
         </button>
         <button
           className={`tab-button ${activeTab === 'approved' ? 'active' : ''}`}
+          style={{ marginRight: 'auto' }}
           onClick={() => setActiveTab('approved')}
         >
           Approved Flights
@@ -258,6 +278,21 @@ export const AdminDashboard: React.FC = () => {
             <span className="badge">{approvedFlights.length}</span>
           )}
         </button>
+
+        <button
+            className="btn btn-primary report-btn"
+            onClick={handleGenerateReport}
+            disabled={reportLoading}
+          >
+            <svg className="report-btn-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+            {reportLoading ? 'Generating...' : 'Generate Report'}
+          </button>
       </div>
 
       <div className="dashboard-content">
