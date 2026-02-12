@@ -106,7 +106,7 @@ class GatewayFlightController:
         admin_id = g.user.user_id
 
         result = self.gateway_flight_service.cancel_flight(flight_id, cancel_flight_dto, admin_id)
-        return handle_response(result)
+        return handle_response(result, success_code=204)
     
     @authenticate
     @authorize(Role.ADMINISTRATOR)

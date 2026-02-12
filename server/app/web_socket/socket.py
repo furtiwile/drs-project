@@ -1,8 +1,11 @@
 from typing import Any
+import os
 from flask import request
 from flask_socketio import SocketIO, emit, join_room # type: ignore
 
-socketio = SocketIO(cors_allowed_origins="*", async_mode="gevent")
+# Use threading for local development, gevent for production
+async_mode = "threading" if os.getenv("GEVENT") == "no" else "gevent"
+socketio = SocketIO(cors_allowed_origins="*", async_mode=async_mode)
 
 @socketio.on('connect')
 def connect() -> None:

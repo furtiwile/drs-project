@@ -284,31 +284,31 @@ class FlightService(FlightServiceInterface):
         
         return DeleteFlightDTO(flight=updated_flight, affected_user_ids=user_ids)
 
-    def delete_flight(self, flight_id: int, admin_id: int) -> bool:
-        """Delete a flight by ID (admin only). Notifies all clients via WebSocket."""
-        if flight_id <= 0:
-            return False
+    # def delete_flight(self, flight_id: int, admin_id: int) -> bool:
+    #     """Delete a flight by ID (admin only). Notifies all clients via WebSocket."""
+    #     if flight_id <= 0:
+    #         return False
         
-        flight = self.flight_repository.get_flight_by_id(flight_id)
-        if not flight:
-            return False
+    #     flight = self.flight_repository.get_flight_by_id(flight_id)
+    #     if not flight:
+    #         return False
         
-        # Store flight data before deletion for notification
-        flight_data: FlightNotificationData = {
-            'flight_id': flight.flight_id,
-            'flight_name': flight.flight_name,
-            'status': flight.status.value,
-            'departure_time': flight.departure_time.isoformat()
-        }
+    #     # Store flight data before deletion for notification
+    #     flight_data: FlightNotificationData = {
+    #         'flight_id': flight.flight_id,
+    #         'flight_name': flight.flight_name,
+    #         'status': flight.status.value,
+    #         'departure_time': flight.departure_time.isoformat()
+    #     }
         
-        success = self.flight_repository.delete_flight(flight_id)
+    #     success = self.flight_repository.delete_flight(flight_id)
         
-        if success and self.socket_manager:
-            # Notify all clients about flight deletion
-            self.socket_manager.notify_flight_deleted(flight_data)
-            logger.info(f"Notified clients about deletion of flight {flight_id}")
+    #     if success and self.socket_manager:
+    #         # Notify all clients about flight deletion
+    #         self.socket_manager.notify_flight_deleted(flight_data)
+    #         logger.info(f"Notified clients about deletion of flight {flight_id}")
         
-        return success
+    #     return success
 
     def get_available_seats(self, flight_id: int) -> int:
         """Get available seats for a flight."""

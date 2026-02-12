@@ -1,16 +1,18 @@
 import { io, Socket } from 'socket.io-client';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5555';
 
 class SocketService {
   private socket: Socket | null = null;
   private listeners: Map<string, Function> = new Map();
-
+  
   connect(token: string, userId: number, role: string): void {
     if (this.socket?.connected) {
       return;
     }
-
+    
+    console.log('Connecting to WebSocket at:', SOCKET_URL);
+    
     this.socket = io(SOCKET_URL, {
       auth: {
         token,

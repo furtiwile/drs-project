@@ -7,6 +7,8 @@ class ApiClient {
   private client: AxiosInstance;
 
   constructor() {
+    console.log(API_BASE_URL);
+    
     this.client = axios.create({
       baseURL: `${API_BASE_URL}${API_PREFIX}`,
       headers: {

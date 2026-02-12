@@ -1,8 +1,12 @@
 import hashlib
 from typing import Any
 
+from app.database import get_db
+
 from app.domain.services.gateway.flights.igateway_flight_service import IGatewayFlightService
+from app.domain.repositories.user.iuser_repository import IUserRepository
 from app.domain.repositories.redis.icache_repository import ICacheRepository
+from app.domain.services.mail.imail_service import IMailService
 from app.domain.dtos.gateway.flights.flight.flight_create_dto import FlightCreateDTO
 from app.domain.dtos.gateway.flights.flight.flight_dto import FlightDTO
 from app.domain.dtos.gateway.flights.flight.flight_remaining_time_dto import FlightRemainingTimeDTO
@@ -11,8 +15,11 @@ from app.domain.dtos.gateway.flights.flight.flight_update_dto import FlightUpdat
 from app.domain.dtos.gateway.flights.flight.paginated_flights_dto import PaginatedFlightsDTO
 from app.domain.dtos.gateway.flights.flight.flight_available_seats_dto import FlightAvailableSeatsDTO
 from app.domain.dtos.gateway.flights.flight.paginated_flights_by_tab import PaginatedFlightsByTabDTO
+from app.domain.dtos.gateway.flights.flight.flight_cancelled_dto import FlightCancelledDTO
 from app.domain.dtos.gateway.flights.flight.flight_cancel_dto import FlightCancelDTO
-from app.domain.types.result import Result, ok
+from app.domain.types.result import Result, err, ok
+
+from app.services.mail.mail_formatter import MailFormatter
 
 from app.infrastructure.gateway.gateway_client import GatewayClient
 from app.infrastructure.gateway.utils.api_callers import make_api_call
@@ -20,8 +27,10 @@ from app.infrastructure.gateway.utils.api_callers import make_api_call
 from app.web_socket.socket import send_to_room
 
 class GatewayFlightService(IGatewayFlightService):
-    def __init__(self, gateway_client: GatewayClient, cache_repository: ICacheRepository) -> None:
+    def __init__(self, gateway_client: GatewayClient, user_repository: IUserRepository, mail_service: IMailService, cache_repository: ICacheRepository) -> None:
         self.client = gateway_client
+        self.user_repository = user_repository
+        self.mail_service = mail_service
         self.cache_repository = cache_repository
         self.cache_prefix = "flights:"
 
@@ -115,17 +124,24 @@ class GatewayFlightService(IGatewayFlightService):
 
         return result
 
-    def cancel_flight(self, flight_id: int, data: FlightCancelDTO, admin_id: int) -> Result[FlightDTO, int]:
+    def cancel_flight(self, flight_id: int, data: FlightCancelDTO, admin_id: int) -> Result[None, int]:
         result = make_api_call(
             lambda: self.client.post(f"/flights/{flight_id}/cancel", headers={'admin-id': str(admin_id)}, json=data.to_dict()),
-            lambda r: FlightDTO.from_dict(r.json())
+            lambda r: FlightCancelledDTO.from_dict(r.json())
         )
 
         if isinstance(result, ok):
             self.cache_repository.delete_pattern(f"{self.cache_prefix}page:*")
-            self.cache_repository.set_cache(f"{self.cache_prefix}{flight_id}", result.data, 300)
+            self.cache_repository.set_cache(f"{self.cache_prefix}{flight_id}", result.data.flight, 300)
 
-        return result
+            with get_db() as db:
+                users = self.user_repository.get_by_ids(result.data.affected_user_ids or [], db)
+            
+            self.mail_service.send_async_many([user.email for user in users], MailFormatter.flight_cancelled_format(users, result.data.flight))
+            return ok(None)
+
+
+        return err(result.status_code, result.message)
 
     def delete_flight(self, flight_id: int, admin_id: int) -> Result[None, int]:
         result = make_api_call(
