@@ -3,7 +3,6 @@ import type { Flight } from '../../../domain/models/Flight';
 import type { Airline } from '../../../domain/models/Airline';
 import type { Airport } from '../../../domain/models/Airport';
 import { FlightStatus } from '../../../domain/enums/FlightStatus';
-import { Role } from '../../../domain/enums/Role';
 import { flightService } from '../../../infrastructure/services/flightService';
 import { airlineService } from '../../../infrastructure/services/airlineService';
 import { airportService } from '../../../infrastructure/services/airportService';
@@ -24,8 +23,6 @@ export const FlightsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-  const [deleteLoading, setDeleteLoading] = useState<number | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null);
 
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -155,20 +152,6 @@ export const FlightsPage: React.FC = () => {
     }
   };
 
-  const handleDeleteFlight = async (flightId: number) => {
-    setDeleteLoading(flightId);
-    try {
-      await flightService.deleteFlight(flightId);
-      toast.success('Flight deleted successfully');
-      setFlights((prev) => prev.filter((f) => f.flight_id !== flightId));
-      setShowDeleteConfirm(null);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to delete flight');
-    } finally {
-      setDeleteLoading(null);
-    }
-  };
-
   const resetFilters = () => {
     setSearchQuery('');
     setSelectedAirline(0);
@@ -184,7 +167,6 @@ export const FlightsPage: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const isAdmin = user?.role === Role.ADMINISTRATOR;
   const canBook = activeTab === 'upcoming';
 
   const getStatusBadge = (status: FlightStatus) => {
@@ -476,42 +458,6 @@ export const FlightsPage: React.FC = () => {
                               >
                                 {bookingLoading === flight.flight_id ? 'Booking...' : 'Book Now'}
                               </button>
-                            )}
-
-                            {/* Delete button for admin */}
-                            {isAdmin && (
-                              <>
-                                {showDeleteConfirm === flight.flight_id ? (
-                                  <div className="delete-confirm">
-                                    <span>Delete this flight?</span>
-                                    <button
-                                      className="btn btn-danger btn-sm"
-                                      onClick={() => handleDeleteFlight(flight.flight_id)}
-                                      disabled={deleteLoading === flight.flight_id}
-                                    >
-                                      {deleteLoading === flight.flight_id ? 'Deleting...' : 'Confirm'}
-                                    </button>
-                                    <button
-                                      className="btn btn-secondary btn-sm"
-                                      onClick={() => setShowDeleteConfirm(null)}
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button
-                                    className="btn btn-danger-outline"
-                                    onClick={() => setShowDeleteConfirm(flight.flight_id)}
-                                    title="Delete flight"
-                                  >
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                      <polyline points="3 6 5 6 21 6" />
-                                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                    </svg>
-                                    Delete
-                                  </button>
-                                )}
-                              </>
                             )}
                           </div>
                         </div>
