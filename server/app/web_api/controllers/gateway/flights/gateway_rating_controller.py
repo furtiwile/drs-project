@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, g, request
+from flask import Blueprint, Response, g, request, jsonify
 
 from app.domain.services.gateway.flights.igateway_rating_service import IGatewayRatingService
 from app.domain.dtos.gateway.flights.rating.rating_create_dto import RatingCreateDTO
@@ -16,12 +16,42 @@ class GatewayRatingController:
         self._register_routes()
     
     def _register_routes(self) -> None:
-        self._gateway_rating_blueprint.add_url_rule('/ratings', view_func=self.create_rating, methods=['POST'])
-        self._gateway_rating_blueprint.add_url_rule('/ratings', view_func=self.get_all_ratings, methods=['GET'])
-        self._gateway_rating_blueprint.add_url_rule('/ratings/<int:rating_id>', view_func=self.get_rating, methods=['GET'])
-        self._gateway_rating_blueprint.add_url_rule('/users/ratings', view_func=self.get_user_ratings, methods=['GET'])
-        self._gateway_rating_blueprint.add_url_rule('/ratings/<int:rating_id>', view_func=self.update_rating, methods=['PUT'])
-        self._gateway_rating_blueprint.add_url_rule('/ratings/<int:rating_id>', view_func=self.delete_rating, methods=['DELETE'])
+        self._gateway_rating_blueprint.add_url_rule('/ratings', view_func=self._handle_create_rating, methods=['POST', 'OPTIONS'])
+        self._gateway_rating_blueprint.add_url_rule('/ratings', view_func=self._handle_get_all_ratings, methods=['GET', 'OPTIONS'])
+        self._gateway_rating_blueprint.add_url_rule('/ratings/<int:rating_id>', view_func=self._handle_get_rating, methods=['GET', 'OPTIONS'])
+        self._gateway_rating_blueprint.add_url_rule('/users/<int:user_id>/ratings', view_func=self._handle_get_user_ratings, methods=['GET', 'OPTIONS'])
+        self._gateway_rating_blueprint.add_url_rule('/ratings/<int:rating_id>', view_func=self._handle_update_rating, methods=['PUT', 'OPTIONS'])
+        self._gateway_rating_blueprint.add_url_rule('/ratings/<int:rating_id>', view_func=self._handle_delete_rating, methods=['DELETE', 'OPTIONS'])
+
+    def _handle_create_rating(self):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.create_rating()
+
+    def _handle_get_all_ratings(self):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_all_ratings()
+
+    def _handle_get_rating(self, rating_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_rating(rating_id)
+
+    def _handle_get_user_ratings(self, user_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_user_ratings(user_id)
+
+    def _handle_update_rating(self, rating_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.update_rating(rating_id)
+
+    def _handle_delete_rating(self, rating_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.delete_rating(rating_id)
 
     @require_json
     @authenticate

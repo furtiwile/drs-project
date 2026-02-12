@@ -42,7 +42,17 @@ from app.web_socket.socket import socketio
 def create_app() -> Flask:
     app = Flask(__name__)
 
-    CORS(app, resources={r"/api/*": { "origins": os.getenv("CORS_ORIGINS", "").split(',') }}, supports_credentials=True)
+    CORS(app, 
+         resources={r"/api/*": {
+             "origins": os.getenv("CORS_ORIGINS", "").split(','),
+             "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+             "allow_headers": ["Content-Type", "Authorization", "admin-id", "user-id"],
+             "expose_headers": ["Content-Type", "Authorization"],
+             "max_age": 3600
+         }}, 
+         supports_credentials=True,
+         allow_headers=["Content-Type", "Authorization", "admin-id", "user-id"],
+         methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 
     app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 

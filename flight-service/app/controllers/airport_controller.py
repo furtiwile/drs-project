@@ -178,9 +178,9 @@ class AirportController(AirportControllerInterface):
         return jsonify(response_dto.dump(airport))
 
     def register_routes(self, bp: Blueprint):
-        bp.add_url_rule('/airports', 'create_airport', self.create_airport, methods=['POST'])
-        bp.add_url_rule('/airports', 'get_all_airports', self.get_all_airports, methods=['GET'])
-        bp.add_url_rule('/airports/<int:airport_id>', 'get_airport', self.get_airport, methods=['GET'])
-        bp.add_url_rule('/airports/<int:airport_id>', 'update_airport', self.update_airport, methods=['PATCH'])
-        bp.add_url_rule('/airports/<int:airport_id>', 'delete_airport', self.delete_airport, methods=['DELETE'])
-        bp.add_url_rule('/airports/info/<airport_code>', 'get_airport_info', self.get_airport_info, methods=['GET'])
+        bp.add_url_rule('/airports', 'create_airport', self.create_airport, methods=['POST', 'OPTIONS'])
+        bp.add_url_rule('/airports', 'get_all_airports', self.get_all_airports, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/airports/<int:airport_id>', 'get_airport', self.get_airport, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/airports/<int:airport_id>', 'update_airport', self.update_airport, methods=['PATCH', 'OPTIONS'])
+        bp.add_url_rule('/airports/<int:airport_id>', 'delete_airport', self.delete_airport, methods=['DELETE', 'OPTIONS'])
+        bp.add_url_rule('/airports/info/<airport_code>', 'get_airport_info', self.get_airport_info, methods=['GET', 'OPTIONS'])

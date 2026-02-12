@@ -171,9 +171,9 @@ class BookingController(BookingControllerInterface):
 
     def register_routes(self, bp: Blueprint):
         """Register routes to the blueprint."""
-        bp.add_url_rule('/bookings', 'create_booking', self.create_booking, methods=['POST'])
-        bp.add_url_rule('/bookings/tasks/<int:task_id>', 'get_booking_task_status', self.get_booking_task_status, methods=['GET'])
-        bp.add_url_rule('/bookings', 'get_all_bookings', self.get_all_bookings, methods=['GET'])
-        bp.add_url_rule('/bookings/<int:booking_id>', 'get_booking', self.get_booking, methods=['GET'])
-        bp.add_url_rule('/users/<int:user_id>/bookings', 'get_user_bookings', self.get_user_bookings, methods=['GET'])
-        bp.add_url_rule('/bookings/<int:booking_id>', 'delete_booking', self.delete_booking, methods=['DELETE'])
+        bp.add_url_rule('/bookings', 'create_booking', self.create_booking, methods=['POST', 'OPTIONS'])
+        bp.add_url_rule('/bookings/tasks/<int:task_id>', 'get_booking_task_status', self.get_booking_task_status, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/bookings', 'get_all_bookings', self.get_all_bookings, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/bookings/<int:booking_id>', 'get_booking', self.get_booking, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/users/<int:user_id>/bookings', 'get_user_bookings', self.get_user_bookings, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/bookings/<int:booking_id>', 'delete_booking', self.delete_booking, methods=['DELETE', 'OPTIONS'])

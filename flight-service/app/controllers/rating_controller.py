@@ -221,9 +221,9 @@ class RatingController(RatingControllerInterface):
 
     def register_routes(self, bp: Blueprint):
         """Register routes to the blueprint."""
-        bp.add_url_rule('/ratings', 'create_rating', self.create_rating, methods=['POST'])
-        bp.add_url_rule('/ratings/<int:rating_id>', 'update_rating', self.update_rating, methods=['PUT'])
-        bp.add_url_rule('/ratings', 'get_all_ratings', self.get_all_ratings, methods=['GET'])
-        bp.add_url_rule('/ratings/<int:rating_id>', 'get_rating', self.get_rating, methods=['GET'])
-        bp.add_url_rule('/users/<int:user_id>/ratings', 'get_user_ratings', self.get_user_ratings, methods=['GET'])
-        bp.add_url_rule('/ratings/<int:rating_id>', 'delete_rating', self.delete_rating, methods=['DELETE'])
+        bp.add_url_rule('/ratings', 'create_rating', self.create_rating, methods=['POST', 'OPTIONS'])
+        bp.add_url_rule('/ratings/<int:rating_id>', 'update_rating', self.update_rating, methods=['PUT', 'OPTIONS'])
+        bp.add_url_rule('/ratings', 'get_all_ratings', self.get_all_ratings, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/ratings/<int:rating_id>', 'get_rating', self.get_rating, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/users/<int:user_id>/ratings', 'get_user_ratings', self.get_user_ratings, methods=['GET', 'OPTIONS'])
+        bp.add_url_rule('/ratings/<int:rating_id>', 'delete_rating', self.delete_rating, methods=['DELETE', 'OPTIONS'])

@@ -27,13 +27,54 @@ class UserController:
         self._register_routes()
 
     def _register_routes(self) -> None:
-        self._user_blueprint.add_url_rule('/', view_func=self.get_all_users, methods=['GET'])
-        self._user_blueprint.add_url_rule('/<int:user_id>', view_func=self.get_user_by_id, methods=['GET'])
-        self._user_blueprint.add_url_rule('/<int:user_id>', view_func=self.update_user_role_by_id, methods=['PATCH'])
-        self._user_blueprint.add_url_rule('/', view_func=self.update_user, methods=['PATCH'])
-        self._user_blueprint.add_url_rule('/<int:user_id>', view_func=self.delete_user_by_id, methods=['DELETE'])
-        self._user_blueprint.add_url_rule('/deposit', view_func=self.deposit, methods=['PATCH'])
-        self._user_blueprint.add_url_rule('/withdraw', view_func=self.withdraw, methods=['PATCH'])
+        self._user_blueprint.add_url_rule('/', view_func=self._handle_all_users, methods=['GET', 'OPTIONS'])
+        self._user_blueprint.add_url_rule('/<int:user_id>', view_func=self._handle_user_by_id, methods=['GET', 'OPTIONS'])
+        self._user_blueprint.add_url_rule('/<int:user_id>', view_func=self._handle_update_user_role, methods=['PATCH', 'OPTIONS'])
+        self._user_blueprint.add_url_rule('/', view_func=self._handle_update_user_wrapper, methods=['PATCH', 'OPTIONS'])
+        self._user_blueprint.add_url_rule('/<int:user_id>', view_func=self._handle_delete_user, methods=['DELETE', 'OPTIONS'])
+        self._user_blueprint.add_url_rule('/deposit', view_func=self._handle_deposit, methods=['PATCH', 'OPTIONS'])
+        self._user_blueprint.add_url_rule('/withdraw', view_func=self._handle_withdraw, methods=['PATCH', 'OPTIONS'])
+    
+    def _handle_method(self, method):
+        """Handle CORS preflight OPTIONS request without authentication"""
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return method()
+    
+    def _handle_all_users(self) -> tuple[Response, int]:
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_all_users()
+
+    def _handle_user_by_id(self, user_id: int) -> tuple[Response, int]:
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_user_by_id(user_id)
+
+    def _handle_update_user_role(self, user_id: int) -> tuple[Response, int]:
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.update_user_role_by_id(user_id)
+    
+    def _handle_update_user_wrapper(self) -> tuple[Response, int]:
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.update_user()
+    
+    def _handle_delete_user(self, user_id: int) -> tuple[Response, int]:
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.delete_user_by_id(user_id)
+
+    def _handle_deposit(self) -> tuple[Response, int]:
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.deposit()
+
+    def _handle_withdraw(self) -> tuple[Response, int]:
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.withdraw()
     
     @authenticate
     @authorize(Role.ADMINISTRATOR)

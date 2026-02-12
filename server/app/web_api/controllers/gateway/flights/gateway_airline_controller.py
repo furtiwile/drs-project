@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, request
+from flask import Blueprint, Response, request, jsonify
 
 from app.domain.dtos.gateway.flights.airline.airline_update_dto import AirlineUpdateDTO
 from app.domain.services.gateway.flights.igateway_airline_service import IGatewayAirlineService
@@ -18,11 +18,36 @@ class GatewayAirlineController:
         self._register_routes()
     
     def _register_routes(self) -> None:
-        self._gateway_airline_blueprint.add_url_rule('/airlines', view_func=self.create_airline, methods=['POST'])
-        self._gateway_airline_blueprint.add_url_rule('/airlines', view_func=self.get_all_airlines, methods=['GET'])
-        self._gateway_airline_blueprint.add_url_rule('/airlines/<int:airline_id>', view_func=self.get_airline, methods=['GET'])
-        self._gateway_airline_blueprint.add_url_rule('/airlines/<int:airline_id>', view_func=self.update_airline, methods=['PATCH'])
-        self._gateway_airline_blueprint.add_url_rule('/airlines/<int:airline_id>', view_func=self.delete_airline, methods=['DELETE'])
+        self._gateway_airline_blueprint.add_url_rule('/airlines', view_func=self._handle_create_airline, methods=['POST', 'OPTIONS'])
+        self._gateway_airline_blueprint.add_url_rule('/airlines', view_func=self._handle_get_all_airlines, methods=['GET', 'OPTIONS'])
+        self._gateway_airline_blueprint.add_url_rule('/airlines/<int:airline_id>', view_func=self._handle_get_airline, methods=['GET', 'OPTIONS'])
+        self._gateway_airline_blueprint.add_url_rule('/airlines/<int:airline_id>', view_func=self._handle_update_airline, methods=['PATCH', 'OPTIONS'])
+        self._gateway_airline_blueprint.add_url_rule('/airlines/<int:airline_id>', view_func=self._handle_delete_airline, methods=['DELETE', 'OPTIONS'])
+
+    def _handle_create_airline(self):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.create_airline()
+
+    def _handle_get_all_airlines(self):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_all_airlines()
+
+    def _handle_get_airline(self, airline_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.get_airline(airline_id)
+
+    def _handle_update_airline(self, airline_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.update_airline(airline_id)
+
+    def _handle_delete_airline(self, airline_id: int):
+        if request.method == 'OPTIONS':
+            return jsonify({}), 200
+        return self.delete_airline(airline_id)
 
     @require_json
     @authenticate
