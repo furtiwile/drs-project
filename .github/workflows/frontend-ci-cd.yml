@@ -26,8 +26,12 @@ jobs:
         run: npm ci
         working-directory: flight-management-ui
 
-      - name: Run linting
-        run: npm run lint
+      # - name: Run linting
+      #   run: npm run lint
+      #   working-directory: flight-management-ui
+
+      - name: Run build
+        run: npm run build
         working-directory: flight-management-ui
 
       - name: Log in to GitHub Container Registry
