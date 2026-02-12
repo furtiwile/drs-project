@@ -2,7 +2,8 @@ from flask import Blueprint, request, jsonify
 from ..domain.dtos.booking_dto import (
     BookingCreateDTO,
     BookingCreateDTOReturn,
-    BookingResponseDTO
+    BookingResponseDTO,
+    BookingDTO
 )
 from app.domain.interfaces.services.booking_service_interface import BookingServiceInterface
 from app.domain.interfaces.controllers.booking_controller_interface import BookingControllerInterface
@@ -52,15 +53,7 @@ class BookingController(BookingControllerInterface):
         if not booking_result:
             return jsonify({'error': 'Failed to create booking'}), 400
         
-        return jsonify({
-            'message': 'Booking created successfully',
-            'booking': {
-                'flight_id': booking_result.flight_id,
-                'user_id': booking_result.user_id,
-                'purchased_at': booking_result.purchased_at.isoformat(),
-                'flight_price': booking_result.flight_price
-            }
-        }), 201
+        return jsonify(booking_result.to_dict()), 201
     
     def get_booking_task_status(self, task_id: str):
         """

@@ -4,7 +4,7 @@ from ..domain.models.flights import Booking
 from app.domain.interfaces.repositories.ibooking_repository import BookingPaginationResult, IBookingRepository
 from app.domain.interfaces.repositories.iflight_repository import IFlightRepository
 from app.domain.interfaces.services.booking_service_interface import BookingServiceInterface
-from app.domain.dtos.booking_dto import BookingCreateDTO, BookingCreateDTOReturn
+from app.domain.dtos.booking_dto import BookingCreateDTO, BookingCreateDTOReturn, BookingDTO
 from app.domain.models.enums import FlightStatus
 from app.domain.types.task_types import TaskStatus
 import time
@@ -21,39 +21,55 @@ class BookingService(BookingServiceInterface):
         self.flight_repository = flight_repository
         self.task_manager = task_manager
 
-    def create_booking(self, user_id: int, booking_data: BookingCreateDTO) -> Optional[BookingCreateDTOReturn]:
+    def create_booking(self, user_id: int, booking_data: BookingCreateDTO) -> Optional[BookingDTO]:
         """
         Create a booking
-        Returns task_id for tracking the booking process
+        Returns BookingDTO with booking details
         """
         if not self.task_manager:
             logger.warning("Task manager not available, falling back to synchronous booking")
             return None
         
+        print(f"Received booking request for user_id={user_id}, flight_id={booking_data.flight_id}")
+
         if user_id <= 0 or booking_data.flight_id <= 0:
             return None
         
+        print(f"Validating flight_id={booking_data.flight_id}")
+
         flight = self.flight_repository.get_flight_by_id(booking_data.flight_id)
         if not flight:
             return None
         
+        print(f"Flight found: {flight.flight_id}, status={flight.status}, departure_time={flight.departure_time}")
+        
         if flight.status != FlightStatus.APPROVED:
             return None
+        
+        print(f"Flight status is APPROVED, checking departure time for flight_id={flight.flight_id}")
         
         if flight.departure_time.tzinfo is None:
             flight.departure_time = flight.departure_time.replace(tzinfo=timezone.utc)
 
+        print(f"Current time: {datetime.now(timezone.utc)}, flight departure time: {flight.departure_time}")
+
         if flight.departure_time <= datetime.now(timezone.utc):
             return None
         
+        print(f"Flight departure time is in the future, checking available seats for flight_id={flight.flight_id}")
+
         available_seats = self.flight_repository.get_available_seats(booking_data.flight_id)
         if available_seats <= 0:
             return None
+        
+        print(f"Seats available: {available_seats}, checking for existing bookings for user_id={user_id} on flight_id={booking_data.flight_id}")
         
         user_bookings = self.booking_repository.get_bookings_by_user(user_id, page=1, per_page=1000)
         for existing_booking in user_bookings.get('bookings', []):
             if existing_booking.flight_id == booking_data.flight_id:
                 return None
+
+        print(f"No existing bookings found for user_id={user_id} on flight_id={booking_data.flight_id}, creating booking task")
 
         time.sleep(1)
         booking = Booking(user_id=user_id, flight_id=booking_data.flight_id)
@@ -62,12 +78,7 @@ class BookingService(BookingServiceInterface):
 
         if saved_booking:
             logger.info(f"Booking {saved_booking.id} created for user {user_id}, flight {booking_data.flight_id}")
-            return BookingCreateDTOReturn(
-                saved_booking.flight_id,
-                user_id=saved_booking.user_id,
-                purchased_at=saved_booking.purchased_at,
-                flight_price=flight.price
-            )
+            return BookingDTO.from_model(saved_booking)
         else:
             logger.error(f"Failed to create booking for user {user_id}, flight {booking_data.flight_id}")
             return None
